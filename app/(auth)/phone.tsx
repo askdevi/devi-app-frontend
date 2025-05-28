@@ -11,7 +11,7 @@ export default function PhoneScreen() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  // const router = useRouter();
+  const router = useRouter();
 
   const handleSubmit = async () => {
     if (!phone || phone.length < 10) {
@@ -31,7 +31,7 @@ export default function PhoneScreen() {
         }
       });
       console.log(response);
-      // router.push({ pathname: '/otp', params: { phone } });
+      router.push({ pathname: '/otp', params: { phone } });
     } catch (err) {
       console.log(err);
       setError('Failed to send OTP. Please try again.');
