@@ -3,18 +3,39 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 
 export default function GenderScreen() {
-  const [gender, setGender] = useState<'Male' | 'Female' | 'Other' | null>(null);
+  const [gender, setGender] = useState<'male' | 'female' | 'other' | null>(null);
   const router = useRouter();
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (gender) {
-      router.push('/setup/birth-details');
+      try {
+        await AsyncStorage.setItem('gender', gender);
+        router.push('/setup/birth-details');
+      } catch (error) {
+        console.error('Error saving gender:', error);
+      }
     }
   };
+
+  // Load saved gender when component mounts
+  React.useEffect(() => {
+    async function loadSavedGender() {
+      try {
+        const savedGender = await AsyncStorage.getItem('gender');
+        if (savedGender) {
+          setGender(savedGender as 'male' | 'female' | 'other');
+        }
+      } catch (error) {
+        console.error('Error loading saved gender:', error);
+      }
+    }
+    loadSavedGender();
+  }, []);
 
   const handleBack = () => {
     router.back();
@@ -31,7 +52,7 @@ export default function GenderScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={handleExit}
         style={styles.exitButton}
       >
@@ -48,27 +69,27 @@ export default function GenderScreen() {
 
         <View style={styles.genderContainer}>
           <TouchableOpacity
-            style={[styles.genderOption, gender === 'Male' && styles.genderOptionSelected]}
-            onPress={() => setGender('Male')}
+            style={[styles.genderOption, gender === 'male' && styles.genderOptionSelected]}
+            onPress={() => setGender('male')}
           >
-            <Text style={[styles.genderSymbol, gender === 'Male' && styles.genderSymbolSelected]}>♂</Text>
-            <Text style={[styles.genderText, gender === 'Male' && styles.genderTextSelected]}>Male</Text>
+            <Text style={[styles.genderSymbol, gender === 'male' && styles.genderSymbolSelected]}>♂</Text>
+            <Text style={[styles.genderText, gender === 'male' && styles.genderTextSelected]}>Male</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.genderOption, gender === 'Female' && styles.genderOptionSelected]}
-            onPress={() => setGender('Female')}
+            style={[styles.genderOption, gender === 'female' && styles.genderOptionSelected]}
+            onPress={() => setGender('female')}
           >
-            <Text style={[styles.genderSymbol, gender === 'Female' && styles.genderSymbolSelected]}>♀</Text>
-            <Text style={[styles.genderText, gender === 'Female' && styles.genderTextSelected]}>Female</Text>
+            <Text style={[styles.genderSymbol, gender === 'female' && styles.genderSymbolSelected]}>♀</Text>
+            <Text style={[styles.genderText, gender === 'female' && styles.genderTextSelected]}>Female</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.genderOption, gender === 'Other' && styles.genderOptionSelected]}
-            onPress={() => setGender('Other')}
+            style={[styles.genderOption, gender === 'other' && styles.genderOptionSelected]}
+            onPress={() => setGender('other')}
           >
-            <Text style={[styles.genderSymbol, gender === 'Other' && styles.genderSymbolSelected]}>⚥</Text>
-            <Text style={[styles.genderText, gender === 'Other' && styles.genderTextSelected]}>Other</Text>
+            <Text style={[styles.genderSymbol, gender === 'other' && styles.genderSymbolSelected]}>⚥</Text>
+            <Text style={[styles.genderText, gender === 'other' && styles.genderTextSelected]}>Other</Text>
           </TouchableOpacity>
         </View>
 

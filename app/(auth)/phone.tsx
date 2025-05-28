@@ -11,7 +11,7 @@ export default function PhoneScreen() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleSubmit = async () => {
     if (!phone || phone.length < 10) {

@@ -3,18 +3,41 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-nativ
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 
 export default function NameScreen() {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const router = useRouter();
 
-  const handleContinue = () => {
-    if (name.trim()) {
-      router.push('/setup/gender');
+  const handleContinue = async () => {
+    if (firstName.trim() && lastName.trim()) {
+      try {
+        await AsyncStorage.setItem('firstName', firstName.trim());
+        await AsyncStorage.setItem('lastName', lastName.trim());
+        router.push('/setup/gender');
+      } catch (error) {
+        console.error('Error saving name:', error);
+      }
     }
   };
+
+  // Load saved names when component mounts
+  React.useEffect(() => {
+    async function loadSavedNames() {
+      try {
+        const savedFirstName = await AsyncStorage.getItem('firstName');
+        const savedLastName = await AsyncStorage.getItem('lastName');
+        if (savedFirstName) setFirstName(savedFirstName);
+        if (savedLastName) setLastName(savedLastName);
+      } catch (error) {
+        console.error('Error loading saved names:', error);
+      }
+    }
+    loadSavedNames();
+  }, []);
 
   const handleExit = () => {
     router.replace('/');
@@ -27,7 +50,7 @@ export default function NameScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={handleExit}
         style={styles.exitButton}
       >
@@ -39,16 +62,29 @@ export default function NameScreen() {
 
         <View style={styles.header}>
           <Text style={styles.title}>Namaste</Text>
-          <Text style={styles.subtitle}>Please enter your full name</Text>
         </View>
 
-        <TextInput
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Your name"
-          placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>First Name</Text>
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder="Enter your first name"
+            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Last Name</Text>
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder="Enter your last name"
+            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+          />
+        </View>
 
         <TouchableOpacity
           style={styles.buttonContainer}
@@ -107,6 +143,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
+    alignItems: 'center',
   },
   title: {
     fontFamily: 'Poppins-Bold',
@@ -115,12 +152,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
-  subtitle: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: Colors.white,
-    textAlign: 'center',
-    opacity: 0.9,
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.gold.DEFAULT,
+    marginBottom: 8,
+    marginLeft: 4,
   },
   input: {
     backgroundColor: 'rgba(45, 17, 82, 0.3)',
@@ -131,7 +171,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    marginBottom: 24,
   },
   buttonContainer: {
     height: 50,
