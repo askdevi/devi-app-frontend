@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
+import Domain from '@/constants/domain';
+import axios from 'axios';
 
 export default function OtpScreen() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { phone } = useLocalSearchParams();
 
   const handleSubmit = async () => {
     if (!otp || otp.length < 4) {
@@ -20,14 +23,21 @@ export default function OtpScreen() {
     setError('');
 
     try {
-      // Replace with your actual OTP verification API endpoint
-      // const response = await axios.post(`${Domain}/verify-otp`, {
-      //   otp: otp,
-      //   phoneNumber: `91${router.params?.phone}`
-      // });
-      console.log('Verifying OTP:', otp);
-      // On successful verification, navigate to the next screen
-      // router.push('/home');
+      const response = await axios.get(`${Domain}/verify-otp`, {
+        params: {
+          otp: otp,
+          phoneNumber: `91${phone}`
+        },
+        headers: {
+          'authKey': '447014AJpvMqm3pOU67ff3779P1'
+        }
+      });
+      // console.log('Verifying OTP:', otp);
+      if(response.data.success) {
+        router.push('/(tabs)');
+      } else {
+        setError('Invalid code. Please try again.');
+      }
     } catch (err) {
       console.log(err);
       setError('Invalid code. Please try again.');
@@ -38,11 +48,7 @@ export default function OtpScreen() {
 
   const handleResendCode = async () => {
     try {
-      // Replace with your resend OTP API endpoint
-      // await axios.post(`${Domain}/resend-otp`, {
-      //   phoneNumber: `91${router.params?.phone}`
-      // });
-      console.log('Resending code to:', router.params?.phone);
+      console.log('Resending code to:', phone);
       setError('Code resent successfully!');
     } catch (err) {
       console.log(err);
@@ -59,7 +65,7 @@ export default function OtpScreen() {
 
       <View style={styles.content}>
         <Text style={styles.title}>Enter Verification Code</Text>
-        <Text style={styles.subtitle}>We sent a 4-digit code to +91{router.params?.phone}</Text>
+        <Text style={styles.subtitle}>We sent a 4-digit code to +91{phone}</Text>
 
         <View style={styles.otpContainer}>
           <TextInput
