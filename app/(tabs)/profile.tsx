@@ -8,7 +8,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <AccountSetup />
+      {/* <AccountSetup /> */}
     </View>
   );
 }

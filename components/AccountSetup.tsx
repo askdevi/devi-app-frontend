@@ -1,3 +1,5 @@
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
+
 // Update the gender options array in the renderStep function
 const genderOptions = ['Male', 'Female'].map((gender) => (
   <TouchableOpacity
@@ -6,7 +8,7 @@ const genderOptions = ['Male', 'Female'].map((gender) => (
       styles.genderOption,
       formData.gender === gender && styles.genderOptionSelected
     ]}
-    onPress={() => updateFormData('gender', gender)}
+    // onPress={() => updateFormData('gender', gender)}
   >
     <Text style={styles.genderSymbol}>
       {gender === 'Male' ? '♂' : '♀'}
@@ -20,4 +22,14 @@ const genderOptions = ['Male', 'Female'].map((gender) => (
   </TouchableOpacity>
 ));
 
-export default genderOptions
+const styles = StyleSheet.create({
+  genderOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  }
+});
+
+
+
+export default genderOptions;

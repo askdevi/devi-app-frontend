@@ -16,7 +16,7 @@ const Hero = () => {
   const starAnims = useRef(
     Array(NUM_STARS).fill(0).map(() => new Animated.Value(0))
   ).current;
-  
+
   useEffect(() => {
     // Button gradient animation
     const buttonAnimation = Animated.loop(
@@ -110,7 +110,7 @@ const Hero = () => {
       glowAnimation.stop();
       orbit1Animation.stop();
       orbit2Animation.stop();
-      starAnims.forEach(anim => anim.reset());
+      // starAnims.forEach(anim => anim.reset());
     };
   }, []);
 
@@ -154,7 +154,7 @@ const Hero = () => {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Animated.View 
+        <Animated.View
           style={[
             styles.glow,
             {
@@ -163,7 +163,7 @@ const Hero = () => {
             }
           ]}
         />
-        
+
         <Animated.View style={[styles.starOrbit, { transform: [{ rotate: rotation1 }] }]}>
           {renderStars(ORBIT_RADIUS_1, rotation1)}
         </Animated.View>
@@ -172,15 +172,15 @@ const Hero = () => {
           {renderStars(ORBIT_RADIUS_2, rotation2)}
         </Animated.View>
 
-        <Image 
+        <Image
           source={require('@/assets/images/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
       </View>
-      
+
       <Text style={styles.title}>Ask Devi</Text>
-      
+
       <Pressable style={styles.buttonContainer}>
         <LinearGradient
           colors={Colors.gradients.goldPrimary}
@@ -189,7 +189,7 @@ const Hero = () => {
           style={styles.button}
         >
           <Text style={styles.buttonText}>Open Chat</Text>
-          <Animated.View 
+          <Animated.View
             style={[
               styles.buttonShine,
               {
