@@ -3,18 +3,41 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'r
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import Domain from '@/constants/domain';
+import axios from 'axios';
+
 
 export default function PhoneScreen() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!phone || phone.length < 10) {
       setError('Please enter a valid phone number');
       return;
     }
-    router.push({ pathname: '/otp', params: { phone } });
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`${Domain}/send-otp`, {
+        phoneNumber: `91${phone}`
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(response);
+      // router.push({ pathname: '/otp', params: { phone } });
+    } catch (err) {
+      console.log(err);
+      setError('Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,6 +72,7 @@ export default function PhoneScreen() {
           style={styles.buttonContainer}
           onPress={handleSubmit}
           activeOpacity={0.8}
+          disabled={loading}
         >
           <LinearGradient
             colors={Colors.gradients.goldPrimary}
@@ -56,7 +80,7 @@ export default function PhoneScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.button}
           >
-            <Text style={styles.buttonText}>Send OTP</Text>
+            <Text style={styles.buttonText}>{loading ? 'Sending...' : 'Send OTP'}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
