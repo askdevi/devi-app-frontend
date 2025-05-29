@@ -6,9 +6,6 @@ export async function getUserID() {
   return await SecureStore.getItemAsync('userID');
 }
 
-// export async function storeUserID() {
-//   await SecureStore.setItemAsync('userID', "I8wH0ApKA8M97pNNf6z88an7IXy1");
-// }
 
 export async function clearUserID() {
   await SecureStore.deleteItemAsync('userID');

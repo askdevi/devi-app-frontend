@@ -5,6 +5,13 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import Domain from '@/constants/domain';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+
+
+export async function storeUserID() {
+  await SecureStore.setItemAsync('userID', "");
+}
+
 
 export default function OtpScreen() {
   const [otp, setOtp] = useState('');
@@ -32,17 +39,11 @@ export default function OtpScreen() {
           'authKey': '447014AJpvMqm3pOU67ff3779P1'
         }
       });
-      // console.log(response.data);
-      // if(response.data.status === '200') {
-      // router.push('/(tabs)');
+      // if(response.data.exists){
+      //   router.push('/(tabs)');
       // } else {
-      //   setError('Invalid code. Please try again.');
-      // }
-      if(response.data.exists){
-        router.push('/(tabs)');
-      } else {
         router.push('/(auth)/setup/name');
-      }
+      // }
     } catch (err) {
       console.log(err);
       setError('Invalid code. Please try again.');
