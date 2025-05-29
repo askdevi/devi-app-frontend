@@ -26,8 +26,8 @@ export default function Index() {
       if (userID) {
         router.replace('/(tabs)');
       } else {
-        router.replace('/(auth)/phone');
-        // router.replace('/(auth)/setup/name');
+        // router.replace('/(auth)/phone');
+        router.replace('/(auth)/setup/name');
       }
       setIsLoading(false);
     }

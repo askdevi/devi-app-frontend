@@ -30,7 +30,7 @@ export default function PhoneScreen() {
           'Content-Type': 'application/json'
         }
       });
-      console.log(response);
+      // console.log(response);
       router.push({ pathname: '/otp', params: { phone } });
     } catch (err) {
       console.log(err);

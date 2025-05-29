@@ -32,11 +32,16 @@ export default function OtpScreen() {
           'authKey': '447014AJpvMqm3pOU67ff3779P1'
         }
       });
-      // console.log('Verifying OTP:', otp);
-      if(response.data.success) {
+      // console.log(response.data);
+      // if(response.data.status === '200') {
+      // router.push('/(tabs)');
+      // } else {
+      //   setError('Invalid code. Please try again.');
+      // }
+      if(response.data.exists){
         router.push('/(tabs)');
       } else {
-        setError('Invalid code. Please try again.');
+        router.push('/(auth)/setup/name');
       }
     } catch (err) {
       console.log(err);

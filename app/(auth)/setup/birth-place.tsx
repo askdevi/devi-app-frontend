@@ -5,6 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
+// import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+
 
 const languages = [
   "Hindi",
@@ -27,6 +29,8 @@ const relationshipStatuses = [
   "Divorced",
   "Widowed"
 ];
+
+const GOOGLE_PLACES_API_KEY = "AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw";
 
 export default function BirthPlaceScreen() {
   const router = useRouter();
@@ -54,14 +58,14 @@ export default function BirthPlaceScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={handleExit}
         style={styles.exitButton}
       >
         <X color={Colors.gold.DEFAULT} size={24} />
       </TouchableOpacity>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <SetupProgress currentStep={4} totalSteps={4} />
 
         <View style={styles.header}>
@@ -69,15 +73,50 @@ export default function BirthPlaceScreen() {
           <Text style={styles.subtitle}>Where were you born?</Text>
         </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              value={birthPlace}
-              onChangeText={setBirthPlace}
+        <View style={[styles.form, { zIndex: 2 }]}>
+          <View style={[styles.inputGroup, { zIndex: 1 }]}>
+            {/* <GooglePlacesAutocomplete
               placeholder="Enter city, state"
-              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-            />
+              onPress={(data, details = null) => {
+                console.log(data, details);
+                setBirthPlace(data.description);
+              }}
+              query={{
+                key: GOOGLE_PLACES_API_KEY,
+                language: 'en',
+                types: '(cities)'
+              }}
+              styles={{
+                container: {
+                  flex: 0,
+                },
+                textInput: {
+                  ...styles.input,
+                  color: Colors.white,
+                },
+                listView: {
+                  backgroundColor: 'rgba(45, 17, 82, 0.95)',
+                  borderRadius: 12,
+                  borderWidth: 2,
+                  borderColor: `${Colors.gold.DEFAULT}20`,
+                  position: 'absolute',
+                  top: 55,
+                  left: 0,
+                  right: 0,
+                  zIndex: 1000,
+                },
+                row: {
+                  backgroundColor: 'transparent',
+                  padding: 13,
+                },
+                description: {
+                  color: Colors.white,
+                },
+              }}
+              enablePoweredByContainer={false}
+              fetchDetails={true}
+              keyboardShouldPersistTaps="handled"
+            /> */}
           </View>
 
           <View style={styles.inputGroup}>
@@ -132,7 +171,7 @@ export default function BirthPlaceScreen() {
             onPress={handleComplete}
           >
             <LinearGradient
-              colors={Colors.gradients.goldPrimary}
+              colors={[Colors.gold.DEFAULT, Colors.gold.light]}
               style={styles.completeButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}

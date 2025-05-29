@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,6 +6,7 @@ import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 import WheelPicker from '@/components/Setup/WheelPicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BirthDetailsScreen() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function BirthDetailsScreen() {
     period: 'AM'
   });
 
-  const [knowsBirthTime, setKnowsBirthTime] = useState<boolean | null>(null);
+  const [knowsBirthTime, setKnowsBirthTime] = useState<boolean | null>(false);
 
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
@@ -30,9 +31,40 @@ export default function BirthDetailsScreen() {
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
   const periods = ['AM', 'PM'];
 
-  const handleContinue = () => {
-    router.push('/setup/birth-place');
+  const handleContinue = async () => {
+    try {
+      const birthDetails = {
+        date: selectedDate,
+        time: knowsBirthTime ? selectedTime : null
+      };
+      await AsyncStorage.setItem('birthDetails', JSON.stringify(birthDetails));
+      router.push('/setup/birth-place');
+    } catch (error) {
+      console.error('Error saving birth details:', error);
+    }
   };
+
+  // Load saved data when component mounts
+  useEffect(() => {
+    async function loadSavedDetails() {
+      try {
+        const savedDetails = await AsyncStorage.getItem('birthDetails');
+        if (savedDetails) {
+          const details = JSON.parse(savedDetails);
+          setSelectedDate(details.date);
+          if (details.time) {
+            setKnowsBirthTime(true);
+            setSelectedTime(details.time);
+          } else {
+            setKnowsBirthTime(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved details:', error);
+      }
+    }
+    loadSavedDetails();
+  }, []);
 
   const handleBack = () => {
     router.back();
@@ -49,7 +81,7 @@ export default function BirthDetailsScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={handleExit}
         style={styles.exitButton}
       >
