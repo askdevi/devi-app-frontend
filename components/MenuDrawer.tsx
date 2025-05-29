@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { X, MessageCircle, Wallet, User, History, Headphones, Settings, Clock, Coins } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 
 interface MenuDrawerProps {
@@ -13,9 +14,52 @@ interface MenuDrawerProps {
 const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(width * 0.85, 360);
 
-export default function MenuDrawer({ isVisible, onClose, phone = '+1 234 567 890' }: MenuDrawerProps) {
+export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const router = useRouter();
   const [animation] = React.useState(new Animated.Value(0));
+  const [phone, setPhone] = useState('+91 1234567890');
+  const [firstName, setFirstName] = useState('User');
+  const [tokens, setTokens] = useState(0);
+  const [time, setTime] = useState(0);
+
+  const handleSettings = () => {
+    router.push('/(tabs)/settings');
+    onClose();
+  };
+
+  const handleWallet = () => {
+    router.push('/(tabs)/wallet');
+    onClose();
+  };
+
+  const handleProfile = () => {
+    router.push('/(tabs)/profile');
+    onClose();
+  };
+
+  const handleChat = () => {
+    router.push('/(tabs)/devi');
+    onClose();
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      let phone1 = await AsyncStorage.getItem('phoneNumber');
+      const firstName1 = await AsyncStorage.getItem('firstName');
+      const tokens1 = await AsyncStorage.getItem('tokens');
+      const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+      const currentTime = Date.now();
+      if (phone1 && firstName1 && tokens1 && timeEnd1) {
+        phone1 = phone1.replace('+91', '+91 ');
+        setPhone(phone1);
+        setFirstName(firstName1);
+        setTokens(JSON.parse(tokens1));
+        const timeEndTimestamp = new Date(JSON.parse(timeEnd1)).getTime();
+        setTime(Math.max(0, timeEndTimestamp - currentTime));
+      }
+    };
+    loadData();
+  }, []);
 
   React.useEffect(() => {
     Animated.timing(animation, {
@@ -49,7 +93,7 @@ export default function MenuDrawer({ isVisible, onClose, phone = '+1 234 567 890
               <User size={24} color={Colors.gold.DEFAULT} />
             </View>
             <View>
-              <Text style={styles.userName}>User</Text>
+              <Text style={styles.userName}>{firstName}</Text>
               <Text style={styles.userPhone}>{phone}</Text>
             </View>
           </View>
@@ -61,21 +105,23 @@ export default function MenuDrawer({ isVisible, onClose, phone = '+1 234 567 890
         <View style={styles.stats}>
           <View style={styles.statItem}>
             <Coins size={20} color={Colors.gold.DEFAULT} />
-            <Text style={styles.statValue}>50 tokens left</Text>
+            <Text style={styles.statValue}>{tokens} tokens left</Text>
           </View>
           <View style={styles.statItem}>
             <Clock size={20} color={Colors.gold.DEFAULT} />
-            <Text style={styles.statValue}>2h 30m left</Text>
+            <Text style={styles.statValue}>
+              {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m left
+            </Text>
           </View>
         </View>
 
         <View style={styles.menu}>
-          <MenuItem icon={MessageCircle} label="Start Chat" />
-          <MenuItem icon={Wallet} label="Wallet" />
-          <MenuItem icon={User} label="Edit Profile" />
+          <MenuItem icon={MessageCircle} label="Start Chat" onPress={handleChat} />
+          <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
+          <MenuItem icon={User} label="Edit Profile" onPress={handleProfile} />
           <MenuItem icon={History} label="Chat History" />
           <MenuItem icon={Headphones} label="Customer Support" />
-          <MenuItem icon={Settings} label="Settings" />
+          <MenuItem icon={Settings} label="Settings" onPress={handleSettings} />
         </View>
       </Animated.View>
     </View>

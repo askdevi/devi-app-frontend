@@ -6,12 +6,11 @@ import Colors from '@/constants/Colors';
 import Domain from '@/constants/domain';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-export async function storeUserID() {
-  await SecureStore.setItemAsync('userID', "");
+export async function storeUserId(userId: string) {
+  await SecureStore.setItemAsync('userId', userId);
 }
-
 
 export default function OtpScreen() {
   const [otp, setOtp] = useState('');
@@ -39,11 +38,13 @@ export default function OtpScreen() {
           'authKey': '447014AJpvMqm3pOU67ff3779P1'
         }
       });
-      // if(response.data.exists){
-      //   router.push('/(tabs)');
-      // } else {
+      await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
+      await storeUserId(response.data.userId);
+      if(response.data.exists){
+        router.push('/(tabs)/loading');
+      } else {
         router.push('/(auth)/setup/name');
-      // }
+      }
     } catch (err) {
       console.log(err);
       setError('Invalid code. Please try again.');
@@ -70,7 +71,7 @@ export default function OtpScreen() {
       />
 
       <View style={styles.content}>
-        <Text style={styles.title}>Enter Verification Code</Text>
+        <Text style={styles.title}>Enter OTP </Text>
         <Text style={styles.subtitle}>We sent a 4-digit code to +91{phone}</Text>
 
         <View style={styles.otpContainer}>

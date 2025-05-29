@@ -2,13 +2,12 @@ import { Redirect, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState } from 'react';
 
-export async function getUserID() {
-  return await SecureStore.getItemAsync('userID');
+export async function getUserId() {
+  return await SecureStore.getItemAsync('userId');
 }
 
-
-export async function clearUserID() {
-  await SecureStore.deleteItemAsync('userID');
+export async function clearUserId() {
+  await SecureStore.deleteItemAsync('userId');
 }
 
 export default function Index() {
@@ -17,14 +16,12 @@ export default function Index() {
 
   useEffect(() => {
     async function checkAuth() {
-      await clearUserID();
-      const userID = await getUserID();
-      // await storeUserID();
-      if (userID) {
-        router.replace('/(tabs)');
+      // await clearUserId();
+      const userId = await getUserId();
+      if (userId) {
+        router.push('/(tabs)/loading');
       } else {
-        // router.replace('/(auth)/phone');
-        router.replace('/(auth)/setup/name');
+        router.push('/(auth)/phone');
       }
       setIsLoading(false);
     }

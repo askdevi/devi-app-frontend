@@ -33,38 +33,15 @@ export default function BirthDetailsScreen() {
 
   const handleContinue = async () => {
     try {
-      const birthDetails = {
-        date: selectedDate,
-        time: knowsBirthTime ? selectedTime : null
-      };
-      await AsyncStorage.setItem('birthDetails', JSON.stringify(birthDetails));
-      router.push('/setup/birth-place');
+      const birthDate = `${selectedDate.year}-${selectedDate.month < 10 ? '0' + selectedDate.month : selectedDate.month}-${selectedDate.day < 10 ? '0' + selectedDate.day : selectedDate.day}`;
+      const birthTime = knowsBirthTime ? `${selectedTime.period === 'AM' ? selectedTime.hour : Number(selectedTime.hour) + 12}:${selectedTime.minute}` : null;
+      await AsyncStorage.setItem('birthDate', birthDate);
+      await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '00:00');
+      router.push('/(auth)/setup/birth-place');
     } catch (error) {
       console.error('Error saving birth details:', error);
     }
   };
-
-  // Load saved data when component mounts
-  useEffect(() => {
-    async function loadSavedDetails() {
-      try {
-        const savedDetails = await AsyncStorage.getItem('birthDetails');
-        if (savedDetails) {
-          const details = JSON.parse(savedDetails);
-          setSelectedDate(details.date);
-          if (details.time) {
-            setKnowsBirthTime(true);
-            setSelectedTime(details.time);
-          } else {
-            setKnowsBirthTime(false);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading saved details:', error);
-      }
-    }
-    loadSavedDetails();
-  }, []);
 
   const handleBack = () => {
     router.back();

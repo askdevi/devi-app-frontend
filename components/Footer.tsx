@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, Pressable, Platform, Animated } from 'react-nat
 import { Chrome as Home, User } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
+import { useRouter } from 'expo-router';
 
 const Footer = () => {
   const shineAnim = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   useEffect(() => {
     const shineAnimation = Animated.loop(
@@ -66,7 +68,7 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton}>
+        <Pressable style={styles.navButton} onPress={() => router.push('/(tabs)/profile')}>
           <User size={22} color={Colors.white} strokeWidth={1.5} />
           <Text style={styles.navText}>Profile</Text>
         </Pressable>

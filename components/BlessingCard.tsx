@@ -4,11 +4,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 
 interface BlessingCardProps {
-  title: string;
+  data: {
+    title: string;
+    mantra?: string;
+    sanskrit?: string;
+    direction?: string;
+    color?: string;
+    number?: string;
+    time?: string;
+  };
   delay: number;
 }
 
-const BlessingCard: React.FC<BlessingCardProps> = ({ title }) => {
+const BlessingCard: React.FC<BlessingCardProps> = ({ data }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
   const gradientPosition = useRef(new Animated.Value(0)).current;
@@ -29,26 +37,26 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ title }) => {
         }),
       ])
     );
-    
+
     gradientAnimation.start();
 
     return () => {
       gradientAnimation.stop();
     };
   }, []);
-  
+
   const handlePress = () => {
     if (Platform.OS !== 'web') {
       // Add haptic feedback for mobile
     }
-    
+
     Animated.spring(flipAnim, {
       toValue: isFlipped ? 0 : 1,
       friction: 8,
       tension: 40,
       useNativeDriver: true,
     }).start();
-    
+
     setIsFlipped(!isFlipped);
   };
 
@@ -72,43 +80,15 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ title }) => {
     outputRange: [0, 0, 1]
   });
 
-  const getCardContent = () => {
-    switch (title) {
-      case 'LUCKY MANTRA':
-        return {
-          mantra: 'Om Hanumate Namah',
-          sanskrit: 'ॐ हनुमते नमः',
-          description: 'Chant 108 times for courage and protection'
-        };
-      case 'LUCKY COLOR':
-        return {
-          color: 'Magenta',
-          description: 'Wear this color today to enhance your spiritual energy'
-        };
-      case 'LUCKY NUMBER':
-        return {
-          number: '9',
-          description: 'This number brings prosperity today'
-        };
-      case 'AUSPICIOUS TIME':
-        return {
-          time: '3:30 PM - 5:47 PM',
-          description: 'Divine energies will be strongest at this time'
-        };
-      default:
-        return null;
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.9}
         style={StyleSheet.absoluteFill}
       >
         {/* Front of card */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.cardFace,
             {
@@ -119,21 +99,21 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ title }) => {
           ]}
         >
           <LinearGradient
-            colors={Colors.gradients.goldPrimary}
+            colors={[Colors.gold.DEFAULT, Colors.gold.light]}
             style={styles.cardContent}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
             <View style={styles.diagonalLine1} />
             <View style={styles.diagonalLine2} />
-            
-            <Text style={styles.title}>{title}</Text>
+
+            <Text style={styles.title}>{data.title}</Text>
             <Text style={styles.tapText}>TAP TO REVEAL YOUR DESTINY</Text>
           </LinearGradient>
         </Animated.View>
 
         {/* Back of card */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.cardFace,
             styles.cardBack,
@@ -151,20 +131,30 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ title }) => {
             end={{ x: 1, y: 1 }}
           >
             <View style={styles.revealedContent}>
-              <Text style={styles.titleFlipped}>{title}</Text>
-              {title === 'LUCKY MANTRA' && (
+              <Text style={styles.titleFlipped}>{data.title}</Text>
+              {data.title === 'LUCKY MANTRA' && (
                 <>
-                  <Text style={styles.mantra}>{getCardContent()?.mantra}</Text>
-                  <Text style={styles.sanskrit}>{getCardContent()?.sanskrit}</Text>
-                  <Text style={styles.description}>{getCardContent()?.description}</Text>
+                  <Text style={styles.mantra}>{data.mantra}</Text>
+                  <Text style={styles.sanskrit}>{data.sanskrit}</Text>
+                  <Text style={styles.description}>{data.direction}</Text>
                 </>
               )}
-              {(title === 'LUCKY COLOR' || title === 'LUCKY NUMBER' || title === 'AUSPICIOUS TIME') && (
+              {data.title === 'LUCKY COLOR' && (
                 <>
-                  <Text style={styles.mainText}>
-                    {getCardContent()?.color || getCardContent()?.number || getCardContent()?.time}
-                  </Text>
-                  <Text style={styles.description}>{getCardContent()?.description}</Text>
+                  <Text style={styles.mainText}>{data.color}</Text>
+                  <Text style={styles.description}>Wear this color today to enhance your spiritual energy</Text>
+                </>
+              )}
+              {data.title === 'LUCKY NUMBER' && (
+                <>
+                  <Text style={styles.mainText}>{data.number}</Text>
+                  <Text style={styles.description}>This number brings prosperity today</Text>
+                </>
+              )}
+              {data.title === 'AUSPICIOUS TIME' && (
+                <>
+                  <Text style={styles.mainText}>{data.time}</Text>
+                  <Text style={styles.description}>Divine energies will be strongest at this time</Text>
                 </>
               )}
             </View>
@@ -267,5 +257,3 @@ const styles = StyleSheet.create({
 });
 
 export default BlessingCard;
-
-export default BlessingCard

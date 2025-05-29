@@ -1,36 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
+import Dropdown from '@/components/Setup/Dropdown';
+import axios from 'axios';
 // import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-
+import { getUserId } from '@/app/index';
+import Domain from '@/constants/domain';
 
 const languages = [
-  "Hindi",
-  "Bengali",
-  "Telugu",
-  "Marathi",
-  "Tamil",
-  "Urdu",
-  "Gujarati",
-  "Kannada",
-  "Malayalam",
-  "Punjabi",
-  "Sanskrit"
+  "Hinglish",
+  "English"
 ];
 
 const relationshipStatuses = [
   "Single",
-  "In a Relationship",
+  "Dating",
   "Married",
-  "Divorced",
-  "Widowed"
+  "Other"
 ];
 
-const GOOGLE_PLACES_API_KEY = "AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw";
+const occupations = [
+  "Employed",
+  "Self-Employed",
+  "Homemaker",
+  "Student",
+  "Other"
+];
+
+// const GOOGLE_PLACES_API_KEY = "AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw";
 
 export default function BirthPlaceScreen() {
   const router = useRouter();
@@ -39,8 +41,61 @@ export default function BirthPlaceScreen() {
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
 
-  const handleComplete = () => {
-    router.replace('/');
+  const handleComplete = async () => {
+    try {
+      await AsyncStorage.setItem('birthPlace', birthPlace);
+      await AsyncStorage.setItem('language', language);
+      await AsyncStorage.setItem('relationshipStatus', relationshipStatus);
+      await AsyncStorage.setItem('occupation', occupation);
+
+      const phoneNumber = await AsyncStorage.getItem('phoneNumber');
+      const firstName = await AsyncStorage.getItem('firstName');
+      const lastName = await AsyncStorage.getItem('lastName');
+      const birthDate = await AsyncStorage.getItem('birthDate');
+      const birthTime = await AsyncStorage.getItem('birthTime');
+      const gender = await AsyncStorage.getItem('gender');
+
+
+      const userId = await getUserId();
+
+      const birthPlaceData = {
+        "latitude": 28.6139,
+        "longitude": 77.2090,
+        "name": birthPlace
+      }
+
+
+      const body = {
+        userId,
+        phoneNumber,
+        firstName,
+        lastName,
+        birthDate,
+        birthTime,
+        gender: gender ? gender.toLowerCase() : "",
+        birthPlace: birthPlaceData,
+        language: language.toLowerCase(),
+        relationshipStatus: relationshipStatus.toLowerCase(),
+        occupation: occupation.toLowerCase()
+      }
+
+      await axios.post(`${Domain}/register`, {
+        userId,
+        phoneNumber,
+        firstName,
+        lastName,
+        birthDate,
+        birthTime,
+        birthPlace: birthPlaceData,
+        gender,
+        language,
+        relationshipStatus,
+        occupation
+      });
+      router.push('/(tabs)/loading');
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
   };
 
   const handleBack = () => {
@@ -65,7 +120,7 @@ export default function BirthPlaceScreen() {
         <X color={Colors.gold.DEFAULT} size={24} />
       </TouchableOpacity>
 
-      <ScrollView style={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} >
         <SetupProgress currentStep={4} totalSteps={4} />
 
         <View style={styles.header}>
@@ -74,87 +129,40 @@ export default function BirthPlaceScreen() {
         </View>
 
         <View style={[styles.form, { zIndex: 2 }]}>
-          <View style={[styles.inputGroup, { zIndex: 1 }]}>
-            {/* <GooglePlacesAutocomplete
-              placeholder="Enter city, state"
-              onPress={(data, details = null) => {
-                console.log(data, details);
-                setBirthPlace(data.description);
-              }}
-              query={{
-                key: GOOGLE_PLACES_API_KEY,
-                language: 'en',
-                types: '(cities)'
-              }}
-              styles={{
-                container: {
-                  flex: 0,
-                },
-                textInput: {
-                  ...styles.input,
-                  color: Colors.white,
-                },
-                listView: {
-                  backgroundColor: 'rgba(45, 17, 82, 0.95)',
-                  borderRadius: 12,
-                  borderWidth: 2,
-                  borderColor: `${Colors.gold.DEFAULT}20`,
-                  position: 'absolute',
-                  top: 55,
-                  left: 0,
-                  right: 0,
-                  zIndex: 1000,
-                },
-                row: {
-                  backgroundColor: 'transparent',
-                  padding: 13,
-                },
-                description: {
-                  color: Colors.white,
-                },
-              }}
-              enablePoweredByContainer={false}
-              fetchDetails={true}
-              keyboardShouldPersistTaps="handled"
-            /> */}
-          </View>
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Preferred Language</Text>
-            <View style={styles.select}>
-              <TextInput
-                style={styles.input}
-                value={language}
-                onChangeText={setLanguage}
-                placeholder="Select language"
-                placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Relationship Status</Text>
-            <View style={styles.select}>
-              <TextInput
-                style={styles.input}
-                value={relationshipStatus}
-                onChangeText={setRelationshipStatus}
-                placeholder="Select status"
-                placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Occupation</Text>
+            <Text style={styles.label}>Birth Location</Text>
             <TextInput
               style={styles.input}
-              value={occupation}
-              onChangeText={setOccupation}
-              placeholder="Enter your occupation"
+              value={birthPlace}
+              onChangeText={setBirthPlace}
+              placeholder="Enter your birth location"
               placeholderTextColor={`${Colors.gold.DEFAULT}40`}
             />
           </View>
+
+          <Dropdown
+            label="Preferred Language"
+            value={language}
+            items={languages}
+            onSelect={setLanguage}
+            placeholder="Select language"
+          />
+
+          <Dropdown
+            label="Relationship Status"
+            value={relationshipStatus}
+            items={relationshipStatuses}
+            onSelect={setRelationshipStatus}
+            placeholder="Select status"
+          />
+
+          <Dropdown
+            label="Occupation"
+            value={occupation}
+            items={occupations}
+            onSelect={setOccupation}
+            placeholder="Select occupation"
+          />
         </View>
 
         <View style={styles.buttonContainer}>
@@ -259,9 +267,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-  },
-  select: {
-    position: 'relative',
   },
   buttonContainer: {
     flexDirection: 'row',

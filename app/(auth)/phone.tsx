@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import Domain from '@/constants/domain';
 import axios from 'axios';
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
+import RippleRings from '@/components/RippleRings';
+import BackgroundEffects from '@/components/BackgroundEffects';
+import OrbitingStars from '@/components/orbitingStars';
+
+const GLOW_RADIUS = 120; // Matches the logo container size
 
 
 export default function PhoneScreen() {
@@ -12,6 +18,37 @@ export default function PhoneScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const GlowEffect = () => {
+    return (
+      <View style={styles.glowContainer}>
+        <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+          <Defs>
+            <RadialGradient
+              id="glow"
+              cx="50%"
+              cy="50%"
+              r="50%"
+              fx="50%"
+              fy="50%"
+              gradientUnits="userSpaceOnUse"
+            >
+              <Stop offset="0" stopColor="#FFD700" stopOpacity="0.4" />
+              <Stop offset="0.4" stopColor="#FFD700" stopOpacity="0.2" />
+              <Stop offset="0.7" stopColor="#FFD700" stopOpacity="0.05" />
+              <Stop offset="1" stopColor="#FFD700" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle
+            cx="120"
+            cy="120"
+            r={GLOW_RADIUS}
+            fill="url(#glow)"
+          />
+        </Svg>
+      </View>
+    );
+  };
 
   const handleSubmit = async () => {
     if (!phone || phone.length < 10) {
@@ -43,13 +80,30 @@ export default function PhoneScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.gradients.purplePrimary}
-        style={StyleSheet.absoluteFill}
+        colors={['#0a0219', '#1a0632', '#0a0219']}
+        style={styles.background}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
       />
 
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Ask Devi</Text>
-        <Text style={styles.subtitle}>Enter your phone number to continue</Text>
+      <BackgroundEffects count={30} />
+
+      <View style={styles.contentContainer}>
+        <View style={styles.content}>
+          <View style={styles.logoContainer}>
+            <RippleRings />
+            <GlowEffect />
+            <Image
+              source={require('@/assets/images/logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <OrbitingStars />
+          </View>
+
+          <Text style={styles.title}>Ask Devi</Text>
+          <Text style={styles.subtitle}>Your Personal Vedic Astrologer</Text>
+        </View>
 
         <View style={styles.inputContainer}>
           <View style={styles.phonePrefix}>
@@ -75,7 +129,7 @@ export default function PhoneScreen() {
           disabled={loading}
         >
           <LinearGradient
-            colors={Colors.gradients.goldPrimary}
+            colors={['#FFD700', '#FDB137']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.button}
@@ -95,32 +149,72 @@ export default function PhoneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  logoContainer: {
+    width: 240,
+    height: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 0,
+    borderRadius: 120,
+    overflow: 'hidden',
+  },
+  glowContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    borderRadius: 120,
+  },
+  logo: {
+    width: 220,
+    height: 220,
+    position: 'absolute',
+    zIndex: 10,
   },
   title: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 32,
-    color: Colors.gold.DEFAULT,
-    marginBottom: 8,
+    fontSize: 42,
+    fontWeight: 'bold',
     textAlign: 'center',
+    includeFontPadding: false,
+    color: '#FFD700',
+    textShadowColor: 'rgba(255, 215, 0, 0.6)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   subtitle: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: Colors.white,
-    marginBottom: 32,
+    fontSize: 18,
+    color: '#FFD700',
+    opacity: 0.8,
     textAlign: 'center',
-    opacity: 0.9,
+    marginTop: 8,
   },
+
   inputContainer: {
     flexDirection: 'row',
     width: '100%',
     marginBottom: 16,
+    marginTop: -100,    
   },
   phonePrefix: {
     backgroundColor: 'rgba(45, 17, 82, 0.7)',
@@ -183,5 +277,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
     maxWidth: '80%',
+    marginTop: 16,
+    marginBottom: 150,
   },
 });

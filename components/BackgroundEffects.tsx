@@ -1,91 +1,101 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Colors from '@/constants/Colors';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withRepeat,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
 
-const BackgroundEffects = () => {
-  const stars = useRef([...Array(30)].map(() => ({
-    position: {
-      left: Math.random() * width,
-      top: Math.random() * height,
-    },
-    size: Math.random() * 2 + 1, // Smaller stars
-    opacity: new Animated.Value(Math.random() * 0.5 + 0.1),
-    duration: Math.random() * 2000 + 1000,
-  }))).current;
+interface StarProps {
+  size: number;
+  top: number;
+  left: number;
+  delay: number;
+}
+
+function Star({ size, top, left, delay }: StarProps) {
+  const opacity = useSharedValue(0.1);
 
   useEffect(() => {
-    stars.forEach(star => {
-      const animate = () => {
-        Animated.sequence([
-          Animated.timing(star.opacity, {
-            toValue: Math.random() * 0.8 + 0.2,
-            duration: star.duration,
-            useNativeDriver: true,
-          }),
-          Animated.timing(star.opacity, {
-            toValue: Math.random() * 0.3 + 0.1,
-            duration: star.duration,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
-          animate(); // Continuous animation
-        });
-      };
-      animate();
-    });
+    opacity.value = withDelay(
+      delay,
+      withRepeat(
+        withTiming(1, {
+          duration: 1500 + Math.random() * 1000,
+          easing: Easing.inOut(Easing.ease)
+        }),
+        -1,
+        true
+      )
+    );
   }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.star,
+        {
+          width: size,
+          height: size,
+          top,
+          left,
+        },
+        animatedStyle,
+      ]}
+    />
+  );
+}
+
+export default function BackgroundEffects({ count = 30 }: { count?: number }) {
+  const stars = Array.from({ length: count }, (_, i) => ({
+    id: i,
+    size: 2 + Math.random() * 3,
+    top: Math.random() * height,
+    left: Math.random() * width,
+    delay: Math.random() * 2000,
+  }));
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT]}
-        style={styles.gradient}
-        start={{ x: 0, y: -0.2 }} // Extended gradient upward
-        end={{ x: 0, y: 1 }}
-      />
-      
-      {stars.map((star, i) => (
-        <Animated.View
-          key={`star-${i}`}
-          style={[
-            styles.star,
-            {
-              left: star.position.left,
-              top: star.position.top,
-              width: star.size,
-              height: star.size,
-              opacity: star.opacity,
-            }
-          ]}
+      {stars.map((star) => (
+        <Star
+          key={star.id}
+          size={star.size}
+          top={star.top}
+          left={star.left}
+          delay={star.delay}
         />
       ))}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     overflow: 'hidden',
-    marginTop: -50, // Extend container upward
-  },
-  gradient: {
-    ...StyleSheet.absoluteFillObject,
-    height: height + 50, // Extend gradient height
   },
   star: {
     position: 'absolute',
-    backgroundColor: Colors.gold.DEFAULT,
-    borderRadius: 50,
-    shadowColor: Colors.gold.DEFAULT,
+    backgroundColor: '#FFD700',
+    borderRadius: 5,
+    shadowColor: '#FFD700',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
-    shadowRadius: 10, // Increased glow effect
+    shadowRadius: 8,
     elevation: 5,
   },
 });
-
-export default BackgroundEffects;

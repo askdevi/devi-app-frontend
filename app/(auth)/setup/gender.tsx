@@ -15,27 +15,12 @@ export default function GenderScreen() {
     if (gender) {
       try {
         await AsyncStorage.setItem('gender', gender);
-        router.push('/setup/birth-details');
+        router.push('/(auth)/setup/birth-details');
       } catch (error) {
         console.error('Error saving gender:', error);
       }
     }
   };
-
-  // Load saved gender when component mounts
-  React.useEffect(() => {
-    async function loadSavedGender() {
-      try {
-        const savedGender = await AsyncStorage.getItem('gender');
-        if (savedGender) {
-          setGender(savedGender as 'male' | 'female' | 'other');
-        }
-      } catch (error) {
-        console.error('Error loading saved gender:', error);
-      }
-    }
-    loadSavedGender();
-  }, []);
 
   const handleBack = () => {
     router.back();

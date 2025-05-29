@@ -19,7 +19,7 @@ const Header = () => {
   };
 
   const handleProfilePress = () => {
-    handlePress(() => router.push('/(auth)/setup/name'));
+    handlePress(() => router.push('/(tabs)/profile'));
   };
 
   return (
@@ -32,7 +32,7 @@ const Header = () => {
         >
           <Menu color={Colors.gold.DEFAULT} size={24} />
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={styles.iconButton}
           onPress={handleProfilePress}
@@ -42,7 +42,7 @@ const Header = () => {
         </TouchableOpacity>
       </View>
 
-      <MenuDrawer 
+      <MenuDrawer
         isVisible={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
       />

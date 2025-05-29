@@ -3,17 +3,19 @@ import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MainLayout from '@/components/MainLayout';
 import Colors from '@/constants/Colors';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function HomeScreen() {
+  const { dailyBlessings } = useLocalSearchParams();
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
+        colors={['#0a0219', '#1a0632', '#0a0219']}
         style={styles.background}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
       />
-      <MainLayout />
+      <MainLayout dailyBlessings={dailyBlessings} />
     </View>
   );
 }

@@ -17,27 +17,12 @@ export default function NameScreen() {
       try {
         await AsyncStorage.setItem('firstName', firstName.trim());
         await AsyncStorage.setItem('lastName', lastName.trim());
-        router.push('/setup/gender');
+        router.push('/(auth)/setup/gender');
       } catch (error) {
         console.error('Error saving name:', error);
       }
     }
   };
-
-  // Load saved names when component mounts
-  React.useEffect(() => {
-    async function loadSavedNames() {
-      try {
-        const savedFirstName = await AsyncStorage.getItem('firstName');
-        const savedLastName = await AsyncStorage.getItem('lastName');
-        if (savedFirstName) setFirstName(savedFirstName);
-        if (savedLastName) setLastName(savedLastName);
-      } catch (error) {
-        console.error('Error loading saved names:', error);
-      }
-    }
-    loadSavedNames();
-  }, []);
 
   const handleExit = () => {
     router.replace('/');
