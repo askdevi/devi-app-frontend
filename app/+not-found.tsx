@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 export default function NotFoundScreen() {
   const router = useRouter();
   return (
-    <>
+    <View>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
         <Text style={styles.text}>This screen doesn't exist.</Text>
@@ -12,7 +12,7 @@ export default function NotFoundScreen() {
           <Text>Go to home screen!</Text>
         </Pressable>
       </View>
-    </>
+    </View>
   );
 }
 
