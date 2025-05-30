@@ -8,9 +8,10 @@ import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 import Dropdown from '@/components/Setup/Dropdown';
 import axios from 'axios';
-// import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { getUserId } from '@/constants/userId';
 import Domain from '@/constants/domain';
+import 'react-native-get-random-values';
 
 const languages = [
   "Hinglish",
@@ -37,6 +38,7 @@ const occupations = [
 export default function BirthPlaceScreen() {
   const router = useRouter();
   const [birthPlace, setBirthPlace] = useState('');
+  const [birthPlaceCoords, setBirthPlaceCoords] = useState({ latitude: 0, longitude: 0 });
   const [language, setLanguage] = useState('');
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
@@ -55,15 +57,13 @@ export default function BirthPlaceScreen() {
       const birthTime = await AsyncStorage.getItem('birthTime');
       const gender = await AsyncStorage.getItem('gender');
 
-
       const userId = await getUserId();
 
       const birthPlaceData = {
-        "latitude": 28.6139,
-        "longitude": 77.2090,
+        "latitude": birthPlaceCoords.latitude,
+        "longitude": birthPlaceCoords.longitude,
         "name": birthPlace
       }
-
 
       const body = {
         userId,
@@ -80,7 +80,7 @@ export default function BirthPlaceScreen() {
       }
 
       await axios.post(`${Domain}/register`, body);
-      router.push('/main/loading');
+      router.push('/main/loading' as any);
     } catch (error) {
       console.log('Error saving data:', error);
     }
@@ -108,7 +108,7 @@ export default function BirthPlaceScreen() {
         <X color={Colors.gold.DEFAULT} size={24} />
       </TouchableOpacity>
 
-      <ScrollView style={styles.content} >
+      <View style={styles.content}>
         <SetupProgress currentStep={4} totalSteps={4} />
 
         <View style={styles.header}>
@@ -119,12 +119,98 @@ export default function BirthPlaceScreen() {
         <View style={[styles.form, { zIndex: 2 }]}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Birth Location</Text>
-            <TextInput
-              style={styles.input}
-              value={birthPlace}
-              onChangeText={setBirthPlace}
+            <GooglePlacesAutocomplete
               placeholder="Enter your birth location"
-              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+              fetchDetails={true}
+              onPress={(data, details = null) => {
+                if (details) {
+                  setBirthPlace(data.description);
+                  setBirthPlaceCoords({
+                    latitude: details.geometry.location.lat,
+                    longitude: details.geometry.location.lng
+                  });
+                }
+              }}
+              query={{
+                key: 'AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw',
+                language: 'en',
+                types: '(cities)',
+              }}
+              styles={{
+                container: {
+                  flex: 0,
+                },
+                textInput: {
+                  backgroundColor: 'rgba(45, 17, 82, 0.3)',
+                  borderWidth: 2,
+                  borderColor: `${Colors.gold.DEFAULT}20`,
+                  borderRadius: 12,
+                  padding: 16,
+                  color: Colors.white,
+                  fontFamily: 'Poppins-Regular',
+                  fontSize: 16,
+                },
+                listView: {
+                  backgroundColor: 'rgba(45, 17, 82, 0.9)',
+                  borderWidth: 2,
+                  borderColor: `${Colors.gold.DEFAULT}20`,
+                  borderRadius: 12,
+                  marginTop: 8,
+                  position: 'absolute',
+                  top: 50,
+                  left: 0,
+                  right: 0,
+                  zIndex: 1000,
+                },
+                row: {
+                  backgroundColor: 'transparent',
+                  padding: 13,
+                  height: 'auto',
+                  minHeight: 44,
+                },
+                description: {
+                  color: Colors.white,
+                  fontFamily: 'Poppins-Regular',
+                },
+                separator: {
+                  height: 1,
+                  backgroundColor: `${Colors.gold.DEFAULT}20`,
+                },
+              }}
+              enablePoweredByContainer={false}
+              minLength={2}
+              debounce={200}
+              // All defaults explicitly mentioned
+              autoFillOnNotFound={false}
+              currentLocation={false}
+              currentLocationLabel="Current location"
+              disableScroll={false}
+              enableHighAccuracyLocation={false}
+              filterReverseGeocodingByTypes={[]}
+              GooglePlacesDetailsQuery={{}}
+              GooglePlacesSearchQuery={{
+                rankby: 'distance',
+                type: 'restaurant',
+              }}
+              GoogleReverseGeocodingQuery={{}}
+              isRowScrollable={true}
+              keyboardShouldPersistTaps="always"
+              listUnderlayColor="#c8c7cc"
+              listViewDisplayed="auto"
+              keepResultsAfterBlur={false}
+              nearbyPlacesAPI="GooglePlacesSearch"
+              numberOfLines={1}
+              onFail={() => {}}
+              onNotFound={() => {}}
+              onTimeout={() =>
+                console.warn('google places autocomplete: request timeout')
+              }
+              predefinedPlaces={[]}
+              predefinedPlacesAlwaysVisible={false}
+              suppressDefaultStyles={false}
+              textInputHide={false}
+              textInputProps={{}}
+              timeout={20000}
             />
           </View>
 
@@ -189,7 +275,7 @@ export default function BirthPlaceScreen() {
           <X color={`${Colors.gold.DEFAULT}50`} size={16} />
           <Text style={styles.exitText}>Exit Setup</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </View>
   );
 }
