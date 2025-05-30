@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Image, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import Domain from '@/constants/domain';
@@ -9,6 +8,8 @@ import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import RippleRings from '@/components/RippleRings';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import OrbitingStars from '@/components/orbitingStars';
+import BackgroundGradient from '@/components/BackgroundGradient';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
@@ -79,12 +80,7 @@ export default function PhoneScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0a0219', '#1a0632', '#0a0219']}
-        style={styles.background}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-      />
+      <BackgroundGradient />
 
       <BackgroundEffects count={30} />
 
@@ -115,7 +111,12 @@ export default function PhoneScreen() {
             placeholderTextColor="rgba(255, 255, 255, 0.5)"
             keyboardType="phone-pad"
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={(text) => {
+              setPhone(text);
+              if (text.length === 10) {
+                Keyboard.dismiss();
+              }
+            }}
             maxLength={10}
           />
         </View>
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     marginBottom: 16,
-    marginTop: -100,    
+    marginTop: -100,
   },
   phonePrefix: {
     backgroundColor: 'rgba(45, 17, 82, 0.7)',

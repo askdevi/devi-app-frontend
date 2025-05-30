@@ -8,6 +8,8 @@ export default function TabsLayout() {
       <Stack.Screen name="profile" />
       <Stack.Screen name="wallet" />
       <Stack.Screen name="settings" />
+      <Stack.Screen name="chat-history" />
+      {/* <Stack.Screen name="devi" /> */}
     </Stack>
   );
 }

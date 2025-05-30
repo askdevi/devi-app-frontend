@@ -7,6 +7,7 @@ import { useLocalSearchParams } from 'expo-router';
 
 export default function HomeScreen() {
   const { dailyBlessings } = useLocalSearchParams();
+
   return (
     <View style={styles.container}>
       <LinearGradient

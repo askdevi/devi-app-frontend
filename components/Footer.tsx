@@ -24,7 +24,7 @@ const Footer = () => {
         }),
       ])
     );
-    
+
     shineAnimation.start();
 
     return () => {
@@ -38,20 +38,20 @@ const Footer = () => {
         colors={['transparent', `${Colors.gold.DEFAULT}10`]}
         style={styles.gradientBg}
       />
-      
+
       <View style={styles.nav}>
         <Pressable style={styles.navButton}>
           <Home size={22} color={Colors.white} strokeWidth={1.5} />
           <Text style={styles.navText}>Home</Text>
         </Pressable>
 
-        <Pressable style={styles.askButtonContainer}>
+        <Pressable style={styles.askButtonContainer} onPress={() => router.push('/(tabs)/devi')}>
           <LinearGradient
             colors={Colors.gradients.goldPrimary}
             style={styles.askButton}
           >
             <Text style={styles.omText}>ॐ</Text>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.shine,
                 {

@@ -19,7 +19,6 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const [animation] = React.useState(new Animated.Value(0));
   const [phone, setPhone] = useState('+91 1234567890');
   const [firstName, setFirstName] = useState('User');
-  const [tokens, setTokens] = useState(0);
   const [time, setTime] = useState(0);
 
   const handleSettings = () => {
@@ -42,18 +41,21 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
     onClose();
   };
 
+  const handleChatHistory = () => {
+    router.push('/(tabs)/chat-history');
+    onClose();
+  };
+
   useEffect(() => {
     const loadData = async () => {
       let phone1 = await AsyncStorage.getItem('phoneNumber');
       const firstName1 = await AsyncStorage.getItem('firstName');
-      const tokens1 = await AsyncStorage.getItem('tokens');
       const timeEnd1 = await AsyncStorage.getItem('timeEnd');
       const currentTime = Date.now();
-      if (phone1 && firstName1 && tokens1 && timeEnd1) {
+      if (phone1 && firstName1 && timeEnd1) {
         phone1 = phone1.replace('+91', '+91 ');
         setPhone(phone1);
         setFirstName(firstName1);
-        setTokens(JSON.parse(tokens1));
         const timeEndTimestamp = new Date(JSON.parse(timeEnd1)).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
       }
@@ -103,10 +105,10 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
         </View>
 
         <View style={styles.stats}>
-          <View style={styles.statItem}>
+          {/* <View style={styles.statItem}>
             <Coins size={20} color={Colors.gold.DEFAULT} />
             <Text style={styles.statValue}>{tokens} tokens left</Text>
-          </View>
+          </View> */}
           <View style={styles.statItem}>
             <Clock size={20} color={Colors.gold.DEFAULT} />
             <Text style={styles.statValue}>
@@ -119,7 +121,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
           <MenuItem icon={MessageCircle} label="Start Chat" onPress={handleChat} />
           <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
           <MenuItem icon={User} label="Edit Profile" onPress={handleProfile} />
-          <MenuItem icon={History} label="Chat History" />
+          <MenuItem icon={History} label="Chat History" onPress={handleChatHistory} />
           <MenuItem icon={Headphones} label="Customer Support" />
           <MenuItem icon={Settings} label="Settings" onPress={handleSettings} />
         </View>

@@ -80,7 +80,7 @@ export default function ProfileScreen() {
         if (storedOccupation) setOccupation(storedOccupation);
         if (storedGender) setGender(storedGender);
       } catch (e) {
-        console.error('Error loading profile data', e);
+        console.log('Error loading profile data', e);
       }
     };
 
@@ -130,7 +130,7 @@ export default function ProfileScreen() {
       alert('Profile updated successfully!');
       router.back();
     } catch (e) {
-      // console.error('Error saving profile data', e);
+      // console.log('Error saving profile data', e);
       alert('Error saving profile data');
     }
   };
@@ -139,20 +139,19 @@ export default function ProfileScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View style={styles.container}>
+          <BackgroundEffects count={30} />
+
+          <View style={styles.headerContainer}>
+            <TouchableOpacity onPress={handleBack}>
+              <Text style={styles.backText}>{'<-'}</Text>
+            </TouchableOpacity>
+            <Text style={styles.header}>Edit Profile</Text>
+          </View>
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
           >
-            <BackgroundEffects />
-
-            <View style={styles.headerContainer}>
-              <TouchableOpacity onPress={handleBack}>
-                <Text style={styles.backText}>{'<-'}</Text>
-              </TouchableOpacity>
-              <Text style={styles.header}>Edit Profile</Text>
-            </View>
-
             <View style={styles.row}>
               <TextInput
                 style={styles.inputHalf}
@@ -248,7 +247,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 40,
+    padding: 20,
   },
   backText: {
     fontSize: 22,

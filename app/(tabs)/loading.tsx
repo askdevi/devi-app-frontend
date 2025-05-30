@@ -128,33 +128,32 @@ export default function LoadingScreen() {
                     }
                 });
 
-                const response2 = await axios.get(`${Domain}/get-tokens-time`, {
+                const response2 = await axios.get(`${Domain}/get-profile`, {
                     params: {
                         userId: userId
                     }
                 });
 
-                const response3 = await axios.get(`${Domain}/get-profile`, {
+                const response3 = await axios.get(`${Domain}/chat-history`, {
                     params: {
                         userId: userId
                     }
                 });
 
-                if (response.data && response2.data && response3.data.user) {
+                if (response.data && response2.data && response3.data) {
                     const dailyBlessings = response.data;
-                    const tokens = response2.data.tokens;
-                    const timeEnd = response2.data.timeEnd;
-                    await AsyncStorage.setItem('tokens', JSON.stringify(tokens));
-                    await AsyncStorage.setItem('timeEnd', JSON.stringify(timeEnd));
-                    await AsyncStorage.setItem('firstName', response3.data.user.firstName);
-                    await AsyncStorage.setItem('lastName', response3.data.user.lastName);
+                    await AsyncStorage.setItem('timeEnd', response2.data.user.timeEnd);
 
-                    await AsyncStorage.setItem('birthPlace', response3.data.user.birthPlace.name);
-                    await AsyncStorage.setItem('language', response3.data.user.preferredLanguage);
-                    await AsyncStorage.setItem('relationshipStatus', response3.data.user.relationshipStatus);
-                    await AsyncStorage.setItem('occupation', response3.data.user.occupation);
-                    await AsyncStorage.setItem('gender', response3.data.user.gender);
-                    
+                    await AsyncStorage.setItem('firstName', response2.data.user.firstName);
+                    await AsyncStorage.setItem('lastName', response2.data.user.lastName);
+
+                    await AsyncStorage.setItem('birthPlace', response2.data.user.birthPlace.name);
+                    await AsyncStorage.setItem('language', response2.data.user.preferredLanguage);
+                    await AsyncStorage.setItem('relationshipStatus', response2.data.user.relationshipStatus);
+                    await AsyncStorage.setItem('occupation', response2.data.user.occupation);
+                    await AsyncStorage.setItem('gender', response2.data.user.gender);
+
+                    await AsyncStorage.setItem('chatHistory', JSON.stringify(response3.data.chats));
 
                     router.push({
                         pathname: '/(tabs)',
@@ -166,7 +165,7 @@ export default function LoadingScreen() {
                     router.replace('/(auth)/phone');
                 }
             } catch (error) {
-                console.error('Error initializing app:', error);
+                console.log('Error initializing app:', error);
                 router.replace('/(auth)/phone');
             }
         };

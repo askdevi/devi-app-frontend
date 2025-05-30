@@ -39,7 +39,7 @@ export default function BirthDetailsScreen() {
       await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '00:00');
       router.push('/(auth)/setup/birth-place');
     } catch (error) {
-      console.error('Error saving birth details:', error);
+      console.log('Error saving birth details:', error);
     }
   };
 

@@ -17,7 +17,7 @@ export default function GenderScreen() {
         await AsyncStorage.setItem('gender', gender);
         router.push('/(auth)/setup/birth-details');
       } catch (error) {
-        console.error('Error saving gender:', error);
+        console.log('Error saving gender:', error);
       }
     }
   };

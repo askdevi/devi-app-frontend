@@ -19,7 +19,7 @@ export default function NameScreen() {
         await AsyncStorage.setItem('lastName', lastName.trim());
         router.push('/(auth)/setup/gender');
       } catch (error) {
-        console.error('Error saving name:', error);
+        console.log('Error saving name:', error);
       }
     }
   };

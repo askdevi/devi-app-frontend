@@ -29,19 +29,18 @@ export default function SettingsScreen() {
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
+                    <BackgroundEffects count={30} />
+
+                    <View style={styles.headerContainer}>
+                        <TouchableOpacity onPress={handleBack}>
+                            <Text style={styles.backText}>{'<-'}</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.header}>Settings</Text>
+                    </View>
                     <ScrollView style={styles.scrollView}
                         contentContainerStyle={styles.content}
                         showsVerticalScrollIndicator={false}
                     >
-                        <BackgroundEffects />
-
-                        <View style={styles.headerContainer}>
-                            <TouchableOpacity onPress={handleBack}>
-                                <Text style={styles.backText}>{'<-'}</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.header}>Settings</Text>
-                        </View>
-
                         {/* Notifications */}
                         <View style={styles.card}>
                             <Text style={styles.title}>Notifications</Text>
@@ -117,7 +116,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 40,
+        padding: 20,
     },
     backText: {
         fontSize: 22,

@@ -42,31 +42,9 @@ const timePlans = [
   },
 ];
 
-const questionTopUps = [
-  {
-    name: "Celestial Explorer",
-    questions: 10,
-    originalPrice: 99,
-    price: 99,
-    // originalPrice: 1,
-    // price: 1,
-    get discount() { return calculateDiscount(this.originalPrice, this.price); }
-  },
-  {
-    name: "Astral Voyager",
-    questions: 25,
-    originalPrice: 199,
-    price: 199,
-    // originalPrice: 1,
-    // price: 1,
-    get discount() { return calculateDiscount(this.originalPrice, this.price); }
-  },
-];
-
 export default function WalletScreen() {
   const router = useRouter();
 
-  const [tokens, setTokens] = useState(0);
   const [time, setTime] = useState(0);
 
   useEffect(() => {
@@ -75,7 +53,6 @@ export default function WalletScreen() {
       const timeEnd1 = await AsyncStorage.getItem('timeEnd');
       const currentTime = Date.now();
       if (tokens1 && timeEnd1) {
-        setTokens(JSON.parse(tokens1));
         const timeEndTimestamp = new Date(JSON.parse(timeEnd1)).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
       }
@@ -91,25 +68,20 @@ export default function WalletScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View style={styles.container}>
+          <BackgroundEffects count={30} />
+
+          <View style={styles.headerContainer}>
+            <TouchableOpacity onPress={handleBack}>
+              <Text style={styles.backText}>{'<-'}</Text>
+            </TouchableOpacity>
+            <Text style={styles.header}>Wallet</Text>
+          </View>
           <ScrollView style={styles.scrollView}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
           >
-            <BackgroundEffects />
-
-            <View style={styles.headerContainer}>
-              <TouchableOpacity onPress={handleBack}>
-                <Text style={styles.backText}>{'<-'}</Text>
-              </TouchableOpacity>
-              <Text style={styles.header}>Wallet</Text>
-            </View>
-
             {/* Balance Section */}
             <View style={styles.balanceContainer}>
-              <View style={styles.balanceItem}>
-                <Text style={styles.balanceValue}>{tokens}</Text>
-                <Text style={styles.balanceLabel}>Available Tokens</Text>
-              </View>
               <View style={styles.balanceItem}>
                 <Text style={styles.balanceValue}>
                   {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m
@@ -130,28 +102,6 @@ export default function WalletScreen() {
                 )}
                 <Text style={styles.packageLabel}>{pkg.duration}</Text>
                 <Text style={styles.packageSub}>Unlimited Questions</Text>
-                {pkg.discount && (
-                  <Text style={styles.strikePrice}>₹{pkg.originalPrice}</Text>
-                )}
-                <Text style={styles.packagePrice}>₹{pkg.price}</Text>
-                <TouchableOpacity style={styles.buyButton}>
-                  <Text style={styles.buyButtonText}>Buy Now</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-
-            {/* Divider */}
-            <View style={styles.divider} />
-
-            {/* Question Top-ups */}
-            <Text style={styles.packagesTitle}>Question Top-ups</Text>
-            {questionTopUps.map((pkg, idx) => (
-              <View key={idx} style={styles.packageCard}>
-                {pkg.discount && (
-                  <Text style={styles.discount}>{pkg.discount}% OFF</Text>
-                )}
-                <Text style={styles.packageLabel}>{pkg.name}</Text>
-                <Text style={styles.packageSub}>{pkg.questions} Questions</Text>
                 {pkg.discount && (
                   <Text style={styles.strikePrice}>₹{pkg.originalPrice}</Text>
                 )}
@@ -188,7 +138,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 40,
+    padding: 20,
   },
   backText: {
     fontSize: 22,

@@ -74,27 +74,15 @@ export default function BirthPlaceScreen() {
         birthTime,
         gender: gender ? gender.toLowerCase() : "",
         birthPlace: birthPlaceData,
-        language: language.toLowerCase(),
+        preferredLanguage: language.toLowerCase(),
         relationshipStatus: relationshipStatus.toLowerCase(),
         occupation: occupation.toLowerCase()
       }
 
-      await axios.post(`${Domain}/register`, {
-        userId,
-        phoneNumber,
-        firstName,
-        lastName,
-        birthDate,
-        birthTime,
-        birthPlace: birthPlaceData,
-        gender,
-        language,
-        relationshipStatus,
-        occupation
-      });
+      await axios.post(`${Domain}/register`, body);
       router.push('/(tabs)/loading');
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.log('Error saving data:', error);
     }
   };
 
