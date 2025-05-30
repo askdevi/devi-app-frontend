@@ -17,7 +17,7 @@ export default function NameScreen() {
       try {
         await AsyncStorage.setItem('firstName', firstName.trim());
         await AsyncStorage.setItem('lastName', lastName.trim());
-        router.push('/(auth)/setup/gender');
+        router.push('/register/gender');
       } catch (error) {
         console.log('Error saving name:', error);
       }
@@ -77,7 +77,7 @@ export default function NameScreen() {
           activeOpacity={0.8}
         >
           <LinearGradient
-            colors={Colors.gradients.goldPrimary}
+            colors={Colors.gradients.goldPrimary as [string, string]}
             style={styles.button}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}

@@ -37,7 +37,7 @@ export default function BirthDetailsScreen() {
       const birthTime = knowsBirthTime ? `${selectedTime.period === 'AM' ? selectedTime.hour : Number(selectedTime.hour) + 12}:${selectedTime.minute}` : null;
       await AsyncStorage.setItem('birthDate', birthDate);
       await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '00:00');
-      router.push('/(auth)/setup/birth-place');
+      router.push('/register/birth-place');
     } catch (error) {
       console.log('Error saving birth details:', error);
     }
@@ -153,7 +153,7 @@ export default function BirthDetailsScreen() {
             onPress={handleContinue}
           >
             <LinearGradient
-              colors={Colors.gradients.goldPrimary}
+              colors={Colors.gradients.goldPrimary as [string, string]}
               style={styles.continueButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}

@@ -1,33 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
+import ChatHistoryCard from '@/components/ChatHistoryCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function DeviScreen() {
+export default function ChatHistoryScreen() {
     const router = useRouter();
+    const [chatHistory, setChatHistory] = useState([]);
 
     const handleBack = () => {
         router.back();
     };
 
+    useEffect(() => {
+        const loadChatHistory = async () => {
+            const chatHistory = await AsyncStorage.getItem('chatHistory');
+            if (chatHistory) {
+                setChatHistory(JSON.parse(chatHistory));
+            }
+        };
+        loadChatHistory();
+    }, []);
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects />
+                    <BackgroundEffects count={30} />
                     <View style={styles.headerContainer}>
                         <TouchableOpacity onPress={handleBack}>
                             <Text style={styles.backText}>{'<-'}</Text>
                         </TouchableOpacity>
-                        <Text style={styles.header}>Devi</Text>
+                        <Text style={styles.header}>Chat History</Text>
                     </View>
                     <ScrollView style={styles.scrollView}
                         contentContainerStyle={styles.content}
-                        showsVerticalScrollIndicator={false}
-                    >
+                        showsVerticalScrollIndicator={false}>
+                        {chatHistory.map((chat: any, id: any) => (
+                            <ChatHistoryCard key={id} title={chat.createdAt} updatedAt={chat.lastUpdated} preview={chat.messages[chat.messages.length - 1].content} />
+                        ))}
+
                     </ScrollView>
                 </View>
             </SafeAreaView>
@@ -66,56 +80,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#fff',
         marginLeft: 20,
-    },
-    card: {
-        backgroundColor: '#2b0050',
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 20,
-    },
-    title: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    subtitle: {
-        color: '#ccc',
-        fontSize: 14,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    option: {
-        padding: 16,
-        backgroundColor: '#2b0050',
-        borderRadius: 16,
-        marginBottom: 12,
-    },
-    optionText: {
-        color: '#aaa6f9',
-        fontSize: 15,
-    },
-    logout: {
-        marginTop: 20,
-        marginBottom: 10,
-        alignItems: 'flex-start',
-    },
-    logoutText: {
-        color: '#ffcc00',
-        fontSize: 16,
-    },
-    deleteBtn: {
-        borderColor: '#ff4d4d',
-        borderWidth: 1,
-        borderRadius: 16,
-        padding: 16,
-        marginTop: 10,
-    },
-    deleteText: {
-        color: '#ff8080',
-        fontSize: 15,
     },
 });

@@ -1,2 +1,2 @@
-const Domain = 'http://192.168.55.232:3001/api';
+const Domain = 'https://devi-app.onrender.com/api';
 export default Domain;

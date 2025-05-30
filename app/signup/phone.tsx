@@ -69,7 +69,7 @@ export default function PhoneScreen() {
         }
       });
       // console.log(response);
-      router.push({ pathname: '/otp', params: { phone } });
+      router.push({ pathname: '/signup/otp', params: { phone } });
     } catch (err) {
       console.log(err);
       setError('Failed to send OTP. Please try again.');

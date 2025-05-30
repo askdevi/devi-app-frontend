@@ -22,27 +22,27 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const [time, setTime] = useState(0);
 
   const handleSettings = () => {
-    router.push('/(tabs)/settings');
+    router.push('/main/settings');
     onClose();
   };
 
   const handleWallet = () => {
-    router.push('/(tabs)/wallet');
+    router.push('/main/wallet');
     onClose();
   };
 
   const handleProfile = () => {
-    router.push('/(tabs)/profile');
+    router.push('/main/profile');
     onClose();
   };
 
   const handleChat = () => {
-    router.push('/(tabs)/devi');
+    router.push('/main/devi');
     onClose();
   };
 
   const handleChatHistory = () => {
-    router.push('/(tabs)/chat-history');
+    router.push('/main/chat-history');
     onClose();
   };
 

@@ -45,9 +45,9 @@ const Footer = () => {
           <Text style={styles.navText}>Home</Text>
         </Pressable>
 
-        <Pressable style={styles.askButtonContainer} onPress={() => router.push('/(tabs)/devi')}>
+        <Pressable style={styles.askButtonContainer} onPress={() => router.push('/main/devi')}>
           <LinearGradient
-            colors={Colors.gradients.goldPrimary}
+            colors={Colors.gradients.goldPrimary as [string, string]}
             style={styles.askButton}
           >
             <Text style={styles.omText}>ॐ</Text>
@@ -68,7 +68,7 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => router.push('/(tabs)/profile')}>
+        <Pressable style={styles.navButton} onPress={() => router.push('/main/profile')}>
           <User size={22} color={Colors.white} strokeWidth={1.5} />
           <Text style={styles.navText}>Profile</Text>
         </Pressable>

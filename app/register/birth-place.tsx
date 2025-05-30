@@ -9,7 +9,7 @@ import SetupProgress from '@/components/Setup/SetupProgress';
 import Dropdown from '@/components/Setup/Dropdown';
 import axios from 'axios';
 // import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { getUserId } from '@/app/index';
+import { getUserId } from '@/constants/userId';
 import Domain from '@/constants/domain';
 
 const languages = [
@@ -80,7 +80,7 @@ export default function BirthPlaceScreen() {
       }
 
       await axios.post(`${Domain}/register`, body);
-      router.push('/(tabs)/loading');
+      router.push('/main/loading');
     } catch (error) {
       console.log('Error saving data:', error);
     }

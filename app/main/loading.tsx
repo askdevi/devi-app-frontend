@@ -15,7 +15,7 @@ import Animated, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Domain from '@/constants/domain';
-import { getUserId } from '@/app/index';
+import { getUserId } from '@/constants/userId';
 
 
 const { width, height } = Dimensions.get('window');
@@ -118,7 +118,7 @@ export default function LoadingScreen() {
             try {
                 const userId = await getUserId();
                 if (!userId) {
-                    router.replace('/(auth)/phone');
+                    router.push('/signup/phone');
                     return;
                 }
 
@@ -156,17 +156,17 @@ export default function LoadingScreen() {
                     await AsyncStorage.setItem('chatHistory', JSON.stringify(response3.data.chats));
 
                     router.push({
-                        pathname: '/(tabs)',
+                        pathname: '/main/home',
                         params: {
                             dailyBlessings: JSON.stringify(dailyBlessings)
                         }
                     });
                 } else {
-                    router.replace('/(auth)/phone');
+                    router.push('/signup/phone');
                 }
             } catch (error) {
                 console.log('Error initializing app:', error);
-                router.replace('/(auth)/phone');
+                router.push('/signup/phone');
             }
         };
 
@@ -174,7 +174,7 @@ export default function LoadingScreen() {
     }, []);
 
     return (
-        <Pressable style={styles.container} onPress={() => router.push('/')}>
+        <Pressable style={styles.container}>
             <StatusBar style="light" />
             <LinearGradient
                 colors={['#0a0219', '#1a0632', '#0a0219']}

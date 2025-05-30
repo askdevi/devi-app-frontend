@@ -19,7 +19,7 @@ const Header = () => {
   };
 
   const handleProfilePress = () => {
-    handlePress(() => router.push('/(tabs)/profile'));
+    handlePress(() => router.push('/main/profile'));
   };
 
   return (

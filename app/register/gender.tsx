@@ -15,7 +15,7 @@ export default function GenderScreen() {
     if (gender) {
       try {
         await AsyncStorage.setItem('gender', gender);
-        router.push('/(auth)/setup/birth-details');
+        router.push('/register/birth-details');
       } catch (error) {
         console.log('Error saving gender:', error);
       }
@@ -93,7 +93,7 @@ export default function GenderScreen() {
             disabled={!gender}
           >
             <LinearGradient
-              colors={Colors.gradients.goldPrimary}
+              colors={Colors.gradients.goldPrimary as [string, string]}
               style={styles.continueButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}

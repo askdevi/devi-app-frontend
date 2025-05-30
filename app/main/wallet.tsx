@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import AsyncStorage from '@react-native-async-storage/async-storage';

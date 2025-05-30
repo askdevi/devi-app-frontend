@@ -14,7 +14,7 @@ export default function SettingsScreen() {
 
     const handleLogout = () => {
         SecureStore.deleteItemAsync('userId');
-        router.push('/(auth)/phone');
+        router.push('/signup/phone');
     };
 
     const handleDeleteAccount = () => {

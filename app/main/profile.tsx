@@ -8,7 +8,7 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import Dropdown from '@/components/Setup/Dropdown';
 import axios from 'axios';
 import Domain from '@/constants/domain';
-import { getUserId } from '@/app/index';
+import { getUserId } from '@/constants/userId';
 
 const languages = [
   "Hinglish",

@@ -41,9 +41,9 @@ export default function OtpScreen() {
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
       await storeUserId(response.data.userId);
       if(response.data.exists){
-        router.push('/(tabs)/loading');
+        router.push('/main/loading');
       } else {
-        router.push('/(auth)/setup/name');
+        router.push('/register/name');
       }
     } catch (err) {
       console.log(err);
@@ -66,7 +66,7 @@ export default function OtpScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={Colors.gradients.purplePrimary}
+        colors={Colors.gradients.purplePrimary as [string, string]}
         style={StyleSheet.absoluteFill}
       />
 
