@@ -17,8 +17,8 @@ const calculateDiscount = (originalPrice: number, price: number) => {
 
 const timePlans = [
   {
-    name: '10 Minutes Access',
-    duration: '10 Minutes',
+    name: "10 Minutes Access",
+    duration: "10 Minutes",
     originalPrice: 99,
     price: 99,
     get discount() { return calculateDiscount(this.originalPrice, this.price); }
