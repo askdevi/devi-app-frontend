@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform, Animated } from 'react-native';
-import { Chrome as Home, User } from 'lucide-react-native';
+import { Home, User, Wallet } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
@@ -40,9 +40,14 @@ const Footer = () => {
       />
 
       <View style={styles.nav}>
-        <Pressable style={styles.navButton}>
+        <Pressable style={styles.navButton} onPress={() => router.push('/main/home')}>
           <Home size={22} color={Colors.white} strokeWidth={1.5} />
           <Text style={styles.navText}>Home</Text>
+        </Pressable>
+
+        <Pressable style={styles.navButton} onPress={() => router.push('/compatibility/compatibility-main')}>
+          <Home size={22} color={Colors.white} strokeWidth={1.5} />
+          <Text style={styles.navText}>Compatibility</Text>
         </Pressable>
 
         <Pressable style={styles.askButtonContainer} onPress={() => router.push('/main/devi')}>
@@ -66,6 +71,11 @@ const Footer = () => {
             />
           </LinearGradient>
           <Text style={styles.askText}>Ask</Text>
+        </Pressable>
+
+        <Pressable style={styles.navButton} onPress={() => router.push('/main/wallet')}>
+          <Wallet size={22} color={Colors.white} strokeWidth={1.5} />
+          <Text style={styles.navText}>Wallet</Text>
         </Pressable>
 
         <Pressable style={styles.navButton} onPress={() => router.push('/main/profile')}>
@@ -101,7 +111,7 @@ const styles = StyleSheet.create({
     height: 60,
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   navButton: {
     alignItems: 'center',

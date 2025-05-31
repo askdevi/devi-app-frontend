@@ -30,6 +30,12 @@ const Header = () => {
       }
     };
     loadData();
+
+    const interval = setInterval(() => {
+      loadData();
+    }, 60000); // 60000ms = 1 minute
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleTimePress = () => {
@@ -53,7 +59,10 @@ const Header = () => {
           accessibilityLabel="Account"
         >
           <Text style={styles.coinText}>
-            {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m
+            {Math.floor(time / (1000 * 60 * 60)) > 0
+              ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+              : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+            }
           </Text>
           <Clock color={Colors.gold.DEFAULT} size={20} />
         </TouchableOpacity>
@@ -100,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
   }
-  
+
 });
 
 export default Header;

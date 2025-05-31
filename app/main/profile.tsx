@@ -7,25 +7,26 @@ import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Footer from '@/components/Footer';
 
 export default function SettingsScreen() {
     const router = useRouter();
     const [name, setName] = useState('');
     const [time, setTime] = useState(0);
 
-    const handleBack = () => {
-        router.push('/main/home');
-    };
-
     const handleLogout = async () => {
         await SecureStore.deleteItemAsync('userToken');
         router.replace('/signup/phone');
     };
 
+    const handleSupport = () => {
+        router.push('/main/support');
+    };
+
     useEffect(() => {
         const loadData = async () => {
-            const name = await AsyncStorage.getItem('firstName') as string;
-            setName(name);
+            const firstName = await AsyncStorage.getItem('firstName') as string;
+            setName(firstName);
             const timeEnd1 = await AsyncStorage.getItem('timeEnd');
             const currentTime = Date.now();
             if (timeEnd1) {
@@ -34,6 +35,12 @@ export default function SettingsScreen() {
             }
         };
         loadData();
+
+        const interval = setInterval(() => {
+            loadData();
+        }, 60000);
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -43,9 +50,6 @@ export default function SettingsScreen() {
                     <BackgroundEffects count={30} />
 
                     <View style={styles.headerContainer}>
-                        <TouchableOpacity onPress={handleBack}>
-                            <Text style={styles.backText}>{'<-'}</Text>
-                        </TouchableOpacity>
                         <Text style={styles.header}>Profile</Text>
                     </View>
                     <ScrollView style={styles.scrollView}
@@ -64,7 +68,10 @@ export default function SettingsScreen() {
                                     <View style={styles.timeSection}>
                                         <Text style={styles.infoLabel}>Time Remaining</Text>
                                         <Text style={styles.timeText}>
-                                            {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m
+                                            {Math.floor(time / (1000 * 60 * 60)) > 0
+                                                ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                                                : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                                            }
                                         </Text>
                                     </View>
                                     <TouchableOpacity
@@ -87,7 +94,7 @@ export default function SettingsScreen() {
                                 <Text style={styles.menuText}>Settings</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.menuItem}>
+                            <TouchableOpacity style={styles.menuItem} onPress={handleSupport}>
                                 <Ionicons name="help-circle-outline" size={24} color="#FFD700" />
                                 <Text style={styles.menuText}>Customer Support</Text>
                             </TouchableOpacity>
@@ -98,6 +105,7 @@ export default function SettingsScreen() {
                             </TouchableOpacity>
                         </View>
                     </ScrollView>
+                    <Footer />
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>
@@ -124,11 +132,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
-    },
-    backText: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff',
     },
     header: {
         fontSize: 22,

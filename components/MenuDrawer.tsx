@@ -46,6 +46,11 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
     onClose();
   };
 
+  const handleSupport = () => {
+    router.push('/main/support');
+    onClose();
+  };
+
   useEffect(() => {
     const loadData = async () => {
       let phone1 = await AsyncStorage.getItem('phoneNumber');
@@ -61,6 +66,12 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
       }
     };
     loadData();
+
+    const interval = setInterval(() => {
+      loadData();
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   React.useEffect(() => {
@@ -112,7 +123,10 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
           <View style={styles.statItem}>
             <Clock size={20} color={Colors.gold.DEFAULT} />
             <Text style={styles.statValue}>
-              {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m left
+              {Math.floor(time / (1000 * 60 * 60)) > 0
+                ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+              } left
             </Text>
           </View>
         </View>
@@ -122,7 +136,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
           <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
           <MenuItem icon={User} label="Edit Profile" onPress={handleProfile} />
           <MenuItem icon={History} label="Chat History" onPress={handleChatHistory} />
-          <MenuItem icon={Headphones} label="Customer Support" />
+          <MenuItem icon={Headphones} label="Customer Support" onPress={handleSupport} />
           <MenuItem icon={Settings} label="Settings" onPress={handleSettings} />
         </View>
       </Animated.View>

@@ -7,6 +7,7 @@ import BlessingsSection from './BlessingsSection';
 import BackgroundEffects from './BackgroundEffects';
 import Footer from './Footer';
 import Colors from '@/constants/Colors';
+import CompatibilitySection from './CompatibilitySection';
 
 const MainLayout = () => {
   return (
@@ -24,6 +25,7 @@ const MainLayout = () => {
           >
             <Hero />
             <BlessingsSection />
+            <CompatibilitySection />
             <View style={styles.bottomPadding} />
           </ScrollView>
 

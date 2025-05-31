@@ -9,7 +9,7 @@ import RazorpayCheckout from 'react-native-razorpay';
 import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
-
+import Footer from '@/components/Footer';
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -54,11 +54,14 @@ export default function WalletScreen() {
       }
     };
     loadData();
+
+    const interval = setInterval(() => {
+      loadData();
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const handleBack = () => {
-    router.push('/main/home');
-  };
 
   const handlePurchase = async (pkg: any) => {
     if (isProcessing) return;
@@ -72,8 +75,8 @@ export default function WalletScreen() {
 
       // 2. Open Razorpay
 
-      const name = await AsyncStorage.getItem('firstName');
-      const contact = await AsyncStorage.getItem('phoneNumber');
+      const name = await AsyncStorage.getItem('firstName') || '';
+      const contact = await AsyncStorage.getItem('phoneNumber') || '';
 
       const options = {
         key: 'rzp_live_ZebDbC0aL8Uh1O',
@@ -141,16 +144,16 @@ export default function WalletScreen() {
         <View style={styles.container}>
           <BackgroundEffects count={30} />
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={handleBack}>
-              <Text style={styles.backText}>{'<-'}</Text>
-            </TouchableOpacity>
             <Text style={styles.header}>Wallet</Text>
           </View>
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             <View style={styles.balanceContainer}>
               <View style={styles.balanceItem}>
                 <Text style={styles.balanceValue}>
-                  {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m
+                  {Math.floor(time / (1000 * 60 * 60)) > 0
+                    ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                    : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                  }
                 </Text>
                 <Text style={styles.balanceLabel}>Remaining Time</Text>
               </View>
@@ -174,6 +177,7 @@ export default function WalletScreen() {
               </View>
             ))}
           </ScrollView>
+          <Footer />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
