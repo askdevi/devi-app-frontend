@@ -88,7 +88,7 @@ export default function EditProfileScreen() {
   }, []);
 
   const handleBack = () => {
-    router.back();
+    router.push('/main/home');
   };
 
   const handleUpdate = async () => {
@@ -128,7 +128,7 @@ export default function EditProfileScreen() {
       await AsyncStorage.setItem('occupation', occupation.toLowerCase());
       await AsyncStorage.setItem('gender', gender.toLowerCase());
       alert('Profile updated successfully!');
-      router.back();
+      router.push('/main/home');
     } catch (e) {
       // console.log('Error saving profile data', e);
       alert('Error saving profile data');

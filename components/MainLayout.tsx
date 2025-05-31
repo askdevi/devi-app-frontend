@@ -8,7 +8,7 @@ import BackgroundEffects from './BackgroundEffects';
 import Footer from './Footer';
 import Colors from '@/constants/Colors';
 
-const MainLayout = ({ dailyBlessings }: { dailyBlessings: any }) => {
+const MainLayout = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
@@ -23,7 +23,7 @@ const MainLayout = ({ dailyBlessings }: { dailyBlessings: any }) => {
             showsVerticalScrollIndicator={false}
           >
             <Hero />
-            <BlessingsSection dailyBlessings={dailyBlessings} />
+            <BlessingsSection />
             <View style={styles.bottomPadding} />
           </ScrollView>
 

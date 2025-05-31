@@ -14,7 +14,7 @@ export default function SettingsScreen() {
     const [time, setTime] = useState(0);
 
     const handleBack = () => {
-        router.back();
+        router.push('/main/home');
     };
 
     const handleLogout = async () => {

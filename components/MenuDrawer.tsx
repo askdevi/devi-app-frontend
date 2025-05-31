@@ -32,7 +32,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   };
 
   const handleProfile = () => {
-    router.push('/main/profile');
+    router.push('/main/edit-profile');
     onClose();
   };
 

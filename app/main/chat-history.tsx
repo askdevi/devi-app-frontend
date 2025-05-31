@@ -12,7 +12,7 @@ export default function ChatHistoryScreen() {
     const [chatHistory, setChatHistory] = useState([]);
 
     const handleBack = () => {
-        router.back();
+        router.push('/main/home');
     };
 
     useEffect(() => {

@@ -1,30 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import BlessingCard from './BlessingCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BlessingsSection = ({ dailyBlessings }: { dailyBlessings: any }) => {
 
-  const daily_blessings = JSON.parse(dailyBlessings);
+const BlessingsSection = () => {
+
+  const [dailyBlessings, setDailyBlessings] = useState({
+    luckyMantra: {
+      latinScript: '',
+      sanskritScript: '',
+      direction: '',
+    },
+    luckyColor: '',
+    luckyNumber: '',
+    auspiciousTime: '',
+  });
+
+  useEffect(() => {
+    const fetchDailyBlessings = async () => {
+      const dailyBlessings = await AsyncStorage.getItem('dailyBlessings');
+      setDailyBlessings(JSON.parse(dailyBlessings || '{}'));
+    };
+    fetchDailyBlessings();
+  }, []);
+
   const blessings = [
     {
       title: 'LUCKY MANTRA',
-      mantra: daily_blessings.luckyMantra.latinScript,
-      sanskrit: daily_blessings.luckyMantra.sanskritScript,
-      direction: daily_blessings.luckyMantra.direction,
+      mantra: dailyBlessings.luckyMantra.latinScript,
+      sanskrit: dailyBlessings.luckyMantra.sanskritScript,
+      direction: dailyBlessings.luckyMantra.direction,
     },
     {
       title: 'LUCKY COLOR',
-      color: daily_blessings.luckyColor,
+      color: dailyBlessings.luckyColor,
     },
     {
       title: 'LUCKY NUMBER',
-      number: daily_blessings.luckyNumber,
+      number: dailyBlessings.luckyNumber,
     },
     {
       title: 'AUSPICIOUS TIME',
-      time: daily_blessings.auspiciousTime,
+      time: dailyBlessings.auspiciousTime,
     },
   ];
 

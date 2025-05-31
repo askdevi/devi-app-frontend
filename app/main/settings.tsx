@@ -22,7 +22,7 @@ export default function SettingsScreen() {
     };
 
     const handleBack = () => {
-        router.back();
+        router.push('/main/home');
     };
 
     return (

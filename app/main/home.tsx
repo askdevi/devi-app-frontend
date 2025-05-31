@@ -3,10 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MainLayout from '@/components/MainLayout';
 import Colors from '@/constants/Colors';
-import { useLocalSearchParams } from 'expo-router';
 
 export default function HomeScreen() {
-  const { dailyBlessings } = useLocalSearchParams();
 
   return (
     <View style={styles.container}>
@@ -16,7 +14,7 @@ export default function HomeScreen() {
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
       />
-      <MainLayout dailyBlessings={dailyBlessings} />
+      <MainLayout />
     </View>
   );
 }

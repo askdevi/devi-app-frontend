@@ -155,12 +155,9 @@ export default function LoadingScreen() {
 
                     await AsyncStorage.setItem('chatHistory', JSON.stringify(response3.data.chats));
 
-                    router.push({
-                        pathname: '/main/home',
-                        params: {
-                            dailyBlessings: JSON.stringify(dailyBlessings)
-                        }
-                    });
+                    await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
+
+                    router.push('/main/home');
                 } else {
                     router.push('/signup/phone');
                 }
