@@ -6,6 +6,7 @@ export default function TabsLayout() {
       <Stack.Screen name="home" />
       <Stack.Screen name="loading" />
       <Stack.Screen name="profile" />
+      <Stack.Screen name="edit-profile" />
       <Stack.Screen name="wallet" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="chat-history" />

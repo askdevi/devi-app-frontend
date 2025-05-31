@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Platform, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Menu, User } from 'lucide-react-native';
+import { Menu, User, Coins, Clock } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '../constants/Colors';
 import MenuDrawer from './MenuDrawer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Header = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [time, setTime] = useState(0);
 
   const handlePress = (action: () => void) => {
     if (Platform.OS !== 'web') {
@@ -18,8 +20,20 @@ const Header = () => {
     action();
   };
 
-  const handleProfilePress = () => {
-    handlePress(() => router.push('/main/profile'));
+  useEffect(() => {
+    const loadData = async () => {
+      const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+      const currentTime = Date.now();
+      if (timeEnd1) {
+        const timeEndTimestamp = new Date(timeEnd1).getTime();
+        setTime(Math.max(0, timeEndTimestamp - currentTime));
+      }
+    };
+    loadData();
+  }, []);
+
+  const handleTimePress = () => {
+    handlePress(() => router.push('/main/wallet' as any));
   };
 
   return (
@@ -34,11 +48,14 @@ const Header = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.iconButton}
-          onPress={handleProfilePress}
+          style={styles.iconButton1}
+          onPress={handleTimePress}
           accessibilityLabel="Account"
         >
-          <User color={Colors.gold.DEFAULT} size={24} />
+          <Text style={styles.coinText}>
+            {Math.floor(time / (1000 * 60 * 60))}h {Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m
+          </Text>
+          <Clock color={Colors.gold.DEFAULT} size={20} />
         </TouchableOpacity>
       </View>
 
@@ -68,7 +85,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(45, 17, 82, 0.5)',
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.2)',
+  },
+  coinText: {
+    color: Colors.gold.DEFAULT,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  iconButton1: {
+    // width: 40,
+    // height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
   }
+  
 });
 
 export default Header;

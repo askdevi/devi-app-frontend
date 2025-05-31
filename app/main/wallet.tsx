@@ -46,11 +46,10 @@ export default function WalletScreen() {
 
   useEffect(() => {
     const loadData = async () => {
-      const tokens1 = await AsyncStorage.getItem('tokens');
       const timeEnd1 = await AsyncStorage.getItem('timeEnd');
       const currentTime = Date.now();
-      if (tokens1 && timeEnd1) {
-        const timeEndTimestamp = new Date(JSON.parse(timeEnd1)).getTime();
+      if (timeEnd1) {
+        const timeEndTimestamp = new Date(timeEnd1).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
       }
     };
@@ -73,6 +72,8 @@ export default function WalletScreen() {
 
       // 2. Open Razorpay
 
+      const name = await AsyncStorage.getItem('firstName');
+      const contact = await AsyncStorage.getItem('phoneNumber');
 
       const options = {
         key: 'rzp_live_ZebDbC0aL8Uh1O',
@@ -81,11 +82,11 @@ export default function WalletScreen() {
         name: "Ask Devi",
         description: `${pkg.duration} Access Package`,
         order_id: orderId,
-        handler: async (response: any) => { },
+        // handler: async (response: any) => { },
         prefill: {
-          name: 'Hrishabh',
-          email: 'hrishabh@gmail.com',
-          contact: '9876543210',
+          name: name,
+          email: '',
+          contact: contact,
         },
         theme: { color: Colors.deepPurple.DEFAULT },
       };
@@ -99,11 +100,12 @@ export default function WalletScreen() {
           amountPaid: pkg.price,
         });
         if (verifyRes.data.success) {
-          Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
+          // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
           // Update local storage or state
-          const newTimeEnd = Date.now() + parseDuration(pkg.duration);
-          await AsyncStorage.setItem('timeEnd', JSON.stringify(new Date(newTimeEnd)));
-          setTime(newTimeEnd - Date.now());
+          const newTimeEnd = verifyRes.data.timeEnd;
+          await AsyncStorage.setItem('timeEnd', newTimeEnd);
+          const timeEndTimestamp = new Date(newTimeEnd).getTime();
+          setTime(timeEndTimestamp - Date.now());
           router.push('/main/devi');
         } else {
           throw new Error('Verification failed');

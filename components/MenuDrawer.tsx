@@ -56,7 +56,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
         phone1 = phone1.replace('+91', '+91 ');
         setPhone(phone1);
         setFirstName(firstName1);
-        const timeEndTimestamp = new Date(JSON.parse(timeEnd1)).getTime();
+        const timeEndTimestamp = new Date(timeEnd1).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
       }
     };
