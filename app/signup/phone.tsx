@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Image, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Image, Keyboard, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import Domain from '@/constants/domain';
@@ -10,6 +10,7 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import OrbitingStars from '@/components/orbitingStars';
 import BackgroundGradient from '@/components/BackgroundGradient';
 import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
@@ -19,6 +20,28 @@ export default function PhoneScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  
+  const glowAnimation = new Animated.Value(0);
+
+  useEffect(() => {
+    const startGlowAnimation = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnimation, {
+            toValue: 1,
+            duration: 1500,
+            useNativeDriver: false,
+          }),
+          Animated.timing(glowAnimation, {
+            toValue: 0,
+            duration: 1500,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
+    };
+    startGlowAnimation();
+  }, []);
 
   const GlowEffect = () => {
     return (
@@ -47,6 +70,81 @@ export default function PhoneScreen() {
             fill="url(#glow)"
           />
         </Svg>
+      </View>
+    );
+  };
+  
+  const GradientTitle = () => {
+    const glowOpacity = glowAnimation.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [0.39, 0.98, 0.39],
+    });
+
+    const shadowRadius1 = glowAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: [12, 18],
+    });
+
+    const shadowRadius2 = glowAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: [25, 35],
+    });
+
+    return (
+      <View style={styles.titleContainer}>
+        <MaskedView
+          maskElement={
+            <Text style={styles.titleMask}>Ask Devi</Text>
+          }
+        >
+          <LinearGradient
+            colors={['#FFD700', '#FFF5CC', '#FFD700']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.titleGradient}
+          />
+        </MaskedView>
+        
+        {/* Glow Effect Layers */}
+        <Animated.Text 
+          style={[
+            styles.titleGlow,
+            {
+              opacity: glowOpacity,
+              textShadowColor: 'rgba(255, 215, 0, 0.39)',
+              textShadowRadius: shadowRadius1,
+              textShadowOffset: { width: 0, height: 0 },
+            }
+          ]}
+        >
+          Ask Devi
+        </Animated.Text>
+        <Animated.Text 
+          style={[
+            styles.titleGlow,
+            {
+              opacity: glowOpacity,
+              textShadowColor: 'rgba(255, 215, 0, 0.29)',
+              textShadowRadius: shadowRadius2,
+              textShadowOffset: { width: 0, height: 0 },
+            }
+          ]}
+        >
+          Ask Devi
+        </Animated.Text>
+      </View>
+    );
+  };
+
+  const TermsText = () => {
+    return (
+      <View style={styles.termsContainer}>
+        <Text style={styles.termsText}>
+          By continuing, you agree to our{' '}
+          <Text style={styles.termsLink}>Terms</Text>
+          {' '}and{' '}
+          <Text style={styles.termsLink}>Privacy Policy</Text>
+        </Text>
       </View>
     );
   };
@@ -97,7 +195,7 @@ export default function PhoneScreen() {
             <OrbitingStars />
           </View>
 
-          <Text style={styles.title}>Ask Devi</Text>
+          <GradientTitle />
           <Text style={styles.subtitle}>Your Personal Vedic Astrologer</Text>
         </View>
 
@@ -105,10 +203,13 @@ export default function PhoneScreen() {
           <View style={styles.phonePrefix}>
             <Text style={styles.prefixText}>+91</Text>
           </View>
+          
+          <View style={styles.divider} />
+
           <TextInput
             style={styles.input}
             placeholder="Enter your phone number"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="rgba(255, 215, 0, 0.4)"
             keyboardType="phone-pad"
             value={phone}
             onChangeText={(text) => {
@@ -130,18 +231,19 @@ export default function PhoneScreen() {
           disabled={loading}
         >
           <LinearGradient
-            colors={['#FFD700', '#FDB137']}
+            colors={['#FFD700', '#FFA500', '#FFD700']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.button}
           >
-            <Text style={styles.buttonText}>{loading ? 'Sending...' : 'Send OTP'}</Text>
+            <Text style={styles.buttonText}>
+              {loading ? 'Sending...' : 'Send OTP'}
+              {/* {!loading && <Text style={{ fontSize: 16, color: Colors.deepPurple.DEFAULT }}>  →</Text>} */}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        <Text style={styles.termsText}>
-          By continuing, you agree to our Terms of Service and Privacy Policy
-        </Text>
+        <TermsText />
       </View>
     </View>
   );
@@ -176,7 +278,7 @@ const styles = StyleSheet.create({
     height: 240,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 0,
+    marginBottom: -10,
     borderRadius: 120,
     overflow: 'hidden',
   },
@@ -193,19 +295,41 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 10,
   },
-  title: {
-    fontSize: 42,
-    fontWeight: 'bold',
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 4,
+    position: 'relative',
+  },
+  titleMask: {
+    fontSize: 36,
+    lineHeight: 32,
+    fontWeight: '700',
     textAlign: 'center',
     includeFontPadding: false,
-    color: '#FFD700',
-    textShadowColor: 'rgba(255, 215, 0, 0.6)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    letterSpacing: 0.025 * 36,
+  },
+  titleGradient: {
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 200,
+  },
+  titleGlow: {
+    position: 'absolute',
+    top: 0,
+    fontSize: 36,
+    lineHeight: 32,
+    fontWeight: '700',
+    textAlign: 'center',
+    includeFontPadding: false,
+    letterSpacing: 0.025 * 36,
+    color: 'transparent',
+    zIndex: -1,
   },
   subtitle: {
     fontSize: 18,
-    color: '#FFD700',
+    lineHeight: 20,
+    color: '#FFD700CC',
     opacity: 0.8,
     textAlign: 'center',
     marginTop: 8,
@@ -216,35 +340,43 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 16,
     marginTop: -100,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderColor: 'rgba(255, 215, 0, 0.2)', 
   },
   phonePrefix: {
-    backgroundColor: 'rgba(45, 17, 82, 0.7)',
-    paddingHorizontal: 12,
+    backgroundColor: 'rgba(45, 17, 82, 0.3)',
+    paddingHorizontal: 16,
     paddingVertical: 14,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderColor: 'rgba(255, 215, 0, 0.2)',
     borderRightWidth: 0,
     justifyContent: 'center',
   },
   prefixText: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: Colors.white,
+    color: '#FFD700',
+  },
+  divider: {
+    width: 0.2,
+    backgroundColor: 'rgba(255, 215, 0, 0.3)',
+    alignSelf: 'stretch',
   },
   input: {
     flex: 1,
-    backgroundColor: 'rgba(45, 17, 82, 0.7)',
+    backgroundColor: 'rgba(45, 17, 82, 0.3)',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
-    color: Colors.white,
+    color: '#FFD700',
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderColor: 'rgba(255, 215, 0, 0.2)',
     borderLeftWidth: 0,
   },
   errorText: {
@@ -256,10 +388,10 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    height: 50,
-    borderRadius: 25,
+    height: 48,
+    borderRadius: 8,
     overflow: 'hidden',
-    marginBottom: 24,
+    marginBottom: 12,
   },
   button: {
     width: '100%',
@@ -271,14 +403,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: Colors.deepPurple.DEFAULT,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  termsContainer: {
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 150,
+    maxWidth: '80%',
   },
   termsText: {
     fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
+    color: 'rgba(156, 163, 175, 1)',
     textAlign: 'center',
-    maxWidth: '80%',
-    marginTop: 16,
-    marginBottom: 150,
+    lineHeight: 18,
+  },
+  termsLink: {
+    color: '#FFD700',
+    fontFamily: 'Poppins-Medium',
   },
 });
