@@ -7,6 +7,7 @@ export default function SetupLayout() {
       <Stack.Screen name="gender" />
       <Stack.Screen name="birth-details" />
       <Stack.Screen name="birth-place" />
+      <Stack.Screen name="personal-details" />
     </Stack>
   );
 }

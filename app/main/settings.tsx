@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
+import Domain from '@/constants/domain';
+import { getUserId } from '@/constants/userId';
+import axios from 'axios';
 
 export default function SettingsScreen() {
     const router = useRouter();
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [soundEnabled, setSoundEnabled] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleLogout = () => {
         SecureStore.deleteItemAsync('userId');
@@ -18,7 +22,62 @@ export default function SettingsScreen() {
     };
 
     const handleDeleteAccount = () => {
+        Alert.alert(
+            "Delete Account",
+            "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: confirmDeleteAccount
+                }
+            ]
+        );
         console.log('Delete account');
+    };
+    
+    const confirmDeleteAccount = async () => {
+        try {
+            setIsDeleting(true);
+            
+            const userId = await getUserId();
+            console.log('User ID:', userId);
+            
+            if (!userId) {
+                Alert.alert("Error", "User ID not found. Please try logging in again.");
+                return;
+            }
+
+            const response = await axios.delete(`${Domain}/delete-user`, {
+            params: { userId }
+        });
+
+            if (response.status === 200) {
+                Alert.alert(
+                    "Account Deleted",
+                    "Your account has been successfully deleted.",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => {
+                                SecureStore.deleteItemAsync('userId');
+                                router.push('/signup/phone');
+                            }
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert("Error", "Failed to delete account. Please try again.");
+            }
+        } catch (error) {
+            console.error('Delete account error:', error);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const handleBack = () => {
@@ -87,8 +146,14 @@ export default function SettingsScreen() {
                         </TouchableOpacity>
 
                         {/* Delete Account */}
-                        <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount}>
-                            <Text style={styles.deleteText}>Delete my account</Text>
+                        <TouchableOpacity 
+                            style={[styles.deleteBtn, isDeleting && styles.deleteBtnDisabled]} 
+                            onPress={handleDeleteAccount}
+                            disabled={isDeleting}
+                        >
+                            <Text style={styles.deleteText}>
+                                {isDeleting ? 'Deleting account...' : 'Delete my account'}
+                            </Text>
                         </TouchableOpacity>
                     </ScrollView>
                 </View>
@@ -175,6 +240,9 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 16,
         marginTop: 10,
+    },
+    deleteBtnDisabled: {
+        opacity: 0.6,
     },
     deleteText: {
         color: '#ff8080',

@@ -1,17 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
+import { X, ArrowLeft, Sparkles } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
+import Dropdown from '@/components/Setup/Dropdown';
+import axios from 'axios';
+import { getUserId } from '@/constants/userId';
+import Domain from '@/constants/domain';
+import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
 
-export default function GenderScreen() {
-  const [gender, setGender] = useState<'male' | 'female' | null>(null);
-  const router = useRouter();
+const languages = [
+  "Hinglish",
+  "English"
+];
 
+const relationshipStatuses = [
+  "Single",
+  "Dating",
+  "Married",
+  "Other"
+];
+
+const occupations = [
+  "Employed",
+  "Self-Employed",
+  "Homemaker",
+  "Student",
+  "Other"
+];
+
+export default function PersonalDetailsScreen() {
+  const router = useRouter();
+  const [language, setLanguage] = useState('');
+  const [relationshipStatus, setRelationshipStatus] = useState('');
+  const [occupation, setOccupation] = useState('');
+  
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
   const glowAnimation = useRef(new Animated.Value(0)).current;
@@ -48,34 +75,61 @@ export default function GenderScreen() {
     };
   }, []);
 
-  const handleContinue = async () => {
-    if (gender) {
-      Animated.sequence([
-        Animated.timing(scaleAnimation, {
-          toValue: 0.95,
-          duration: 100,
-          useNativeDriver: false,
-        }),
-        Animated.timing(scaleAnimation, {
-          toValue: 1,
-          duration: 100,
-          useNativeDriver: false,
-        }),
-      ]).start();
+  const handleComplete = async () => {
+    Animated.sequence([
+      Animated.timing(scaleAnimation, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: false,
+      }),
+      Animated.timing(scaleAnimation, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: false,
+      }),
+    ]).start();
 
-      try {
-        await AsyncStorage.setItem('gender', gender);
-        router.push('/register/birth-details');
-      } catch (error) {
-        console.log('Error saving gender:', error);
+    try {
+      await AsyncStorage.setItem('language', language);
+      await AsyncStorage.setItem('relationshipStatus', relationshipStatus);
+      await AsyncStorage.setItem('occupation', occupation);
+
+      const phoneNumber = await AsyncStorage.getItem('phoneNumber');
+      const firstName = await AsyncStorage.getItem('firstName');
+      const lastName = await AsyncStorage.getItem('lastName');
+      const birthDate = await AsyncStorage.getItem('birthDate');
+      const birthTime = await AsyncStorage.getItem('birthTime');
+      const gender = await AsyncStorage.getItem('gender');
+      const birthPlaceData = await AsyncStorage.getItem('birthPlaceData');
+      const birthPlace = birthPlaceData ? JSON.parse(birthPlaceData) : null;
+
+      const userId = await getUserId();
+
+      const body = {
+        userId,
+        phoneNumber,
+        firstName,
+        lastName,
+        birthDate,
+        birthTime,
+        gender: gender ? gender.toLowerCase() : "",
+        birthPlace: birthPlace,
+        preferredLanguage: language.toLowerCase(),
+        relationshipStatus: relationshipStatus.toLowerCase(),
+        occupation: occupation.toLowerCase()
       }
+
+      await axios.post(`${Domain}/register`, body);
+      router.push('/main/loading' as any);
+    } catch (error) {
+      console.log('Error saving data:', error);
     }
   };
 
   const handleBack = () => {
     router.back();
   };
-
+  
   const gradientTranslateX = gradientAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [-200, 200],
@@ -85,6 +139,8 @@ export default function GenderScreen() {
     inputRange: [0, 1],
     outputRange: [0.3, 0.8],
   });
+
+  const isFormComplete = language && relationshipStatus && occupation;
 
   const GradientText = ({ children, style }: { children: string; style?: any }) => {
     return (
@@ -107,7 +163,7 @@ export default function GenderScreen() {
       </MaskedView>
     );
   };
-
+  
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -115,45 +171,54 @@ export default function GenderScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={styles.content}>
-        <SetupProgress currentStep={2} totalSteps={5} />
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <SetupProgress currentStep={5} totalSteps={5} />
 
         <View style={styles.header}>
-          <GradientText style={styles.title}>Gender</GradientText>
-          <Text style={styles.subtitle}>Please select your gender</Text>
+          <GradientText style={styles.title}>Personal Details</GradientText>
+          <Text style={styles.subtitle}>Your Personal Details</Text>
         </View>
 
-        <View style={styles.genderContainer}>
-          <TouchableOpacity
-            style={[styles.genderOption, gender === 'male' && styles.genderOptionSelected]}
-            onPress={() => setGender('male')}
-          >
-            <Text style={[styles.genderSymbol, gender === 'male' && styles.genderSymbolSelected]}>♂</Text>
-            <Text style={[styles.genderText, gender === 'male' && styles.genderTextSelected]}>Male</Text>
-          </TouchableOpacity>
+        <View style={styles.form}>
+          <Dropdown
+            label="Preferred Language"
+            value={language}
+            items={languages}
+            onSelect={setLanguage}
+            placeholder="Select language"
+          />
 
-          <TouchableOpacity
-            style={[styles.genderOption, gender === 'female' && styles.genderOptionSelected]}
-            onPress={() => setGender('female')}
-          >
-            <Text style={[styles.genderSymbol, gender === 'female' && styles.genderSymbolSelected]}>♀</Text>
-            <Text style={[styles.genderText, gender === 'female' && styles.genderTextSelected]}>Female</Text>
-          </TouchableOpacity>
+          <Dropdown
+            label="Relationship Status"
+            value={relationshipStatus}
+            items={relationshipStatuses}
+            onSelect={setRelationshipStatus}
+            placeholder="Select status"
+          />
+
+          <Dropdown
+            label="Occupation"
+            value={occupation}
+            items={occupations}
+            onSelect={setOccupation}
+            placeholder="Select occupation"
+          />
         </View>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.previousButton}
+            style={styles.backButton}
             onPress={handleBack}
           >
             <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
-            <Text style={styles.previousButtonText}>Previous</Text>
+            <Text style={styles.backButtonText}>Previous</Text>
           </TouchableOpacity>
 
+          
           <Animated.View
             style={[
-              styles.continueButton,
-              !gender && styles.continueButtonDisabled,
+              styles.completeButton,
+              !isFormComplete && styles.completeButtonDisabled,
               {
                 transform: [{ scale: scaleAnimation }],
                 shadowOpacity: glowOpacity,
@@ -161,15 +226,15 @@ export default function GenderScreen() {
             ]}
           >
             <TouchableOpacity
-              style={styles.continueButtonTouchable}
-              onPress={handleContinue}
-              disabled={!gender}
+              style={styles.completeButtonTouchable}
+              onPress={handleComplete}
+              disabled={!isFormComplete}
               activeOpacity={0.8}
             >
               <View style={styles.gradientContainer}>
                 <LinearGradient
                   colors={['#FFD700', '#FF8C00', '#FFD700']}
-                  style={styles.continueButtonGradient}
+                  style={styles.completeButtonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 />
@@ -191,8 +256,8 @@ export default function GenderScreen() {
                 </Animated.View>
                 
                 <View style={styles.buttonContent}>
-                  <Text style={styles.continueButtonText}>Continue</Text>
-                  <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
+                  <Text style={styles.completeButtonText}>Complete</Text>
+                  <Sparkles color={Colors.deepPurple.DEFAULT} size={20} />
                 </View>
               </View>
             </TouchableOpacity>
@@ -200,10 +265,10 @@ export default function GenderScreen() {
         </View>
 
         <Text style={styles.quote}>
-          In the stars lies the map of your destiny
+          The cosmos whispers your truth through time and space
         </Text>
 
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -219,7 +284,6 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
-    textAlign: 'center',
   },
   title: {
     fontFamily: 'Poppins-Bold',
@@ -235,41 +299,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.9,
   },
-  genderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  form: {
     marginBottom: 32,
-  },
-  genderOption: {
-    flex: 1,
-    aspectRatio: 1,
-    margin: 8,
-    borderRadius: 16,
-    backgroundColor: 'rgba(45, 17, 82, 0.3)',
-    borderWidth: 2,
-    borderColor: `${Colors.gold.DEFAULT}20`,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  genderOptionSelected: {
-    backgroundColor: `${Colors.gold.DEFAULT}20`,
-    borderColor: Colors.gold.DEFAULT,
-  },
-  genderSymbol: {
-    fontSize: 44,
-    color: `${Colors.gold.DEFAULT}60`,
-    marginBottom: 8,
-  },
-  genderSymbolSelected: {
-    color: Colors.gold.DEFAULT,
-  },
-  genderText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
-    color: `${Colors.gold.DEFAULT}60`,
-  },
-  genderTextSelected: {
-    color: Colors.gold.DEFAULT,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -277,7 +308,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  previousButton: {
+  backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
@@ -287,17 +318,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: `${Colors.gold.DEFAULT}20`,
   },
-  previousButtonText: {
+  backButtonText: {
     fontFamily: 'Poppins-Medium',
     fontSize: 16,
     color: Colors.gold.DEFAULT,
     marginLeft: 8,
   },
-  continueButton: {
+  completeButton: {
     flex: 1,
     marginLeft: 16,
     height: 50,
     borderRadius: 8,
+    overflow: 'hidden',
     shadowColor: Colors.gold.DEFAULT,
     shadowOffset: {
       width: 0,
@@ -306,11 +338,11 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
   },
-  continueButtonDisabled: {
+  completeButtonDisabled: {
     opacity: 0.5,
     shadowOpacity: 0,
   },
-  continueButtonTouchable: {
+  completeButtonTouchable: {
     flex: 1,
     borderRadius: 8,
     overflow: 'hidden',
@@ -319,7 +351,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-  continueButtonGradient: {
+  completeButtonGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -345,7 +377,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     position: 'relative',
   },
-  continueButtonText: {
+  completeButtonText: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: Colors.deepPurple.DEFAULT,

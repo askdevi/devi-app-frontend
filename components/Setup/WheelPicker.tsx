@@ -9,7 +9,7 @@ interface WheelPickerProps {
   label: string;
 }
 
-const ITEM_HEIGHT = 40;
+const ITEM_HEIGHT = 36;
 const VISIBLE_ITEMS = 3;
 
 export default function WheelPicker({ items, value, onChange, label }: WheelPickerProps) {

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
@@ -7,17 +7,18 @@ import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 import WheelPicker from '@/components/Setup/WheelPicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function BirthDetailsScreen() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState({
-    day: new Date().getDate(),
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
+    day: String(new Date().getDate()).padStart(2, '0'),
+    month: String(new Date().getMonth() + 1).padStart(2, '0'),
+    year: String(new Date().getFullYear())
   });
 
   const [selectedTime, setSelectedTime] = useState({
-    hour: '12',
+    hour: '01',
     minute: '00',
     period: 'AM'
   });
@@ -30,11 +31,60 @@ export default function BirthDetailsScreen() {
   const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
   const periods = ['AM', 'PM'];
+  
+  const gradientAnimation = useRef(new Animated.Value(0)).current;
+  const scaleAnimation = useRef(new Animated.Value(1)).current;
+  const glowAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const gradientLoop = Animated.loop(
+      Animated.timing(gradientAnimation, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: false,
+      })
+    );
+    gradientLoop.start();
+
+    const glowLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnimation, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnimation, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+    glowLoop.start();
+
+    return () => {
+      gradientLoop.stop();
+      glowLoop.stop();
+    };
+  }, []);
 
   const handleContinue = async () => {
+    Animated.sequence([
+      Animated.timing(scaleAnimation, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: false,
+      }),
+      Animated.timing(scaleAnimation, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: false,
+      }),
+    ]).start();
+
     try {
-      const birthDate = `${selectedDate.year}-${selectedDate.month < 10 ? '0' + selectedDate.month : selectedDate.month}-${selectedDate.day < 10 ? '0' + selectedDate.day : selectedDate.day}`;
-      const birthTime = knowsBirthTime ? `${selectedTime.period === 'AM' ? selectedTime.hour : Number(selectedTime.hour) + 12}:${selectedTime.minute}` : null;
+      const birthDate = `${selectedDate.year}-${selectedDate.month}-${selectedDate.day}`;
+      const birthTime = knowsBirthTime ? `${selectedTime.period === 'AM' ? selectedTime.hour : String(Number(selectedTime.hour) + 12).padStart(2, '0')}:${selectedTime.minute}` : null;
       await AsyncStorage.setItem('birthDate', birthDate);
       await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '00:00');
       router.push('/register/birth-place');
@@ -47,10 +97,38 @@ export default function BirthDetailsScreen() {
     router.back();
   };
 
-  const handleExit = () => {
-    router.replace('/');
-  };
+  const gradientTranslateX = gradientAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-200, 200],
+  });
 
+  const glowOpacity = glowAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.8],
+  });
+
+  const GradientText = ({ children, style }: { children: string; style?: any }) => {
+    return (
+      <MaskedView
+        style={style}
+        maskElement={
+          <Text style={[style, { backgroundColor: 'transparent' }]}>
+            {children}
+          </Text>
+        }
+      >
+        <LinearGradient
+          colors={['#FFD700', '#FF8C00', '#FFD700']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={style}
+        >
+          <Text style={[style, { opacity: 0 }]}>{children}</Text>
+        </LinearGradient>
+      </MaskedView>
+    );
+  };
+  
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -58,38 +136,31 @@ export default function BirthDetailsScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity
-        onPress={handleExit}
-        style={styles.exitButton}
-      >
-        <X color={Colors.gold.DEFAULT} size={24} />
-      </TouchableOpacity>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <SetupProgress currentStep={3} totalSteps={4} />
+      <View style={styles.content} >
+        <SetupProgress currentStep={3} totalSteps={5} />
 
         <View style={styles.header}>
-          <Text style={styles.title}>Birth Details</Text>
+          <GradientText style={styles.title}>Birth Details</GradientText>
           <Text style={styles.subtitle}>When were you born?</Text>
         </View>
 
         <View style={styles.datePickerContainer}>
           <WheelPicker
             items={days}
-            value={String(selectedDate.day)}
-            onChange={(value) => setSelectedDate(prev => ({ ...prev, day: Number(value) }))}
+            value={selectedDate.day}
+            onChange={(value) => setSelectedDate(prev => ({ ...prev, day: value }))}
             label="Day"
           />
           <WheelPicker
             items={months}
-            value={String(selectedDate.month)}
-            onChange={(value) => setSelectedDate(prev => ({ ...prev, month: Number(value) }))}
+            value={selectedDate.month}
+            onChange={(value) => setSelectedDate(prev => ({ ...prev, month: value }))}
             label="Month"
           />
           <WheelPicker
             items={years}
-            value={String(selectedDate.year)}
-            onChange={(value) => setSelectedDate(prev => ({ ...prev, year: Number(value) }))}
+            value={selectedDate.year}
+            onChange={(value) => setSelectedDate(prev => ({ ...prev, year: value }))}
             label="Year"
           />
         </View>
@@ -168,14 +239,7 @@ export default function BirthDetailsScreen() {
           Your birth chart is the canvas of your soul's journey
         </Text>
 
-        <TouchableOpacity
-          onPress={handleExit}
-          style={styles.exitTextButton}
-        >
-          <X color={`${Colors.gold.DEFAULT}50`} size={16} />
-          <Text style={styles.exitText}>Exit Setup</Text>
-        </TouchableOpacity>
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -184,27 +248,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  exitButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(45, 17, 82, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: `${Colors.gold.DEFAULT}20`,
-    zIndex: 10,
-  },
   content: {
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 100,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 24,
   },
   title: {
     fontFamily: 'Poppins-Bold',
@@ -216,26 +266,26 @@ const styles = StyleSheet.create({
   subtitle: {
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: Colors.white,
+    color: '#d1d5dbe6',
     textAlign: 'center',
     opacity: 0.9,
   },
   datePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   timeQuestion: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 18,
-    color: Colors.white,
+    fontSize: 16,
+    color: '#d1d5dbe6',
     textAlign: 'center',
     marginBottom: 16,
   },
   timeOptionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 24,
     gap: 16,
   },
   timeOption: {
@@ -263,7 +313,7 @@ const styles = StyleSheet.create({
   timePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -276,7 +326,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 25,
+    borderRadius: 8,
     backgroundColor: 'rgba(45, 17, 82, 0.3)',
     borderWidth: 2,
     borderColor: `${Colors.gold.DEFAULT}20`,
@@ -291,7 +341,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 16,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 8,
     overflow: 'hidden',
   },
   continueButtonGradient: {
@@ -310,22 +360,10 @@ const styles = StyleSheet.create({
   quote: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
-    color: Colors.white,
+    color: '#d1d5dbe6',
     opacity: 0.7,
     textAlign: 'center',
     fontStyle: 'italic',
     marginBottom: 24,
-  },
-  exitTextButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-  },
-  exitText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: `${Colors.gold.DEFAULT}50`,
-    marginLeft: 8,
   },
 });
