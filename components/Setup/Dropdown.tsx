@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     label: {
         fontFamily: 'Poppins-Medium',
         fontSize: 14,
-        color: Colors.gold.DEFAULT,
+        color: '#d1d5dbe6',
         marginBottom: 8,
     },
     button: {

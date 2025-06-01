@@ -49,7 +49,7 @@ export default function NameScreen() {
       glowLoop.stop();
     };
   }, []);
-  
+
   const handleContinue = async () => {
     if (firstName.trim() && lastName.trim()) {
       Animated.sequence([
@@ -114,22 +114,22 @@ export default function NameScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      {/* <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <View style={styles.backArrowContainer}>
-          <Ionicons 
-            name="arrow-back" 
-            size={20} 
-            color="#FFD700" 
+          <Ionicons
+            name="arrow-back"
+            size={20}
+            color="#FFD700"
           />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <View style={styles.content}>
         <SetupProgress currentStep={1} totalSteps={5} />
 
-        <View style={styles.header}>
-          <GradientText style={styles.title}>Namaste</GradientText>
-        </View>
+        {/* <View style={styles.header}> */}
+        <GradientText style={styles.title}>Namaste</GradientText>
+        {/* </View> */}
 
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>First Name</Text>
@@ -176,7 +176,7 @@ export default function NameScreen() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
               />
-              
+
               <Animated.View
                 style={[
                   styles.animatedGradientOverlay,
@@ -192,7 +192,7 @@ export default function NameScreen() {
                   end={{ x: 1, y: 0 }}
                 />
               </Animated.View>
-              
+
               <View style={styles.buttonContent}>
                 <Text style={styles.continueButtonText}>Continue</Text>
                 <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
@@ -247,15 +247,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 32,
     color: Colors.gold.DEFAULT,
-    marginBottom: 8,
-    textAlign: 'center',
+    marginBottom: 4,
+    // textAlign: 'center',
   },
   inputGroup: {
     marginBottom: 16,
   },
   inputLabel: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 14,
+    fontSize: 16,
     color: '#d1d5dbe6',
     marginBottom: 8,
     marginLeft: 4,
@@ -274,6 +274,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 8,
     marginBottom: 24,
+    marginTop: 26,
     shadowColor: Colors.gold.DEFAULT,
     shadowOffset: {
       width: 0,

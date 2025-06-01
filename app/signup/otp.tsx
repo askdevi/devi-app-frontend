@@ -23,7 +23,7 @@ export default function OtpScreen() {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const router = useRouter();
   const { phone } = useLocalSearchParams();
-  
+
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const glowAnimation = new Animated.Value(0);
 
@@ -77,9 +77,9 @@ export default function OtpScreen() {
             style={styles.titleGradient}
           />
         </MaskedView>
-        
+
         {/* Glow Effect Layers */}
-        <Animated.Text 
+        <Animated.Text
           style={[
             styles.titleGlow,
             {
@@ -92,7 +92,7 @@ export default function OtpScreen() {
         >
           Enter OTP
         </Animated.Text>
-        <Animated.Text 
+        <Animated.Text
           style={[
             styles.titleGlow,
             {
@@ -111,7 +111,7 @@ export default function OtpScreen() {
 
   const handleOtpChange = (value: string, index: number) => {
     if (value.length > 1) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -156,12 +156,12 @@ export default function OtpScreen() {
       });
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
       await storeUserId(response.data.userId);
-      if(response.data.exists){
+      if (response.data.exists) {
         router.push('/main/loading');
       } else {
         router.push('/register/name');
       }
-      console.log(response.data);
+      // console.log(response.data);
     } catch (err) {
       console.log(err);
       setError('Invalid code. Please try again.');
@@ -188,10 +188,10 @@ export default function OtpScreen() {
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <View style={styles.backArrowContainer}>
-          <Ionicons 
-            name="arrow-back" 
-            size={20} 
-            color="#FFD700" 
+          <Ionicons
+            name="arrow-back"
+            size={20}
+            color="#FFD700"
           />
         </View>
       </TouchableOpacity>
