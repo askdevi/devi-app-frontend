@@ -596,6 +596,39 @@ const styles = StyleSheet.create({
         height: Platform.OS === 'ios' ? 120 : 100,
         overflow: 'hidden',
     },
+    content: {
+        padding: 20,
+        paddingTop: 30,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        position: 'relative',
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 12,
+        zIndex: 10,
+    },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    underline: {
+        height: 3,
+        width: 80,
+        marginTop: 8,
+        borderRadius: 1.5,
+    },
     headerContent: {
         flexDirection: 'row',
         alignItems: 'center',
