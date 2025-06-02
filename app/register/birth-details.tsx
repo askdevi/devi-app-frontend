@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Animated,
+  TextInput
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
@@ -11,6 +19,63 @@ import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function BirthDetailsScreen() {
   const router = useRouter();
+  const currentYear = new Date().getFullYear();
+
+  const [knowsBirthTime, setKnowsBirthTime] = useState<boolean | null>(null);
+  const [day, setDay] = useState('');
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
+  const [hour, setHour] = useState('');
+  const [minute, setMinute] = useState('');
+  const [birthTimePeriod, setBirthTimePeriod] = useState<string>('AM');
+
+  // Refs for inputs
+  const monthRef = useRef<TextInput>(null);
+  const yearRef = useRef<TextInput>(null);
+  const hourRef = useRef<TextInput>(null);
+  const minuteRef = useRef<TextInput>(null);
+
+  const validateDay = (text: string) => {
+    let val = text;
+    if (parseInt(val) > 31) val = '';
+    setDay(val);
+    if (val.length >= 2) {
+      monthRef.current?.focus();
+    }
+  };
+
+  const validateMonth = (text: string) => {
+    let val = text;
+    if (parseInt(val) > 12) val = '';
+    setMonth(val);
+    if (val.length >= 2) {
+      yearRef.current?.focus();
+    }
+  };
+
+  const validateYear = (text: string) => {
+    let val = text;
+    if (parseInt(val) > currentYear) val = currentYear.toString();
+    const final = val.toString();
+    setYear(final);
+  };
+
+  const validateHour = (text: string) => {
+    let val = text;
+    if (parseInt(val) > 12) val = '';
+    const final = val.toString();
+    setHour(final);
+    if (final.length >= 2) {
+      minuteRef.current?.focus();
+    }
+  };
+
+  const validateMinute = (text: string) => {
+    let val = text;
+    if (parseInt(val) > 59) val = '';
+    setMinute(val);
+  };
+
   const [selectedDate, setSelectedDate] = useState({
     day: String(new Date().getDate()).padStart(2, '0'),
     month: String(new Date().getMonth() + 1).padStart(2, '0'),
@@ -23,15 +88,13 @@ export default function BirthDetailsScreen() {
     period: 'AM'
   });
 
-  const [knowsBirthTime, setKnowsBirthTime] = useState<boolean | null>(false);
-
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const years = Array.from({ length: 100 }, (_, i) => String(new Date().getFullYear() - i));
   const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
   const periods = ['AM', 'PM'];
-  
+
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
   const glowAnimation = useRef(new Animated.Value(0)).current;
@@ -83,8 +146,15 @@ export default function BirthDetailsScreen() {
     ]).start();
 
     try {
-      const birthDate = `${selectedDate.year}-${selectedDate.month}-${selectedDate.day}`;
-      const birthTime = knowsBirthTime ? `${selectedTime.period === 'AM' ? selectedTime.hour : String(Number(selectedTime.hour) + 12).padStart(2, '0')}:${selectedTime.minute}` : null;
+      // const birthDate = `${selectedDate.year}-${selectedDate.month}-${selectedDate.day}`;
+      const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      const birthTime = knowsBirthTime
+        ? `${
+            birthTimePeriod === 'AM'
+              ? hour
+              : String(Number(hour) + 12).padStart(2, '0')
+          }:${minute}`
+        : null;
       await AsyncStorage.setItem('birthDate', birthDate);
       await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '00:00');
       router.push('/register/birth-place');
@@ -128,15 +198,18 @@ export default function BirthDetailsScreen() {
       </MaskedView>
     );
   };
-  
+
   return (
-    <View style={styles.container}>
+     <ScrollView 
+            contentContainerStyle={styles.container}
+            keyboardShouldPersistTaps="handled"
+           >
       <LinearGradient
         colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={styles.content} >
+      <View style={styles.content}>
         <SetupProgress currentStep={3} totalSteps={5} />
 
         <View style={styles.header}>
@@ -145,23 +218,43 @@ export default function BirthDetailsScreen() {
         </View>
 
         <View style={styles.datePickerContainer}>
-          <WheelPicker
-            items={days}
-            value={selectedDate.day}
-            onChange={(value) => setSelectedDate(prev => ({ ...prev, day: value }))}
-            label="Day"
+          <TextInput
+            style={styles.input}
+            value={day}
+            onChangeText={validateDay}
+            placeholder="DD"
+            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+            keyboardType="number-pad"
+            maxLength={2}
+            returnKeyType="next"
           />
-          <WheelPicker
-            items={months}
-            value={selectedDate.month}
-            onChange={(value) => setSelectedDate(prev => ({ ...prev, month: value }))}
-            label="Month"
+          <View style={styles.slashBox}>
+            <Text style={styles.inputSlash}>/</Text>
+          </View>
+          <TextInput
+            ref={monthRef}
+            style={styles.input}
+            value={month}
+            onChangeText={validateMonth}
+            placeholder="MM"
+            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+            keyboardType="number-pad"
+            maxLength={2}
+            returnKeyType="next"
           />
-          <WheelPicker
-            items={years}
-            value={selectedDate.year}
-            onChange={(value) => setSelectedDate(prev => ({ ...prev, year: value }))}
-            label="Year"
+          <View style={styles.slashBox}>
+            <Text style={styles.inputSlash}>/</Text>
+          </View>
+          <TextInput
+            ref={yearRef}
+            style={[styles.input, { width: 80 }]}
+            value={year}
+            onChangeText={validateYear}
+            placeholder="YYYY"
+            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+            keyboardType="number-pad"
+            maxLength={4}
+            returnKeyType="done"
           />
         </View>
 
@@ -188,25 +281,70 @@ export default function BirthDetailsScreen() {
         </View>
 
         {knowsBirthTime && (
-          <View style={styles.timePickerContainer}>
-            <WheelPicker
-              items={hours}
-              value={selectedTime.hour}
-              onChange={(value) => setSelectedTime(prev => ({ ...prev, hour: value }))}
-              label="Hour"
+          <View style={styles.datePickerContainer}>
+            <TextInput
+              ref={hourRef}
+              style={styles.input}
+              value={hour}
+              onChangeText={validateHour}
+              placeholder="HH"
+              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+              keyboardType="number-pad"
+              maxLength={2}
+              returnKeyType="next"
             />
-            <WheelPicker
-              items={minutes}
-              value={selectedTime.minute}
-              onChange={(value) => setSelectedTime(prev => ({ ...prev, minute: value }))}
-              label="Minute"
+            <View style={styles.slashBox}>
+              <Text style={styles.inputSlash}>:</Text>
+            </View>
+            <TextInput
+              ref={minuteRef}
+              style={styles.input}
+              value={minute}
+              onChangeText={validateMinute}
+              placeholder="MM"
+              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+              keyboardType="number-pad"
+              maxLength={2}
+              returnKeyType="done"
             />
-            <WheelPicker
-              items={periods}
-              value={selectedTime.period}
-              onChange={(value) => setSelectedTime(prev => ({ ...prev, period: value }))}
-              label="AM/PM"
-            />
+            <View style={styles.slashBox}>
+              <Text style={styles.inputSlash}>{''}</Text>
+            </View>
+            <View style={styles.amPmContainer}>
+              <TouchableOpacity
+                style={[
+                  birthTimePeriod === 'AM' ? styles.ampmSelected : styles.ampm,
+                  { marginRight: 5 },
+                ]}
+                onPress={() => setBirthTimePeriod('AM')}
+              >
+                <Text
+                  style={[
+                    birthTimePeriod === 'AM'
+                      ? styles.ampmTextSelected
+                      : styles.ampmText,
+                  ]}
+                >
+                  AM
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  birthTimePeriod === 'PM' ? styles.ampmSelected : styles.ampm,
+                ]}
+                onPress={() => setBirthTimePeriod('PM')}
+              >
+                <Text
+                  style={[
+                    birthTimePeriod === 'PM'
+                      ? styles.ampmTextSelected
+                      : styles.ampmText,
+                  ]}
+                >
+                  PM
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -238,15 +376,15 @@ export default function BirthDetailsScreen() {
         <Text style={styles.quote}>
           Your birth chart is the canvas of your soul's journey
         </Text>
-
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1, 
+    // justifyContent: 'center',
   },
   content: {
     flex: 1,
@@ -272,7 +410,7 @@ const styles = StyleSheet.create({
   },
   datePickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   timeQuestion: {
@@ -366,5 +504,76 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
     marginBottom: 24,
+  },
+  input: {
+    // backgroundColor: 'rgba(45, 17, 82, 0.3)',
+    minWidth: 60,
+    borderWidth: 2,
+    borderColor: `${Colors.gold.DEFAULT}20`,
+    borderRadius: 12,
+    padding: 16,
+    textAlign: 'center',
+    color: `${Colors.gold.DEFAULT}`,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+  },
+  amPmContainer: {
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: `${Colors.gold.DEFAULT}20`,
+    borderRadius: 12,
+    padding: 5,
+    color: `${Colors.gold.DEFAULT}`,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+  },
+
+  ampm: {
+    paddingHorizontal: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 12,
+    textAlign: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(45, 17, 82, 0.3)',
+  },
+  ampmSelected: {
+    backgroundColor: `${Colors.gold.DEFAULT}20`,
+    // borderColor: `${Colors.gold.DEFAULT}20`,
+    paddingHorizontal: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    textAlign: 'center',
+    alignItems: 'center',
+  },
+  ampmText: {
+    fontSize: 16,
+    color: `${Colors.gold.DEFAULT}40`,
+
+    // marginBottom: 8,
+  },
+  ampmTextSelected: {
+    color: `${Colors.gold.DEFAULT}`,
+  },
+  slashBox: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 5,
+  },
+  inputSlash: {
+    color: `${Colors.gold.DEFAULT}20`,
+    textAlign: 'center',
+    alignSelf: 'center',
+    fontSize: 30,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: Colors.deepPurple.dark,
+    padding: 20,
+    borderWidth: 5,
   },
 });

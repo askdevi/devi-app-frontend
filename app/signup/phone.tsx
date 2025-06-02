@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Image, Keyboard, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  Image,
+  Keyboard,
+  Animated,
+  ScrollView,
+  KeyboardAvoidingView,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import Domain from '@/constants/domain';
@@ -20,34 +32,32 @@ export default function PhoneScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
   const glowAnimation = new Animated.Value(0);
 
   useEffect(() => {
     const startGlowAnimation = () => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(glowAnimation, {
-            toValue: 1,
-            duration: 1500,
-            useNativeDriver: false,
-          }),
-          Animated.timing(glowAnimation, {
-            toValue: 0,
-            duration: 1500,
-            useNativeDriver: false,
-          }),
-        ])
-      ).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnimation, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnimation, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
     };
     startGlowAnimation();
   }, []);
 
-  const GlowEffect = () => {
-    return (
-      <View style={styles.glowContainer}>
-        <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
-          <Defs>
+  const GlowEffect = () => (
+    <View style={styles.glowContainer}>
+      <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+        <Defs>
             <RadialGradient
               id="glow"
               cx="50%"
@@ -57,37 +67,31 @@ export default function PhoneScreen() {
               fy="50%"
               gradientUnits="userSpaceOnUse"
             >
-              <Stop offset="0" stopColor="#FFD700" stopOpacity="0.4" />
-              <Stop offset="0.4" stopColor="#FFD700" stopOpacity="0.2" />
-              <Stop offset="0.7" stopColor="#FFD700" stopOpacity="0.05" />
-              <Stop offset="1" stopColor="#FFD700" stopOpacity="0" />
-            </RadialGradient>
-          </Defs>
+            <Stop offset="0" stopColor="#FFD700" stopOpacity="0.4" />
+            <Stop offset="0.4" stopColor="#FFD700" stopOpacity="0.2" />
+            <Stop offset="0.7" stopColor="#FFD700" stopOpacity="0.05" />
+            <Stop offset="1" stopColor="#FFD700" stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
           <Circle
             cx="120"
             cy="120"
             r={GLOW_RADIUS}
             fill="url(#glow)"
           />
-        </Svg>
-      </View>
-    );
-  };
-  
+      </Svg>
+    </View>
+  );
+
   const GradientTitle = () => {
     const glowOpacity = glowAnimation.interpolate({
       inputRange: [0, 0.5, 1],
       outputRange: [0.39, 0.98, 0.39],
     });
 
-    const shadowRadius1 = glowAnimation.interpolate({
+    const shadowRadius = glowAnimation.interpolate({
       inputRange: [0, 1],
-      outputRange: [12, 18],
-    });
-
-    const shadowRadius2 = glowAnimation.interpolate({
-      inputRange: [0, 1],
-      outputRange: [25, 35],
+      outputRange: [12, 25],
     });
 
     return (
@@ -104,30 +108,15 @@ export default function PhoneScreen() {
             style={styles.titleGradient}
           />
         </MaskedView>
-        
-        {/* Glow Effect Layers */}
-        <Animated.Text 
+        <Animated.Text
           style={[
             styles.titleGlow,
             {
               opacity: glowOpacity,
               textShadowColor: 'rgba(255, 215, 0, 0.39)',
-              textShadowRadius: shadowRadius1,
+              textShadowRadius: shadowRadius,
               textShadowOffset: { width: 0, height: 0 },
-            }
-          ]}
-        >
-          Ask Devi
-        </Animated.Text>
-        <Animated.Text 
-          style={[
-            styles.titleGlow,
-            {
-              opacity: glowOpacity,
-              textShadowColor: 'rgba(255, 215, 0, 0.29)',
-              textShadowRadius: shadowRadius2,
-              textShadowOffset: { width: 0, height: 0 },
-            }
+            },
           ]}
         >
           Ask Devi
@@ -136,18 +125,16 @@ export default function PhoneScreen() {
     );
   };
 
-  const TermsText = () => {
-    return (
-      <View style={styles.termsContainer}>
-        <Text style={styles.termsText}>
+  const TermsText = () => (
+    <View style={styles.termsContainer}>
+      <Text style={styles.termsText}>
           By continuing, you agree to our{' '}
           <Text style={styles.termsLink}>Terms</Text>
           {' '}and{' '}
           <Text style={styles.termsLink}>Privacy Policy</Text>
-        </Text>
-      </View>
-    );
-  };
+      </Text>
+    </View>
+  );
 
   const handleSubmit = async () => {
     if (!phone || phone.length < 10) {
@@ -177,12 +164,18 @@ export default function PhoneScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <BackgroundGradient />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+    >
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+       >
+        <BackgroundGradient />
+        <BackgroundEffects count={40} />
 
-      <BackgroundEffects count={30} />
-
-      <View style={styles.contentContainer}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
             <RippleRings />
@@ -197,81 +190,50 @@ export default function PhoneScreen() {
 
           <GradientTitle />
           <Text style={styles.subtitle}>Your Personal Vedic Astrologer</Text>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <View style={styles.phonePrefix}>
-            <Text style={styles.prefixText}>+91</Text>
+          <View style={styles.inputContainer}>
+            <View style={styles.phonePrefix}>
+              <Text style={styles.prefixText}>+91</Text>
+            </View>
+            <View style={styles.divider} />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your phone number"
+              placeholderTextColor="rgba(255, 215, 0, 0.4)"
+              keyboardType="phone-pad"
+              value={phone}
+              onChangeText={(text) => {
+                setPhone(text);
+                if (text.length === 10) Keyboard.dismiss();
+              }}
+              maxLength={10}
+            />
           </View>
-          
-          <View style={styles.divider} />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your phone number"
-            placeholderTextColor="rgba(255, 215, 0, 0.4)"
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={(text) => {
-              setPhone(text);
-              if (text.length === 10) {
-                Keyboard.dismiss();
-              }
-            }}
-            maxLength={10}
-          />
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+          <TouchableOpacity style={styles.buttonContainer} onPress={handleSubmit} activeOpacity={0.8} disabled={loading}>
+            <LinearGradient colors={['#FFD700', '#FFA500', '#FFD700']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.button}>
+              <Text style={styles.buttonText}>{loading ? 'Sending...' : 'Send OTP'}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TermsText />
         </View>
-
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <TouchableOpacity
-          style={styles.buttonContainer}
-          onPress={handleSubmit}
-          activeOpacity={0.8}
-          disabled={loading}
-        >
-          <LinearGradient
-            colors={['#FFD700', '#FFA500', '#FFD700']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? 'Sending...' : 'Send OTP'}
-              {/* {!loading && <Text style={{ fontSize: 16, color: Colors.deepPurple.DEFAULT }}>  →</Text>} */}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TermsText />
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  background: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
+  container: { flex: 1, backgroundColor: '#000' },
+  scrollContent: { 
+    flexGrow: 1, 
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    padding: 20 
   },
-  contentContainer: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 20,
+  content: { 
+    alignItems: 'center' 
   },
   logoContainer: {
     width: 240,
@@ -283,10 +245,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   glowContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
+    ...StyleSheet.absoluteFillObject,
     borderRadius: 120,
   },
   logo: {
@@ -316,111 +275,68 @@ const styles = StyleSheet.create({
   },
   titleGlow: {
     position: 'absolute',
-    top: 0,
     fontSize: 36,
-    lineHeight: 32,
     fontWeight: '700',
     textAlign: 'center',
-    includeFontPadding: false,
-    letterSpacing: 0.025 * 36,
     color: 'transparent',
     zIndex: -1,
   },
   subtitle: {
     fontSize: 18,
-    lineHeight: 20,
     color: '#FFD700CC',
     opacity: 0.8,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 10,
+     marginBottom: 16,
   },
-
   inputContainer: {
     flexDirection: 'row',
     width: '100%',
-    marginBottom: 16,
-    marginTop: -100,
     borderRadius: 8,
-    overflow: 'hidden',
-    borderColor: 'rgba(255, 215, 0, 0.2)', 
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+    marginBottom: 16,
   },
   phonePrefix: {
-    backgroundColor: 'rgba(45, 17, 82, 0.3)',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.2)',
-    borderRightWidth: 0,
-    justifyContent: 'center',
   },
-  prefixText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: '#FFD700',
-  },
+  prefixText: { color: '#FFD700', fontWeight: 'bold' },
   divider: {
-    width: 0.2,
+    width: 1,
     backgroundColor: 'rgba(255, 215, 0, 0.3)',
-    alignSelf: 'stretch',
+    marginVertical: 8,
   },
   input: {
     flex: 1,
-    backgroundColor: 'rgba(45, 17, 82, 0.3)',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
+    paddingHorizontal: 12,
     color: '#FFD700',
-    fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.2)',
-    borderLeftWidth: 0,
   },
-  errorText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: '#FF6B6B',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
+  errorText: { color: 'red', marginBottom: 8, textAlign: 'center' },
   buttonContainer: {
     width: '100%',
-    height: 48,
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   button: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
-    color: Colors.deepPurple.DEFAULT,
-    flexDirection: 'row',
-    alignItems: 'center',
+    fontWeight: 'bold',
+    color: '#2D1152',
   },
-  termsContainer: {
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 150,
-    maxWidth: '80%',
-  },
+  termsContainer: { paddingHorizontal: 16, marginTop: 8 },
   termsText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: 'rgba(156, 163, 175, 1)',
+    color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
-    lineHeight: 18,
+    fontSize: 12,
   },
-  termsLink: {
-    color: '#FFD700',
-    fontFamily: 'Poppins-Medium',
-  },
+  termsLink: { color: '#FFD700', textDecorationLine: 'underline' },
 });

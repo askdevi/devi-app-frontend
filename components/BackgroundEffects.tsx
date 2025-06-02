@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, memo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -18,7 +18,7 @@ interface StarProps {
   delay: number;
 }
 
-function Star({ size, top, left, delay }: StarProps) {
+const Star = ({ size, top, left, delay }: StarProps) => {
   const opacity = useSharedValue(0.1);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ function Star({ size, top, left, delay }: StarProps) {
       withRepeat(
         withTiming(1, {
           duration: 1500 + Math.random() * 1000,
-          easing: Easing.inOut(Easing.ease)
+          easing: Easing.inOut(Easing.ease),
         }),
         -1,
         true
@@ -35,11 +35,9 @@ function Star({ size, top, left, delay }: StarProps) {
     );
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: opacity.value,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
     <Animated.View
@@ -55,9 +53,9 @@ function Star({ size, top, left, delay }: StarProps) {
       ]}
     />
   );
-}
+};
 
-export default function BackgroundEffects({ count = 30 }: { count?: number }) {
+const BackgroundEffects=memo(({ count = 30 }: { count?: number })=> {
   const stars = Array.from({ length: count }, (_, i) => ({
     id: i,
     size: 2 + Math.random() * 3,
@@ -67,7 +65,7 @@ export default function BackgroundEffects({ count = 30 }: { count?: number }) {
   }));
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="none">
       {stars.map((star) => (
         <Star
           key={star.id}
@@ -79,7 +77,7 @@ export default function BackgroundEffects({ count = 30 }: { count?: number }) {
       ))}
     </View>
   );
-}
+})
 
 const styles = StyleSheet.create({
   container: {
@@ -99,3 +97,5 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
+
+export default BackgroundEffects
