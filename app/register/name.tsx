@@ -1,3 +1,4 @@
+// name.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -114,15 +115,13 @@ export default function NameScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      {/* <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <View style={styles.backArrowContainer}>
-          <Ionicons
-            name="arrow-back"
-            size={20}
-            color="#FFD700"
-          />
-        </View>
-      </TouchableOpacity> */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons 
+          name="arrow-back" 
+          size={24} 
+          color="#ffcc00" 
+        />
+      </TouchableOpacity>
 
       <View style={styles.content}>
         <SetupProgress currentStep={1} totalSteps={5} />
@@ -217,7 +216,7 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     top: 60,
-    left: 20,
+    left: 12,
     zIndex: 10,
     width: 44,
     height: 44,
@@ -241,14 +240,18 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
-    alignItems: 'center',
   },
   title: {
     fontFamily: 'Poppins-Bold',
     fontSize: 32,
     color: Colors.gold.DEFAULT,
+<<<<<<< HEAD
     marginBottom: 4,
     // textAlign: 'center',
+=======
+    marginBottom: 8,
+    textAlign: 'left',
+>>>>>>> 2d6502e (fix: onboarding, home and menu screens)
   },
   inputGroup: {
     marginBottom: 16,

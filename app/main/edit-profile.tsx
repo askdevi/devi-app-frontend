@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import Dropdown from '@/components/Setup/Dropdown';
@@ -32,8 +34,7 @@ const occupations = [
 
 const genders = [
   "Male",
-  "Female",
-  "Other"
+  "Female"
 ];
 
 export default function EditProfileScreen() {
@@ -48,6 +49,51 @@ export default function EditProfileScreen() {
   const [occupation, setOccupation] = useState('');
   const [gender, setGender] = useState('');
 
+  const [originalValues, setOriginalValues] = useState({
+    firstName: '',
+    lastName: '',
+    birthPlace: '',
+    language: '',
+    relationshipStatus: '',
+    occupation: '',
+    gender: ''
+  });
+
+  const gradientAnimation = useRef(new Animated.Value(0)).current;
+  const scaleAnimation = useRef(new Animated.Value(1)).current;
+  const glowAnimation = useRef(new Animated.Value(0)).current;
+  
+  useEffect(() => {
+    const gradientLoop = Animated.loop(
+      Animated.timing(gradientAnimation, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: false,
+      })
+    );
+    gradientLoop.start();
+
+    const glowLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnimation, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnimation, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+    glowLoop.start();
+
+    return () => {
+      gradientLoop.stop();
+      glowLoop.stop();
+    };
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -79,6 +125,16 @@ export default function EditProfileScreen() {
         if (storedRelationshipStatus) setRelationshipStatus(storedRelationshipStatus);
         if (storedOccupation) setOccupation(storedOccupation);
         if (storedGender) setGender(storedGender);
+        
+        setOriginalValues({
+          firstName: storedFirstName || '',
+          lastName: storedLastName || '',
+          birthPlace: storedBirthPlace || '',
+          language: storedLanguage || '',
+          relationshipStatus: storedRelationshipStatus || '',
+          occupation: storedOccupation || '',
+          gender: storedGender || ''
+        });
       } catch (e) {
         console.log('Error loading profile data', e);
       }
@@ -92,6 +148,19 @@ export default function EditProfileScreen() {
   };
 
   const handleUpdate = async () => {
+    Animated.sequence([
+      Animated.timing(scaleAnimation, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: false,
+      }),
+      Animated.timing(scaleAnimation, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: false,
+      }),
+    ]).start();
+
     try {
       const userId = await getUserId();
 
@@ -134,6 +203,25 @@ export default function EditProfileScreen() {
       alert('Error saving profile data');
     }
   };
+  
+  const gradientTranslateX = gradientAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-200, 200],
+  });
+
+  const glowOpacity = glowAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.8],
+  });
+
+  const isFormValid = 
+    firstName.trim() !== originalValues.firstName ||
+    lastName.trim() !== originalValues.lastName ||
+    birthPlace.trim() !== originalValues.birthPlace ||
+    language !== originalValues.language ||
+    relationshipStatus !== originalValues.relationshipStatus ||
+    occupation !== originalValues.occupation ||
+    gender !== originalValues.gender;
 
   return (
     <SafeAreaProvider>
@@ -142,11 +230,25 @@ export default function EditProfileScreen() {
           <BackgroundEffects count={30} />
 
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={handleBack}>
-              <Text style={styles.backText}>{'<-'}</Text>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Ionicons 
+                name="arrow-back" 
+                size={24} 
+                color="#ffcc00" 
+              />
             </TouchableOpacity>
-            <Text style={styles.header}>Edit Profile</Text>
+            <View style={styles.titleContainer}>
+                <Text style={styles.header}>Edit Profile</Text>
+                <LinearGradient
+                  colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  locations={[0, 0.3, 0.5, 0.7, 1]}
+                  style={styles.underline}
+                />
+            </View>
           </View>
+
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.content}
@@ -218,9 +320,52 @@ export default function EditProfileScreen() {
               placeholder="Select language"
             />
 
-            <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-              <Text style={styles.buttonText}>Update Your Data</Text>
-            </TouchableOpacity>
+            <Animated.View
+              style={[
+                styles.continueButton,
+                !isFormValid && styles.continueButtonDisabled,
+                {
+                  transform: [{ scale: scaleAnimation }],
+                  shadowOpacity: glowOpacity,
+                }
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.continueButtonTouchable}
+                onPress={handleUpdate}
+                disabled={!isFormValid}
+                activeOpacity={0.8}
+              >
+                <View style={styles.gradientContainer}>
+                  <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    style={styles.continueButtonGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  />
+                  
+                  <Animated.View
+                    style={[
+                      styles.animatedGradientOverlay,
+                      {
+                        transform: [{ translateX: gradientTranslateX }],
+                      },
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                      style={styles.shimmerGradient}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                    />
+                  </Animated.View>
+                  
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.continueButtonText}>Update Your Data</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -248,17 +393,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
+    position: 'relative',
   },
-  backText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
+  backButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    left: 12,
+    zIndex: 10,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
-    marginLeft: 20,
+    color: '#ffcc00',
+  },
+  underline: {
+    height: 3,
+    width: 80,
+    marginTop: 8,
+    borderRadius: 1.5,
   },
   row: {
     flexDirection: 'row',
@@ -290,5 +450,65 @@ const styles = StyleSheet.create({
     color: '#240046',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  continueButton: {
+    height: 50,
+    borderRadius: 8,
+    marginTop: 24,
+    marginBottom: 24,
+    shadowColor: Colors.gold.DEFAULT,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  continueButtonDisabled: {
+    opacity: 0.5,
+    shadowOpacity: 0,
+  },
+  continueButtonTouchable: {
+    flex: 1,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  gradientContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  continueButtonGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  animatedGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 100,
+    zIndex: 1,
+  },
+  shimmerGradient: {
+    flex: 1,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    paddingHorizontal: 24,
+    zIndex: 2,
+    position: 'relative',
+  },
+  continueButtonText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16,
+    color: Colors.deepPurple.DEFAULT,
+    marginRight: 8,
+    position: 'relative',
+    zIndex: 10,
   },
 });

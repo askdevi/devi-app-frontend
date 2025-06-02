@@ -96,7 +96,7 @@ export default function SettingsScreen() {
 
                             <TouchableOpacity style={styles.menuItem} onPress={handleSupport}>
                                 <Ionicons name="help-circle-outline" size={24} color="#FFD700" />
-                                <Text style={styles.menuText}>Customer Support</Text>
+                                <Text style={styles.menuText}>Support</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
