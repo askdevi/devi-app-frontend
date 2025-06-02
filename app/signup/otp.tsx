@@ -187,13 +187,11 @@ export default function OtpScreen() {
 
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <View style={styles.backArrowContainer}>
-          <Ionicons
-            name="arrow-back"
-            size={20}
-            color="#FFD700"
+          <Ionicons 
+            name="arrow-back" 
+            size={24} 
+            color="#ffcc00" 
           />
-        </View>
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -264,22 +262,12 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     top: 60,
-    left: 20,
+    left: 12,
     zIndex: 10,
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  backArrowContainer: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
   },
   backArrow: {
     fontSize: 20,
@@ -340,7 +328,7 @@ const styles = StyleSheet.create({
   },
   otpContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     width: '100%',
     marginBottom: 24,
     paddingHorizontal: 4,

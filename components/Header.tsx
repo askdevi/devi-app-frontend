@@ -44,7 +44,8 @@ const Header = () => {
 
   return (
     <>
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
+      {/* <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}> */}
+      <View style={[styles.header, { paddingTop: 28 }]}>
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() => handlePress(() => setIsMenuOpen(true))}

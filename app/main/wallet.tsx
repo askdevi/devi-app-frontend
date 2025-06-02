@@ -5,6 +5,8 @@ import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import RazorpayCheckout from 'react-native-razorpay';
 import axios from 'axios';
 import Domain from '@/constants/domain';
@@ -62,7 +64,10 @@ export default function WalletScreen() {
     return () => clearInterval(interval);
   }, []);
 
-
+  const handleBack = () => {
+    router.push('/main/home');
+  };
+  
   const handlePurchase = async (pkg: any) => {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -144,7 +149,23 @@ export default function WalletScreen() {
         <View style={styles.container}>
           <BackgroundEffects count={30} />
           <View style={styles.headerContainer}>
-            <Text style={styles.header}>Wallet</Text>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Ionicons 
+                name="arrow-back" 
+                size={24} 
+                color="#ffcc00" 
+              />
+            </TouchableOpacity>
+            <View style={styles.titleContainer}>
+                <Text style={styles.header}>Wallet</Text>
+                <LinearGradient
+                  colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  locations={[0, 0.3, 0.5, 0.7, 1]}
+                  style={styles.underline}
+                />
+            </View>
           </View>
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             <View style={styles.balanceContainer}>
@@ -204,19 +225,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
+    position: 'relative',
   },
-  backText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
+  backButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    left: 12,
+    zIndex: 10,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
-    marginLeft: 20,
+    color: '#ffcc00',
   },
-
+  underline: {
+    height: 3,
+    width: 80,
+    marginTop: 8,
+    borderRadius: 1.5,
+  },
   balanceContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
