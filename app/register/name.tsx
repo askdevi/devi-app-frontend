@@ -245,13 +245,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 32,
     color: Colors.gold.DEFAULT,
-<<<<<<< HEAD
-    marginBottom: 4,
-    // textAlign: 'center',
-=======
     marginBottom: 8,
     textAlign: 'left',
->>>>>>> 2d6502e (fix: onboarding, home and menu screens)
   },
   inputGroup: {
     marginBottom: 16,
