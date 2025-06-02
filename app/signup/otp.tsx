@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableNativeFeedback, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -133,10 +133,16 @@ export default function OtpScreen() {
   const handleFocus = (index: number) => {
     setFocusedIndex(index);
   };
-
+  useEffect(()=>{
+      const allDigitsFilled = otp.every(digit => digit !== '');
+    if (otp && allDigitsFilled) {
+      handleSubmit()
+      }
+  },[otp])
   const handleSubmit = async () => {
     const otpString = otp.join('');
-    if (!otp || otp.length < 4) {
+    const allDigitsFilled = otp.every(digit => digit !== '');
+    if (!otp || !allDigitsFilled) {
       setError('Please enter a valid 4-digit code');
       return;
     }
@@ -181,6 +187,7 @@ export default function OtpScreen() {
   };
 
   return (
+    <TouchableNativeFeedback  onPress={()=>Keyboard.dismiss()} accessible={false}>
     <View style={styles.container}>
       <BackgroundGradient />
       <BackgroundEffects count={30} />
@@ -250,6 +257,7 @@ export default function OtpScreen() {
         </TouchableOpacity>
       </View>
     </View>
+    </TouchableNativeFeedback>
   );
 }
 
@@ -261,7 +269,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 60,
+    top: 30,
     left: 12,
     zIndex: 10,
     width: 44,
@@ -336,7 +344,7 @@ const styles = StyleSheet.create({
   otpInput: {
     width: 48,
     height: 48,
-    backgroundColor: 'rgba(45, 17, 82, 0.3)',
+    // backgroundColor: 'rgba(45, 17, 82, 0.3)',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.2)',
@@ -361,7 +369,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    width: '100%',
+    alignSelf:"center",
+    width: '90%',
     height: 50,
     borderRadius: 8,
     overflow: 'hidden',

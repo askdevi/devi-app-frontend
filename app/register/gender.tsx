@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   genderSymbol: {
     fontSize: 44,
-    color: `${Colors.gold.DEFAULT}60`,
+    color: `${Colors.gold.DEFAULT}`,
     marginBottom: 8,
   },
   genderSymbolSelected: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   genderText: {
     fontFamily: 'Poppins-Medium',
     fontSize: 16,
-    color: `${Colors.gold.DEFAULT}60`,
+    color: `${Colors.gold.DEFAULT}`,
   },
   genderTextSelected: {
     color: Colors.gold.DEFAULT,

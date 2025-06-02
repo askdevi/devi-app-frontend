@@ -27,7 +27,7 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
-import BackgroundStars from '../../components/BackgroundStars';
+// import BackgroundStars from '../../components/BackgroundStars';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -401,7 +401,7 @@ export default function ChatScreen() {
           end={{ x: 0.5, y: 1 }}
         />
         
-        <BackgroundStars count={30} />
+        {/* <BackgroundStars count={30} /> */}
 
         <View style={styles.header}>
           <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>

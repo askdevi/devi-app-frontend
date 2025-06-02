@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 
 const RING_COUNT = 8;
 
-export default function RippleRings() {
+const RippleRings= memo(() => {
     const rings = Array.from({ length: RING_COUNT }, (_, i) => i);
 
     return (
@@ -22,7 +22,7 @@ export default function RippleRings() {
             ))}
         </View>
     );
-}
+})
 
 const styles = StyleSheet.create({
     container: {
@@ -41,3 +41,5 @@ const styles = StyleSheet.create({
         borderColor: '#FFD700',
     },
 });
+
+export default RippleRings

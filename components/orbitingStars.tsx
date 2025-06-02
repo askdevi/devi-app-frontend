@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
     useSharedValue,
@@ -9,9 +9,9 @@ import Animated, {
     interpolate,
 } from 'react-native-reanimated';
 
-const STAR_COUNT = 10;
+const STAR_COUNT = 12;
 
-export default function OrbitingStars() {
+const  OrbitingStars=memo(() =>{
     const rotation = useSharedValue(0);
 
     useEffect(() => {
@@ -43,7 +43,7 @@ export default function OrbitingStars() {
             ))}
         </View>
     );
-}
+})
 
 function Star({
     index,
@@ -131,3 +131,5 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 });
+
+export default OrbitingStars;

@@ -1,6 +1,6 @@
 // name.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight } from 'lucide-react-native';
@@ -52,6 +52,7 @@ export default function NameScreen() {
   }, []);
 
   const handleContinue = async () => {
+    Keyboard.dismiss()
     if (firstName.trim() && lastName.trim()) {
       Animated.sequence([
         Animated.timing(scaleAnimation, {
@@ -109,7 +110,8 @@ export default function NameScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} accessible={false} >
+     <View style={styles.container}>
       <LinearGradient
         colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
         style={StyleSheet.absoluteFill}
@@ -206,6 +208,7 @@ export default function NameScreen() {
 
       </View>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -215,7 +218,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 60,
+    top: 40,
     left: 12,
     zIndex: 10,
     width: 44,
@@ -259,12 +262,12 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   input: {
-    backgroundColor: 'rgba(45, 17, 82, 0.3)',
+    // backgroundColor: 'rgba(45, 17, 82, 0.3)',
     borderWidth: 2,
     borderColor: `${Colors.gold.DEFAULT}20`,
     borderRadius: 12,
-    padding: 16,
-    color: `${Colors.gold.DEFAULT}50`,
+    paddingHorizontal: 12,
+    color: `${Colors.gold.DEFAULT}`,
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
   },
@@ -337,4 +340,5 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 24,
   },
+  
 });

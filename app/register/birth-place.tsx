@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Animated, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react-native';
@@ -92,7 +92,7 @@ export default function BirthPlaceScreen() {
       
       await AsyncStorage.setItem('birthPlaceData', JSON.stringify(birthPlaceData));
       
-      router.push('/register/personal-details');
+      router.push('/register/personal-details' as any);
     } catch (error) {
       console.log('Error saving birth place data:', error);
     }
@@ -135,6 +135,7 @@ export default function BirthPlaceScreen() {
   };
   
   return (
+  <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} accessible={false} >
     <View style={styles.container}>
       <LinearGradient
         colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
@@ -187,7 +188,7 @@ export default function BirthPlaceScreen() {
                   // placeholderTextColor: `${Colors.gold.DEFAULT}40`,
                 },
                 listView: {
-                  backgroundColor: 'rgba(45, 17, 82, 0.9)',
+                  backgroundColor: 'rgba(45, 17, 82, 1)',
                   borderWidth: 2,
                   borderColor: `${Colors.gold.DEFAULT}20`,
                   borderRadius: 12,
@@ -291,6 +292,7 @@ export default function BirthPlaceScreen() {
 
       </View>
     </View>
+  </TouchableWithoutFeedback>
   );
 }
 
