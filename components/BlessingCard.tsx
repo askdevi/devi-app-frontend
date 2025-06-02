@@ -167,7 +167,8 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ data }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 400,
+    height: 300,
+    width: 250,
     marginBottom: 16,
     position: 'relative',
   },
