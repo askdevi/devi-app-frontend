@@ -219,20 +219,19 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
-    textAlign: 'center',
   },
   title: {
     fontFamily: 'Poppins-Bold',
     fontSize: 32,
     color: Colors.gold.DEFAULT,
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   subtitle: {
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
     color: '#d1d5dbe6',
-    textAlign: 'center',
+    textAlign: 'left',
     opacity: 0.9,
   },
   genderContainer: {

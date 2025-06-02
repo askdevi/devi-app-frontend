@@ -136,7 +136,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
           <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
           <MenuItem icon={User} label="Edit Profile" onPress={handleProfile} />
           <MenuItem icon={History} label="Chat History" onPress={handleChatHistory} />
-          <MenuItem icon={Headphones} label="Customer Support" onPress={handleSupport} />
+          <MenuItem icon={Headphones} label="Support" onPress={handleSupport} />
           <MenuItem icon={Settings} label="Settings" onPress={handleSettings} />
         </View>
       </Animated.View>

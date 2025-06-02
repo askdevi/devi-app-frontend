@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-const RING_COUNT = 9;
+const RING_COUNT = 8;
 
 export default function RippleRings() {
     const rings = Array.from({ length: RING_COUNT }, (_, i) => i);

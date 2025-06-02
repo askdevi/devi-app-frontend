@@ -76,7 +76,7 @@ const Hero = () => {
           <OrbitingStars />
         </View>
 
-        <Text style={styles.title}>Ask Devi</Text>
+        {/* <Text style={styles.title}>Ask Devi</Text> */}
       </View>
 
       <Pressable style={styles.buttonContainer}>
