@@ -64,8 +64,9 @@ const BlessingsSection = () => {
         </View>
 
         <ScrollView
-          style={styles.cardsContainer}
-          showsVerticalScrollIndicator={false}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardsContainer}
         >
           {blessings.map((blessing, index) => (
             <BlessingCard
@@ -95,7 +96,8 @@ const styles = StyleSheet.create({
     borderColor: `${Colors.gold.DEFAULT}10`,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 13,
+    paddingVertical: 20,
   },
   header: {
     alignItems: 'center',
@@ -116,7 +118,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cardsContainer: {
-    marginTop: 10,
+    flexDirection: 'row',
+    gap: 16,
+    paddingRight: 16,
   },
 });
 

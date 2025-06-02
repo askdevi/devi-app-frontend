@@ -16,6 +16,9 @@
     "@expo/vector-icons": "^14.1.0",
     "@lucide/lab": "^0.1.2",
     "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-community/datetimepicker": "8.3.0",
+    "@react-native-firebase/app": "^22.2.0",
+    "@react-native-firebase/messaging": "^22.2.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@types/lodash": "^4.17.17",
     "axios": "^1.9.0",
@@ -50,8 +53,7 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5",
-    "uuid": "^11.1.0",
-    "@react-native-community/datetimepicker": "8.3.0"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
