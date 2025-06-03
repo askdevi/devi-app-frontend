@@ -10,6 +10,7 @@ import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import * as Linking from 'expo-linking';
 import Dropdown from '@/components/Setup/Dropdown';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function SupportScreen() {
     const router = useRouter();
@@ -104,12 +105,33 @@ export default function SupportScreen() {
     });
 
     const isFormValid = name.trim() && topic && message.trim();
+    
+    const GradientText = ({ children, style }: { children: string; style?: any }) => {
+        return (
+            <MaskedView
+            style={style}
+            maskElement={
+                <Text style={[style, { backgroundColor: 'transparent' }]}>
+                {children}
+                </Text>
+            }
+            >
+            <LinearGradient
+                colors={['#FFD700', '#FF8C00', '#FFD700']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={style}
+            >
+                <Text style={[style, { opacity: 0 }]}>{children}</Text>
+            </LinearGradient>
+            </MaskedView>
+        );
+    };
 
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
 
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -120,14 +142,7 @@ export default function SupportScreen() {
                                 />
                         </TouchableOpacity>
                         <View style={styles.titleContainer}>
-                            <Text style={styles.header}>Contact Us</Text>
-                            <LinearGradient
-                                colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                locations={[0, 0.3, 0.5, 0.7, 1]}
-                                style={styles.underline}
-                            />
+                            <GradientText style={styles.header}>Contact Us</GradientText>
                         </View>
                     </View>
 
@@ -252,9 +267,10 @@ const styles = StyleSheet.create({
         borderRadius: 1.5,
     },
     header: {
-        fontSize: 22,
+        fontFamily: 'Poppins-Bold',
+        fontSize: 32,
         fontWeight: 'bold',
-        color: '#ffcc00',
+        color: Colors.gold.DEFAULT,
     },
     scrollView: {
         flex: 1,

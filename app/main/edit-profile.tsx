@@ -11,6 +11,7 @@ import Dropdown from '@/components/Setup/Dropdown';
 import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 const languages = [
   "Hinglish",
@@ -213,6 +214,28 @@ export default function EditProfileScreen() {
     inputRange: [0, 1],
     outputRange: [0.3, 0.8],
   });
+  
+  const GradientText = ({ children, style }: { children: string; style?: any }) => {
+    return (
+      <MaskedView
+      style={style}
+      maskElement={
+        <Text style={[style, { backgroundColor: 'transparent' }]}>
+        {children}
+        </Text>
+      }
+      >
+      <LinearGradient
+        colors={['#FFD700', '#FF8C00', '#FFD700']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={style}
+      >
+        <Text style={[style, { opacity: 0 }]}>{children}</Text>
+      </LinearGradient>
+      </MaskedView>
+    );
+  };
 
   const isFormValid = 
     firstName.trim() !== originalValues.firstName ||
@@ -227,7 +250,6 @@ export default function EditProfileScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View style={styles.container}>
-          <BackgroundEffects count={30} />
 
           <View style={styles.headerContainer}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -238,14 +260,7 @@ export default function EditProfileScreen() {
               />
             </TouchableOpacity>
             <View style={styles.titleContainer}>
-                <Text style={styles.header}>Edit Profile</Text>
-                <LinearGradient
-                  colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  locations={[0, 0.3, 0.5, 0.7, 1]}
-                  style={styles.underline}
-                />
+                <GradientText style={styles.header}>Edit Profile</GradientText>
             </View>
           </View>
 
@@ -387,7 +402,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingTop: 30,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -410,9 +424,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    fontSize: 22,
+    fontFamily: 'Poppins-Bold',
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#ffcc00',
+    color: Colors.gold.DEFAULT,
   },
   underline: {
     height: 3,
@@ -454,8 +469,8 @@ const styles = StyleSheet.create({
   continueButton: {
     height: 50,
     borderRadius: 8,
-    marginTop: 24,
-    marginBottom: 24,
+    marginTop: 4,
+    marginBottom: 16,
     shadowColor: Colors.gold.DEFAULT,
     shadowOffset: {
       width: 0,

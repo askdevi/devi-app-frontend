@@ -9,7 +9,7 @@ import Animated, {
     interpolate,
 } from 'react-native-reanimated';
 
-const STAR_COUNT = 12;
+const STAR_COUNT = 10;
 
 const  OrbitingStars=memo(() =>{
     const rotation = useSharedValue(0);

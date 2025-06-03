@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X, MessageCircle, Wallet, User, History, Headphones, Settings, Clock, Coins } from 'lucide-react-native';
+import { X, MessageCircle, Wallet, User, History, Headphones, Settings, Clock, Phone, CircleUser } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 
 interface MenuDrawerProps {
@@ -11,8 +12,8 @@ interface MenuDrawerProps {
   phone?: string;
 }
 
-const { width } = Dimensions.get('window');
-const DRAWER_WIDTH = Math.min(width * 0.85, 360);
+const { width, height } = Dimensions.get('window');
+const DRAWER_WIDTH = Math.min(width * 0.7, 280);
 
 export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const router = useRouter();
@@ -89,7 +90,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
 
   const MenuItem = ({ icon: Icon, label, onPress }: { icon: any, label: string, onPress?: () => void }) => (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <Icon size={24} color={Colors.white} strokeWidth={1.5} />
+      <Icon size={18} color="#e5e7eb" strokeWidth={1.5} />
       <Text style={styles.menuItemText}>{label}</Text>
     </TouchableOpacity>
   );
@@ -99,46 +100,57 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.overlay} onPress={onClose} />
-      <Animated.View style={[styles.drawer, { transform: [{ translateX }] }]}>
-        <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <View style={styles.avatar}>
-              <User size={24} color={Colors.gold.DEFAULT} />
+      <Animated.View style={[styles.drawerContainer, { transform: [{ translateX }] }]}>
+        <LinearGradient
+          colors={['#150829', '#1D0A37', '#000000']}
+          locations={[0, 0.5, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.drawer}
+        >
+          <View style={styles.header}>
+            <View style={styles.userInfo}>
+              <View style={styles.avatar}>
+                <CircleUser size={28} color={Colors.gold.DEFAULT} strokeWidth={1.5} />
+              </View>
+              <View style={styles.userDetails}>
+                <Text style={styles.userName}>{firstName}</Text>
+                <View style={styles.phoneContainer}>
+                  <Phone size={10} color="#9ca3af" strokeWidth={1.5} />
+                  <Text style={styles.userPhone}>{phone}</Text>
+                </View>
+              </View>
             </View>
-            <View>
-              <Text style={styles.userName}>{firstName}</Text>
-              <Text style={styles.userPhone}>{phone}</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <X size={20} color={Colors.gold.DEFAULT + '80'} strokeWidth={1.5} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.stats}>
+            {/* <View style={styles.statItem}>
+              <Coins size={20} color={Colors.gold.DEFAULT} />
+              <Text style={styles.statValue}>{tokens} tokens left</Text>
+            </View> */}
+            <View style={styles.statItem}>
+              <Clock size={16} color={Colors.gold.DEFAULT} strokeWidth={1.5} />
+              <Text style={styles.statValue}>
+                {Math.floor(time / (1000 * 60 * 60)) > 0
+                  ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                  : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
+                } left
+              </Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <X size={24} color={Colors.gold.DEFAULT} />
-          </TouchableOpacity>
-        </View>
 
-        <View style={styles.stats}>
-          {/* <View style={styles.statItem}>
-            <Coins size={20} color={Colors.gold.DEFAULT} />
-            <Text style={styles.statValue}>{tokens} tokens left</Text>
-          </View> */}
-          <View style={styles.statItem}>
-            <Clock size={20} color={Colors.gold.DEFAULT} />
-            <Text style={styles.statValue}>
-              {Math.floor(time / (1000 * 60 * 60)) > 0
-                ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-              } left
-            </Text>
+          <View style={styles.menu}>
+            <MenuItem icon={MessageCircle} label="Start Chat" onPress={handleChat} />
+            <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
+            <MenuItem icon={CircleUser} label="Edit Profile" onPress={handleProfile} />
+            <MenuItem icon={History} label="Chat History" onPress={handleChatHistory} />
+            <MenuItem icon={Headphones} label="Support" onPress={handleSupport} />
+            <MenuItem icon={Settings} label="Settings" onPress={handleSettings} />
           </View>
-        </View>
-
-        <View style={styles.menu}>
-          <MenuItem icon={MessageCircle} label="Start Chat" onPress={handleChat} />
-          <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
-          <MenuItem icon={User} label="Edit Profile" onPress={handleProfile} />
-          <MenuItem icon={History} label="Chat History" onPress={handleChatHistory} />
-          <MenuItem icon={Headphones} label="Support" onPress={handleSupport} />
-          <MenuItem icon={Settings} label="Settings" onPress={handleSettings} />
-        </View>
+        </LinearGradient>
       </Animated.View>
     </View>
   );
@@ -153,84 +165,99 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  drawer: {
+  drawerContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: DRAWER_WIDTH,
-    height: '100%',
-    backgroundColor: Colors.deepPurple.DEFAULT,
-    borderRightWidth: 1,
-    borderRightColor: `${Colors.gold.DEFAULT}20`,
+    height: height,
+    zIndex: 200,
+  },
+  drawer: {
+    flex: 1,
+    flexDirection: 'column',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 20,
+    paddingHorizontal: 16,
     paddingTop: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: `${Colors.gold.DEFAULT}20`,
+    paddingBottom: 16,
   },
   userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: `${Colors.gold.DEFAULT}20`,
+    backgroundColor: `${Colors.gold.DEFAULT}10`,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
+  userDetails: {
+    flex: 1,
+  },
   userName: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-    color: Colors.white,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.gold.DEFAULT,
+    marginBottom: 2,
+  },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   userPhone: {
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: `${Colors.white}80`,
+    fontSize: 12,
+    color: '#9ca3af',
+    marginLeft: 4,
   },
   closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: `${Colors.gold.DEFAULT}20`,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 8,
   },
   stats: {
-    padding: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: `${Colors.gold.DEFAULT}20`,
-    gap: 12,
+    borderBottomColor: 'rgba(147, 51, 234, 0.3)',
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    // backgroundColor: 'rgba(29, 10, 55, 0.3)',
+    backgroundColor: 'rgba(50, 20, 90, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 8,
   },
   statValue: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
     color: Colors.gold.DEFAULT,
   },
   menu: {
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    flex: 1,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     gap: 16,
   },
   menuItemText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
-    color: Colors.white,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: '#e5e7eb',
   },
 });

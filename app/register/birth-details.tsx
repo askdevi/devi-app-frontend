@@ -362,7 +362,7 @@ export default function BirthDetailsScreen() {
             onPress={handleContinue}
           >
             <LinearGradient
-              colors={Colors.gradients.goldPrimary as [string, string]}
+              colors={Colors.gradients.goldPrimary}
               style={styles.continueButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   },
   datePickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   timeQuestion: {

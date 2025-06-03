@@ -8,6 +8,7 @@ import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import ChatHistoryCard from '@/components/ChatHistoryCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function ChatHistoryScreen() {
     const router = useRouter();
@@ -26,11 +27,33 @@ export default function ChatHistoryScreen() {
         };
         loadChatHistory();
     }, []);
+        
+    const GradientText = ({ children, style }: { children: string; style?: any }) => {
+        return (
+            <MaskedView
+            style={style}
+            maskElement={
+                <Text style={[style, { backgroundColor: 'transparent' }]}>
+                {children}
+                </Text>
+            }
+            >
+            <LinearGradient
+                colors={['#FFD700', '#FF8C00', '#FFD700']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={style}
+            >
+                <Text style={[style, { opacity: 0 }]}>{children}</Text>
+            </LinearGradient>
+            </MaskedView>
+        );
+    };
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
                     <View style={styles.headerContainer}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Ionicons 
@@ -40,14 +63,7 @@ export default function ChatHistoryScreen() {
               />
             </TouchableOpacity>
             <View style={styles.titleContainer}>
-                <Text style={styles.header}>Chat History</Text>
-                <LinearGradient
-                  colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  locations={[0, 0.3, 0.5, 0.7, 1]}
-                  style={styles.underline}
-                />
+                <GradientText style={styles.header}>Chat History</GradientText>
             </View>
           </View>
                     <ScrollView style={styles.scrollView}
@@ -75,7 +91,6 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        paddingTop: 30,
     },
     scrollView: {
         flex: 1,
@@ -84,31 +99,32 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
-    position: 'relative',
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    left: 12,
-    zIndex: 10,
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#ffcc00',
-  },
-  underline: {
-    height: 3,
-    width: 80,
-    marginTop: 8,
-    borderRadius: 1.5,
-  },
+        position: 'relative',
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 12,
+        zIndex: 10,
+    },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    header: {
+        fontFamily: 'Poppins-Bold',
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: Colors.gold.DEFAULT,
+    },
+    underline: {
+        height: 3,
+        width: 80,
+        marginTop: 8,
+        borderRadius: 1.5,
+    },
 });
