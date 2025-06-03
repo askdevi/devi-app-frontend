@@ -7,7 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import ChatHistoryCard from '@/components/ChatHistoryCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import Domain from '@/constants/domain';
+import axios from 'axios';
 
 export default function ChatHistoryScreen() {
     const router = useRouter();
@@ -19,9 +20,11 @@ export default function ChatHistoryScreen() {
 
     useEffect(() => {
         const loadChatHistory = async () => {
-            const chatHistory = await AsyncStorage.getItem('chatHistory');
-            if (chatHistory) {
-                setChatHistory(JSON.parse(chatHistory));
+            try{
+                const response = await axios.get(`${Domain}/chat-history`);
+                // setChatHistory(response.data);
+            } catch (error) {
+                console.error('Error loading chat history:', error);
             }
         };
         loadChatHistory();

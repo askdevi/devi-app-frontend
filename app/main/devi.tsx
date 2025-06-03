@@ -31,7 +31,8 @@ import BackgroundStars from '@/components/BackgroundEffects';
 import { router } from 'expo-router';
 import axios from 'axios';
 import { getUserId } from '@/constants/userId';
-import { ModelURL } from '@/constants/domain';
+import Domain, { ModelURL } from '@/constants/domain';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -42,31 +43,47 @@ type Message = {
     text: string;
     isUser: boolean;
     timestamp: string;
+    date: string;
     status: 'sending' | 'sent' | 'delivered' | 'read';
 };
-
-const sampleResponses = [
-    "Venus aur Mars ki positioning suggest karti hai ki aapka career growth ka time aa raha hai. Next 3 months mein ek bada opportunity milne ki sambhavna hai.",
-    "Mercury retrograde khatam hone ke baad communication mein clarity aayegi. Tab tak patience rakhe aur preparation continue kare.",
-    "Jupiter ki energy aapke favor mein hai. Creative projects pe focus kare, success zaroor milegi.",
-    "Rahu indicates transformation period. Koi bhi decision lene se pehle deep research kare.",
-];
 
 const ANIMATION_CONFIG = {
     duration: 1500,
     easing: Easing.bezier(0.25, 0.1, 0.25, 1),
 };
 
-export default function ChatScreen() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: '1',
-            text: 'Namaste! Main aapki vedic astrologer Devi. Aaj ke stars kya kehte hain, jaanne ke liye koi sawaal poochiye.',
-            isUser: false,
-            timestamp: '11:59 AM',
-            status: 'read'
+const DateHeader = React.memo(({ date }: { date: string }) => {
+    const formattedDate = useMemo(() => {
+        const messageDate = new Date(date);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (messageDate.toDateString() === today.toDateString()) {
+            return 'Today';
+        } else if (messageDate.toDateString() === yesterday.toDateString()) {
+            return 'Yesterday';
+        } else {
+            return messageDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
         }
-    ]);
+    }, [date]);
+
+    return (
+        <View style={styles.dateHeaderContainer}>
+            <View style={styles.dateHeaderLine} />
+            <Text style={styles.dateHeaderText}>{formattedDate}</Text>
+            <View style={styles.dateHeaderLine} />
+        </View>
+    );
+});
+
+export default function ChatScreen() {
+    const [messages, setMessages] = useState<Message[]>([]);
 
     const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
@@ -87,6 +104,40 @@ export default function ChatScreen() {
     useEffect(() => {
         bufferRef.current = buffer;
     }, [buffer]);
+
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const response = await AsyncStorage.getItem('latestChatHistory');
+                if (!response) {
+                    return;
+                }
+                const msgs = JSON.parse(response);
+                for (const msg of msgs) {
+                    const rawId = msg.id;
+                    const millis = parseInt(rawId, 10);
+                    const responseTs = new Date(millis)
+                        .toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                        });
+                    setMessages(prev => [...prev, {
+                        // id should be a random number
+                        id: Math.random().toString(36).substring(2, 15),
+                        text: msg.content,
+                        isUser: msg.role === 'user',
+                        timestamp: responseTs,
+                        status: 'read',
+                        date: new Date(millis).toISOString()
+                    }]);
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        };
+        fetchMessages();
+    }, []);
 
     const handleBack = () => {
         router.push('/main/home');
@@ -182,7 +233,13 @@ export default function ChatScreen() {
             return;
         }
 
-        // Mark that we are now sending a request
+        setMessages(prev =>
+            prev.map(msg =>
+                currentBuffer.find((b) => b.id === msg.id)
+                    ? { ...msg, status: 'read' }
+                    : msg
+            )
+        );
         setIsThinking(true);
         setIsRequestInFlight(true);
         setTypingTimeout(null);
@@ -194,14 +251,6 @@ export default function ChatScreen() {
             abortControllerRef.current = controller;
 
             (async () => {
-                // First: immediately mark all messages in buffer as "delivered"
-                setMessages(prev =>
-                    prev.map(msg =>
-                        currentBuffer.find((b) => b.id === msg.id)
-                            ? { ...msg, status: 'delivered' }
-                            : msg
-                    )
-                );
 
                 const prompts = currentBuffer.map(msg => ({
                     id: msg.id,
@@ -211,7 +260,7 @@ export default function ChatScreen() {
                 try {
                     const userId = await getUserId();
 
-                    // Fire the POST with the controller’s signal
+                    // Fire the POST with the controller's signal
                     const response = await axios.post(
                         ModelURL,
                         {
@@ -230,7 +279,7 @@ export default function ChatScreen() {
                     const responses: string[] = response.data.response;
                     const rawId = response.data.id;
                     const millis = parseInt(rawId, 10);      // convert to number
-                    const responseTs = new Date(millis)      // now Date knows it’s a ms‐timestamp
+                    const responseTs = new Date(millis)      // now Date knows it's a ms‐timestamp
                         .toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -246,9 +295,10 @@ export default function ChatScreen() {
                         setMessages(prev => [
                             ...prev,
                             {
-                                id: (Date.now() + 1).toString(),
+                                id: Math.random().toString(36).substring(2, 15),
                                 text: responseText,
                                 isUser: false,
+                                date: new Date().toISOString(),
                                 timestamp: responseTs,
                                 status: 'read',
                             },
@@ -264,6 +314,7 @@ export default function ChatScreen() {
                 } finally {
                     setIsRequestInFlight(false);
                     setIsThinking(false);
+                    //set all messages to read
                 }
             })();
         }, 2000);
@@ -276,8 +327,8 @@ export default function ChatScreen() {
         if (isRequestInFlight && abortControllerRef.current) {
             console.log('Cancelling previous API call because user typed again.');
             abortControllerRef.current.abort();
-            // We keep the old buffer as-is; don’t clear anything here.
-            // isRequestInFlight will get reset in the flushBuffer’s catch/finally.
+            // We keep the old buffer as-is; don't clear anything here.
+            // isRequestInFlight will get reset in the flushBuffer's catch/finally.
         }
 
         const currentTime = new Date().toLocaleTimeString([], {
@@ -290,19 +341,19 @@ export default function ChatScreen() {
             id: Date.now().toString(),
             text: newMessage.trim(),
             isUser: true,
+            date: new Date().toISOString(),
             timestamp: currentTime,
-            status: 'sending',
+            status: 'delivered',
         };
 
         setMessages(prev => [...prev, userMessage]);
         setBuffer(prev => [...prev, userMessage]);
         setNewMessage('');
-        setIsThinking(true);
+        // setIsThinking(true);
 
         // Reset 5-second inactivity timer
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
-            console.log('flushBuffer');
             flushBuffer(); // <-- flush buffer after 10s of inactivity
         }, 10000);
         setTypingTimeout(timeout as unknown as NodeJS.Timeout);
@@ -369,7 +420,7 @@ export default function ChatScreen() {
                         />
                     )}
                     <Text style={[styles.messageText, { color: message.isUser ? '#fff' : '#000' }]}>{message.text}</Text>
-                    <View style={styles.messageFooter}>
+                    <View style={message.isUser ? styles.messageFooterUser : styles.messageFooter}>
                         {!message.isUser && (
                             <Text style={styles.signature}>- Devi</Text>
                         )}
@@ -384,6 +435,14 @@ export default function ChatScreen() {
                                         <Image
                                             source={require('../../assets/images/tick.png')}
                                             style={styles.tickImage}
+                                        />
+                                    </View>
+                                )}
+                                {message.status === 'read' && (
+                                    <View style={styles.tickWrapper}>
+                                        <Image
+                                            source={require('../../assets/images/tick.png')}
+                                            style={styles.tickImageRead}
                                         />
                                     </View>
                                 )}
@@ -488,6 +547,24 @@ export default function ChatScreen() {
         );
     };
 
+    const groupedMessages = useMemo(() => {
+        const groups: { [key: string]: Message[] } = {};
+
+        messages.forEach(message => {
+            const date = new Date(message.date);
+            const dateKey = date.toDateString();
+
+            if (!groups[dateKey]) {
+                groups[dateKey] = [];
+            }
+            groups[dateKey].push(message);
+        });
+
+        return Object.entries(groups)
+            .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+            .reverse();
+    }, [messages]);
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View
@@ -524,8 +601,13 @@ export default function ChatScreen() {
                         scrollViewRef.current?.scrollToEnd({ animated: true });
                     }}
                 >
-                    {messages.map((message) => (
-                        <MessageBubble key={message.id} message={message} />
+                    {groupedMessages.map(([date, msgs]) => (
+                        <View key={date}>
+                            <DateHeader date={date} />
+                            {msgs.map((message) => (
+                                <MessageBubble key={message.id} message={message} />
+                            ))}
+                        </View>
                     ))}
                     {isThinking && (
                         <View style={styles.typingIndicator}>
@@ -540,10 +622,6 @@ export default function ChatScreen() {
                         </View>
                     )}
                 </ScrollView>
-
-                <Text style={styles.copyright}>
-                    © Ask Devi. All rights reserved.
-                </Text>
 
                 <View style={styles.inputContainer}>
                     <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
@@ -706,6 +784,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 4,
     },
+    messageFooterUser: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginTop: 4,
+    },
     signature: {
         color: '#000',
         fontSize: 10,
@@ -736,6 +820,13 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         tintColor: '#ffffff',
+        opacity: 0.8,
+        resizeMode: 'contain',
+    },
+    tickImageRead: {
+        width: 10,
+        height: 10,
+        tintColor: '#0aaede',
         opacity: 0.8,
         resizeMode: 'contain',
     },
@@ -789,6 +880,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#360058',
     },
     inputContainer: {
+        marginTop: 8,
         paddingHorizontal: 16,
         // paddingVertical: 16,
         paddingVertical: Platform.OS === 'ios' ? 24 : 14,
@@ -828,5 +920,23 @@ const styles = StyleSheet.create({
     },
     sendButtonDisabled: {
         opacity: 0.5,
+    },
+    dateHeaderContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 16,
+        paddingHorizontal: 16,
+    },
+    dateHeaderLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: 'rgba(247, 198, 21, 0.3)',
+    },
+    dateHeaderText: {
+        color: 'rgba(247, 198, 21, 0.6)',
+        fontSize: 12,
+        fontWeight: '600',
+        marginHorizontal: 12,
+        textAlign: 'center',
     },
 });

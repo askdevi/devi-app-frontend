@@ -134,7 +134,7 @@ export default function LoadingScreen() {
                     }
                 });
 
-                const response3 = await axios.get(`${Domain}/chat-history`, {
+                const response3 = await axios.get(`${Domain}/latest-chat-history`, {
                     params: {
                         userId: userId
                     }
@@ -153,7 +153,7 @@ export default function LoadingScreen() {
                     await AsyncStorage.setItem('occupation', response2.data.user.occupation);
                     await AsyncStorage.setItem('gender', response2.data.user.gender);
 
-                    await AsyncStorage.setItem('chatHistory', JSON.stringify(response3.data.chats));
+                    await AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data));
 
                     await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
 
