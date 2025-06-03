@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Header from './Header';
@@ -8,10 +8,24 @@ import BackgroundEffects from './BackgroundEffects';
 import Footer from './Footer';
 import Colors from '@/constants/Colors';
 import CompatibilitySection from './CompatibilitySection';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import FreeTimePopup from './Popups/FreeTimePopup';
 
 const MainLayout = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  useEffect(() => {
+    const loadData = async () => {
+      const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+      const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
+      if (startedFreeMinutesInt === 0) {
+        setShowPopup(true);
+      }
+    };
+    loadData();
+  }, []);
   return (
     <SafeAreaProvider>
+      {showPopup && <FreeTimePopup onClose={() => setShowPopup(false)} />}
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View style={styles.container}>
           <BackgroundEffects count={30} />

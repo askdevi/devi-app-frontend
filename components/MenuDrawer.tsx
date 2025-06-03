@@ -21,6 +21,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const [phone, setPhone] = useState('+91 1234567890');
   const [firstName, setFirstName] = useState('User');
   const [time, setTime] = useState(0);
+  const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
 
   const handleSettings = () => {
     router.push('/main/settings');
@@ -57,6 +58,8 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
       let phone1 = await AsyncStorage.getItem('phoneNumber');
       const firstName1 = await AsyncStorage.getItem('firstName');
       const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+      const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+      const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
       const currentTime = Date.now();
       if (phone1 && firstName1 && timeEnd1) {
         phone1 = phone1.replace('+91', '+91 ');
@@ -64,6 +67,9 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
         setFirstName(firstName1);
         const timeEndTimestamp = new Date(timeEnd1).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
+      }
+      if (startedFreeMinutes1) {
+        setStartedFreeMinutes(startedFreeMinutesInt);
       }
     };
     loadData();
@@ -134,10 +140,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
             <View style={styles.statItem}>
               <Clock size={16} color={Colors.gold.DEFAULT} strokeWidth={1.5} />
               <Text style={styles.statValue}>
-                {Math.floor(time / (1000 * 60 * 60)) > 0
-                  ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                  : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                } left
+                {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
               </Text>
             </View>
           </View>

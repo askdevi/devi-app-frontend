@@ -93,6 +93,7 @@ export default function PersonalDetailsScreen() {
       await AsyncStorage.setItem('language', language);
       await AsyncStorage.setItem('relationshipStatus', relationshipStatus);
       await AsyncStorage.setItem('occupation', occupation);
+      await AsyncStorage.setItem('startedFreeMinutes', '0');
 
       const phoneNumber = await AsyncStorage.getItem('phoneNumber');
       const firstName = await AsyncStorage.getItem('firstName');
@@ -176,7 +177,7 @@ export default function PersonalDetailsScreen() {
 
         <View style={styles.header}>
           <GradientText style={styles.title}>Personal Details</GradientText>
-          <Text style={styles.subtitle}>Your Personal Details</Text>
+          {/* <Text style={styles.subtitle}>Your Personal Details</Text> */}
         </View>
 
         <View style={styles.form}>

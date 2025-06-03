@@ -15,6 +15,7 @@ export default function SettingsScreen() {
     const router = useRouter();
     const [name, setName] = useState('');
     const [time, setTime] = useState(0);
+    const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
 
     const handleLogout = async () => {
         await SecureStore.deleteItemAsync('userToken');
@@ -52,10 +53,15 @@ export default function SettingsScreen() {
             const firstName = await AsyncStorage.getItem('firstName') as string;
             setName(firstName);
             const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+            const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+            const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
             const currentTime = Date.now();
             if (timeEnd1) {
                 const timeEndTimestamp = new Date(timeEnd1).getTime();
                 setTime(Math.max(0, timeEndTimestamp - currentTime));
+            }
+            if (startedFreeMinutes1) {
+                setStartedFreeMinutes(startedFreeMinutesInt);
             }
         };
         loadData();
@@ -92,10 +98,7 @@ export default function SettingsScreen() {
                                     <View style={styles.timeSection}>
                                         <Text style={styles.infoLabel}>Time Remaining</Text>
                                         <Text style={styles.timeText}>
-                                            {Math.floor(time / (1000 * 60 * 60)) > 0
-                                                ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                                                : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                                            }
+                                            {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
                                         </Text>
                                     </View>
                                     <TouchableOpacity

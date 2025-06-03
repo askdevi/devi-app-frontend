@@ -46,14 +46,20 @@ export default function WalletScreen() {
   const router = useRouter();
   const [time, setTime] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
 
   useEffect(() => {
     const loadData = async () => {
       const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+      const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+      const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
       const currentTime = Date.now();
       if (timeEnd1) {
         const timeEndTimestamp = new Date(timeEnd1).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
+      }
+      if (startedFreeMinutes1) {
+        setStartedFreeMinutes(startedFreeMinutesInt);
       }
     };
     loadData();
@@ -179,10 +185,7 @@ export default function WalletScreen() {
             <View style={styles.balanceContainer}>
               <View style={styles.balanceItem}>
                 <Text style={styles.balanceValue}>
-                  {Math.floor(time / (1000 * 60 * 60)) > 0
-                    ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                    : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-                  }
+                  {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
                 </Text>
                 <Text style={styles.balanceLabel}>Remaining Time</Text>
               </View>

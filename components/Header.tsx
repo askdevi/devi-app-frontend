@@ -12,6 +12,7 @@ const Header = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [time, setTime] = useState(0);
+  const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
 
   const handlePress = (action: () => void) => {
     if (Platform.OS !== 'web') {
@@ -23,10 +24,15 @@ const Header = () => {
   useEffect(() => {
     const loadData = async () => {
       const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+      const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+      const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
       const currentTime = Date.now();
       if (timeEnd1) {
         const timeEndTimestamp = new Date(timeEnd1).getTime();
         setTime(Math.max(0, timeEndTimestamp - currentTime));
+      }
+      if (startedFreeMinutes1) {
+        setStartedFreeMinutes(startedFreeMinutesInt);
       }
     };
     loadData();
@@ -60,10 +66,7 @@ const Header = () => {
           accessibilityLabel="Account"
         >
           <Text style={styles.coinText}>
-            {Math.floor(time / (1000 * 60 * 60)) > 0
-              ? `${Math.floor(time / (1000 * 60 * 60))}h ${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-              : `${Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))}m`
-            }
+            {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
           </Text>
           <Clock color={Colors.gold.DEFAULT} size={20} />
         </TouchableOpacity>

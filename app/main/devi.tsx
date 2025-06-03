@@ -87,11 +87,12 @@ export default function ChatScreen() {
 
     const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
-    const [isThinking, setIsThinking] = useState(false);
+    const [isThinking, setIsThinking] = useState(true);
     const logoFloat = useSharedValue(0);
     const glowOpacity = useSharedValue(0);
     const logoGlowScale = useSharedValue(1);
     const logoGlowOpacity = useSharedValue(0);
+    const [time, setTime] = useState(0);
 
     const [buffer, setBuffer] = useState<Message[]>([]);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -104,6 +105,34 @@ export default function ChatScreen() {
     useEffect(() => {
         bufferRef.current = buffer;
     }, [buffer]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const timeEnd1 = await AsyncStorage.getItem('timeEnd');
+            const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+            const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
+            const currentTime = Date.now();
+            if (startedFreeMinutesInt === 0) {
+                setTime(3 * 60 * 1000);
+                await AsyncStorage.setItem('startedFreeMinutes', '1');
+                await AsyncStorage.setItem('timeEnd', (new Date(Date.now() + 3 * 60 * 1000).toISOString()));
+            }
+            else if (timeEnd1) {
+                const timeEndTimestamp = new Date(timeEnd1).getTime();
+                setTime(Math.max(0, timeEndTimestamp - currentTime));
+            }
+            else {
+                setTime(0);
+            }
+        };
+        loadData();
+
+        const interval = setInterval(() => {
+            loadData();
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -321,7 +350,7 @@ export default function ChatScreen() {
     }, []);
 
     const sendMessage = useCallback(() => {
-        if (!newMessage.trim()) return;
+        if (!newMessage.trim() || time <= 0) return;
 
         // If there's already a request in flight, cancel it immediately.
         if (isRequestInFlight && abortControllerRef.current) {
@@ -496,7 +525,9 @@ export default function ChatScreen() {
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.credits} onPress={() => router.push('/main/wallet')}>
                         <Clock size={14} color="#f7c615" />
-                        <Text style={styles.creditsText}> 0h 0m</Text>
+                        <Text style={styles.creditsText}>
+                            {time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -529,7 +560,7 @@ export default function ChatScreen() {
 
         return (
             <View style={styles.dotsContainer}>
-                <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={styles.dotsBlurBackground}>
+                <View style={styles.dotsBlurBackground}>
                     {dots.map((_, index) => (
                         <Animated.View
                             key={index}
@@ -542,7 +573,7 @@ export default function ChatScreen() {
                             ]}
                         />
                     ))}
-                </BlurView>
+                </View>
             </View>
         );
     };
@@ -612,11 +643,6 @@ export default function ChatScreen() {
                     {isThinking && (
                         <View style={styles.typingIndicator}>
                             <View style={styles.typingContainer}>
-                                <Image
-                                    source={require('../../assets/images/welcome.png')}
-                                    style={styles.typingImage}
-                                    resizeMode="contain"
-                                />
                                 <TypingDots />
                             </View>
                         </View>
@@ -644,7 +670,7 @@ export default function ChatScreen() {
                         <TouchableOpacity
                             onPress={sendMessage}
                             style={styles.sendButton}
-                            disabled={!newMessage.trim()}
+                            disabled={time <= 0 || !newMessage.trim()}
                         >
                             <Text style={[
                                 styles.sendButtonText,
@@ -662,6 +688,7 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: '#360059',
+        // backgroundColor: "#fff",
     },
     container: {
         flex: 1,
@@ -867,7 +894,7 @@ const styles = StyleSheet.create({
         // bottom: -70,
         // left: -210,
         // right: 0,
-        width: 160,
+        width: 120,
         alignItems: 'center',
         // justifyContent: 'center',
         zIndex: -1,
@@ -891,17 +918,17 @@ const styles = StyleSheet.create({
     dotsBlurBackground: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(54, 0, 89, 0.8)',
+        gap: 6,
+        backgroundColor: 'rgba(101, 101, 101, 0.8)',
         borderRadius: 16,
         padding: 6,
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: 'rgba(247, 198, 21, 0.3)',
     },
     dot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
     },
     copyright: {

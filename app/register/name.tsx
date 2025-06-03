@@ -117,14 +117,6 @@ export default function NameScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons 
-          name="arrow-back" 
-          size={24} 
-          color="#ffcc00" 
-        />
-      </TouchableOpacity>
-
       <View style={styles.content}>
         <SetupProgress currentStep={1} totalSteps={5} />
 
