@@ -11,6 +11,9 @@ import { getUserId } from '@/constants/userId';
 import axios from 'axios';
 import CompatibilityCard from '@/components/CompatibilityCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 export default function CompatibilityScreen() {
     const router = useRouter();
@@ -38,6 +41,28 @@ export default function CompatibilityScreen() {
         fetchCompatibility();
     }, []);
 
+    const GradientText = ({ children, style }: { children: string; style?: any }) => {
+        return (
+            <MaskedView
+                style={style}
+                maskElement={
+                    <Text style={[style, { backgroundColor: 'transparent' }]}>
+                        {children}
+                    </Text>
+                }
+            >
+                <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={style}
+                >
+                    <Text style={[style, { opacity: 0 }]}>{children}</Text>
+                </LinearGradient>
+            </MaskedView>
+        );
+    };
+
     useEffect(() => {
         const fetchInitials = async () => {
             const firstName = await AsyncStorage.getItem('firstName');
@@ -48,7 +73,7 @@ export default function CompatibilityScreen() {
         }
         fetchInitials();
     }, []);
-    
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
@@ -56,7 +81,9 @@ export default function CompatibilityScreen() {
                     <BackgroundEffects count={30} />
 
                     <View style={styles.headerContainer}>
-                        <Text style={styles.header}>Partner Compatibility</Text>
+                        <View style={styles.titleContainer}>
+                            <GradientText style={styles.header}>Partner Compatibility</GradientText>
+                        </View>
                     </View>
                     <ScrollView style={styles.scrollView}
                         contentContainerStyle={styles.content}
@@ -128,16 +155,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
     },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    header: {
+        fontFamily: 'Poppins-Bold',
+        fontSize: 30,
+        fontWeight: 'bold',
+        color: Colors.gold.DEFAULT,
+    },
     backText: {
         fontSize: 22,
         fontWeight: 'bold',
         color: '#fff',
-    },
-    header: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginLeft: 20,
     },
     cardContainer: {
         marginBottom: 20,

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform, Animated } from 'react-native';
-import { Home, User, Wallet } from 'lucide-react-native';
+import { Home, User, Wallet, Heart } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
@@ -46,13 +46,13 @@ const Footer = () => {
         </Pressable>
 
         <Pressable style={styles.navButton} onPress={() => router.push('/compatibility/compatibility-main')}>
-          <Home size={22} color={Colors.white} strokeWidth={1.5} />
+          <Heart size={22} color={Colors.white} strokeWidth={1.5} />
           <Text style={styles.navText}>Compatibility</Text>
         </Pressable>
 
         <Pressable style={styles.askButtonContainer} onPress={() => router.push('/main/devi')}>
           <LinearGradient
-            colors={Colors.gradients.goldPrimary as [string, string]}
+            colors={Colors.gradients.goldPrimary as [string, string, string]}
             style={styles.askButton}
           >
             <Text style={styles.omText}>ॐ</Text>

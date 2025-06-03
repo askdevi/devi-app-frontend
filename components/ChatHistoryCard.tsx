@@ -4,41 +4,23 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
     title: string;
-    updatedAt: string;
     preview: string;
-    onDelete?: () => void;
     onPress?: () => void;
 }
 
-const ChatHistoryCard = ({ title, updatedAt, preview, onDelete, onPress }: Props) => {
+const ChatHistoryCard = ({ title, preview, onPress }: Props) => {
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>
             <View style={styles.row}>
                 <Text style={styles.title}>
                     {new Date(title).toLocaleString('en-US', {
-                        month: 'short',
+                        month: 'long',
                         day: 'numeric',
                         year: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        hour12: true
                     })}
                 </Text>
-                <TouchableOpacity onPress={onDelete}>
-                    <Ionicons name="trash-outline" size={20} color="#ff8080" />
-                </TouchableOpacity>
             </View>
-            <Text style={styles.updatedText}>Last updated:{" "}
-                {new Date(updatedAt).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                })}
-            </Text>
-            <Text style={styles.preview} numberOfLines={2}>
+            <Text style={styles.preview} numberOfLines={3}>
                 {preview}
             </Text>
         </TouchableOpacity>

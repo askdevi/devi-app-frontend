@@ -25,9 +25,9 @@ const Colors = {
   },
   transparent: 'transparent',
   gradients: {
-    goldPrimary: ['#FFD700', '#FFA500', '#FFD700'],
-    purplePrimary: ['#150829', '#1D0A37', '#2d1152'],
-    goldAccent: ['rgba(255, 215, 0, 0.2)', 'rgba(255, 165, 0, 0.2)', 'rgba(255, 215, 0, 0.2)']
+    goldPrimary: ['#FFD700', '#FFA500', '#FFD700'] as const,
+    purplePrimary: ['#150829', '#1D0A37', '#2d1152'] as const,
+    goldAccent: ['rgba(255, 215, 0, 0.2)', 'rgba(255, 165, 0, 0.2)', 'rgba(255, 215, 0, 0.2)'] as const
   }
 };
 

@@ -1,19 +1,17 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
     View,
     Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     ScrollView,
     Image,
     Platform,
-    KeyboardAvoidingView,
     SafeAreaView,
     Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Clock } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
 import Animated, {
     useAnimatedStyle,
@@ -21,7 +19,6 @@ import Animated, {
     withTiming,
     withSequence,
     useSharedValue,
-    withDelay,
     interpolate,
     Easing,
     cancelAnimation,
@@ -29,10 +26,7 @@ import Animated, {
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import BackgroundStars from '@/components/BackgroundEffects';
 import { router } from 'expo-router';
-import axios from 'axios';
-import { getUserId } from '@/constants/userId';
-import { ModelURL } from '@/constants/domain';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -47,10 +41,10 @@ type Message = {
     status: 'sending' | 'sent' | 'delivered' | 'read';
 };
 
-const ANIMATION_CONFIG = {
-    duration: 1500,
-    easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-};
+// const ANIMATION_CONFIG = {
+//     duration: 1500,
+//     easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+// };
 
 const DateHeader = React.memo(({ date }: { date: string }) => {
     const formattedDate = useMemo(() => {
@@ -82,65 +76,45 @@ const DateHeader = React.memo(({ date }: { date: string }) => {
     );
 });
 
-export default function ChatScreen() {
+export default function ChatHistoryDetailScreen() {
     const [messages, setMessages] = useState<Message[]>([]);
 
-    const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
     const [isThinking, setIsThinking] = useState(false);
     const logoFloat = useSharedValue(0);
-    const glowOpacity = useSharedValue(0);
     const logoGlowScale = useSharedValue(1);
     const logoGlowOpacity = useSharedValue(0);
 
-    const [buffer, setBuffer] = useState<Message[]>([]);
-    const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
-    const [isRequestInFlight, setIsRequestInFlight] = useState(false);
-
-    const abortControllerRef = useRef<AbortController | null>(null);
-
-    const bufferRef = useRef<Message[]>([]);
-
-    useEffect(() => {
-        bufferRef.current = buffer;
-    }, [buffer]);
+    const { chat } = useLocalSearchParams();
 
     useEffect(() => {
         const fetchMessages = async () => {
-            try {
-                const response = await AsyncStorage.getItem('latestChatHistory');
-                if (!response) {
-                    return;
-                }
-                const msgs = JSON.parse(response);
-                for (const msg of msgs) {
-                    const rawId = msg.id;
-                    const millis = parseInt(rawId, 10);
-                    const responseTs = new Date(millis)
-                        .toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        });
-                    setMessages(prev => [...prev, {
-                        // id should be a random number
-                        id: Math.random().toString(36).substring(2, 15),
-                        text: msg.content,
-                        isUser: msg.role === 'user',
-                        timestamp: responseTs,
-                        status: 'read',
-                        date: new Date(millis).toISOString()
-                    }]);
-                }
-            } catch (error) {
-                console.error('Error fetching messages:', error);
+            const msgs = JSON.parse(chat as string).messages;
+            for (const msg of msgs) {
+                const rawId = msg.id;
+                const millis = parseInt(rawId, 10);
+                const responseTs = new Date(millis)
+                    .toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                    });
+                setMessages(prev => [...prev, {
+                    // id should be a random number
+                    id: Math.random().toString(36).substring(2, 15),
+                    text: msg.content,
+                    isUser: msg.role === 'user',
+                    timestamp: responseTs,
+                    status: 'read',
+                    date: new Date(millis).toISOString()
+                }]);
             }
         };
         fetchMessages();
     }, []);
 
     const handleBack = () => {
-        router.push('/main/home');
+        router.push('/main/chat-history');
     };
 
     const floatAnimation = useMemo(() => {
@@ -167,51 +141,8 @@ export default function ChatScreen() {
         };
     }, []);
 
-    React.useEffect(() => {
-        if (isThinking) {
-            glowOpacity.value = withRepeat(
-                withSequence(
-                    withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-                    withTiming(0.3, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-                ),
-                -1,
-                true
-            );
-        } else {
-            glowOpacity.value = withTiming(0);
-        }
-    }, [isThinking]);
-
-    React.useEffect(() => {
-        if (isThinking) {
-            logoGlowScale.value = withRepeat(
-                withSequence(
-                    withTiming(1.2, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-                    withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) })
-                ),
-                -1,
-                true
-            );
-            logoGlowOpacity.value = withRepeat(
-                withSequence(
-                    withTiming(0.5, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-                    withTiming(0.2, { duration: 1500, easing: Easing.inOut(Easing.ease) })
-                ),
-                -1,
-                true
-            );
-        } else {
-            logoGlowScale.value = withTiming(1);
-            logoGlowOpacity.value = withTiming(0);
-        }
-    }, [isThinking]);
-
     const logoStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: logoFloat.value }]
-    }));
-
-    const glowStyle = useAnimatedStyle(() => ({
-        opacity: glowOpacity.value,
     }));
 
     const logoGlowStyle = useAnimatedStyle(() => {
@@ -226,138 +157,6 @@ export default function ChatScreen() {
             opacity: logoGlowOpacity.value,
         };
     });
-
-    const flushBuffer = useCallback(() => {
-        const currentBuffer = bufferRef.current;
-        if (currentBuffer.length === 0) {
-            return;
-        }
-
-        setMessages(prev =>
-            prev.map(msg =>
-                currentBuffer.find((b) => b.id === msg.id)
-                    ? { ...msg, status: 'read' }
-                    : msg
-            )
-        );
-        setIsThinking(true);
-        setIsRequestInFlight(true);
-        setTypingTimeout(null);
-
-        // Start a single 2s delay before actually firing the API call:
-        setTimeout(() => {
-            // Before each new request, create a fresh AbortController
-            const controller = new AbortController();
-            abortControllerRef.current = controller;
-
-            (async () => {
-
-                const prompts = currentBuffer.map(msg => ({
-                    id: msg.id,
-                    content: msg.text
-                }));
-
-                try {
-                    const userId = await getUserId();
-
-                    // Fire the POST with the controller's signal
-                    const response = await axios.post(
-                        ModelURL,
-                        {
-                            prompts: prompts,
-                            userId: userId
-                        },
-                        {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            signal: controller.signal
-                        }
-                    );
-
-                    // Append each returned string as a new assistant message:
-                    const responses: string[] = response.data.response;
-                    const rawId = response.data.id;
-                    const millis = parseInt(rawId, 10);      // convert to number
-                    const responseTs = new Date(millis)      // now Date knows it's a ms‐timestamp
-                        .toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                        });
-
-                    // Now that we got a good response, clear the buffer:
-                    setBuffer([]);
-
-                    for (const responseText of responses) {
-                        const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
-                        await new Promise(resolve => setTimeout(resolve, gap));
-                        setMessages(prev => [
-                            ...prev,
-                            {
-                                id: Math.random().toString(36).substring(2, 15),
-                                text: responseText,
-                                isUser: false,
-                                date: new Date().toISOString(),
-                                timestamp: responseTs,
-                                status: 'read',
-                            },
-                        ]);
-                    }
-
-                } catch (err: any) {
-                    if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
-                        console.log('Previous request was aborted—buffer is kept intact.');
-                    } else {
-                        console.error('API error (non‐abort):', err);
-                    }
-                } finally {
-                    setIsRequestInFlight(false);
-                    setIsThinking(false);
-                    //set all messages to read
-                }
-            })();
-        }, 2000);
-    }, []);
-
-    const sendMessage = useCallback(() => {
-        if (!newMessage.trim()) return;
-
-        // If there's already a request in flight, cancel it immediately.
-        if (isRequestInFlight && abortControllerRef.current) {
-            console.log('Cancelling previous API call because user typed again.');
-            abortControllerRef.current.abort();
-            // We keep the old buffer as-is; don't clear anything here.
-            // isRequestInFlight will get reset in the flushBuffer's catch/finally.
-        }
-
-        const currentTime = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        });
-
-        const userMessage: Message = {
-            id: Date.now().toString(),
-            text: newMessage.trim(),
-            isUser: true,
-            date: new Date().toISOString(),
-            timestamp: currentTime,
-            status: 'delivered',
-        };
-
-        setMessages(prev => [...prev, userMessage]);
-        setBuffer(prev => [...prev, userMessage]);
-        setNewMessage('');
-        // setIsThinking(true);
-
-        // Reset 5-second inactivity timer
-        if (typingTimeout) clearTimeout(typingTimeout);
-        const timeout = setTimeout(() => {
-            flushBuffer(); // <-- flush buffer after 10s of inactivity
-        }, 10000);
-        setTypingTimeout(timeout as unknown as NodeJS.Timeout);
-    }, [newMessage, isRequestInFlight, typingTimeout, flushBuffer]);
 
     const MessageBubble = React.memo(({ message }: { message: Message }) => {
         const gradientPosition = useSharedValue(-SCREEN_WIDTH);
@@ -492,60 +291,10 @@ export default function ChatScreen() {
                         style={[styles.logo, logoStyle]}
                     />
                 </View>
-
-                <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.credits} onPress={() => router.push('/main/wallet')}>
-                        <Clock size={14} color="#f7c615" />
-                        <Text style={styles.creditsText}> 0h 0m</Text>
-                    </TouchableOpacity>
-                </View>
             </View>
         );
     });
 
-    const TypingDots = () => {
-        const dots = [0, 1, 2];
-        const animations = dots.map(() => useSharedValue(0));
-
-        React.useEffect(() => {
-            dots.forEach((_, index) => {
-                animations[index].value = withRepeat(
-                    withSequence(
-                        withDelay(index * 200,
-                            withTiming(1, { duration: 400 })
-                        ),
-                        withDelay(600,
-                            withTiming(0, { duration: 400 })
-                        )
-                    ),
-                    -1
-                );
-            });
-
-            return () => {
-                animations.forEach(anim => cancelAnimation(anim));
-            };
-        }, []);
-
-        return (
-            <View style={styles.dotsContainer}>
-                <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={styles.dotsBlurBackground}>
-                    {dots.map((_, index) => (
-                        <Animated.View
-                            key={index}
-                            style={[
-                                styles.dot,
-                                useAnimatedStyle(() => ({
-                                    transform: [{ scale: animations[index].value }],
-                                    opacity: animations[index].value,
-                                })),
-                            ]}
-                        />
-                    ))}
-                </BlurView>
-            </View>
-        );
-    };
 
     const groupedMessages = useMemo(() => {
         const groups: { [key: string]: Message[] } = {};
@@ -609,50 +358,7 @@ export default function ChatScreen() {
                             ))}
                         </View>
                     ))}
-                    {isThinking && (
-                        <View style={styles.typingIndicator}>
-                            <View style={styles.typingContainer}>
-                                <Image
-                                    source={require('../../assets/images/welcome.png')}
-                                    style={styles.typingImage}
-                                    resizeMode="contain"
-                                />
-                                <TypingDots />
-                            </View>
-                        </View>
-                    )}
                 </ScrollView>
-
-                <View style={styles.inputContainer}>
-                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                        <LinearGradient
-                            colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0.5, y: 0 }}
-                            end={{ x: 0.5, y: 1 }}
-                        />
-                    </BlurView>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
-                            style={styles.input}
-                            value={newMessage}
-                            onChangeText={setNewMessage}
-                            placeholder="Type your question..."
-                            placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                            multiline
-                        />
-                        <TouchableOpacity
-                            onPress={sendMessage}
-                            style={styles.sendButton}
-                            disabled={!newMessage.trim()}
-                        >
-                            <Text style={[
-                                styles.sendButtonText,
-                                !newMessage.trim() && styles.sendButtonDisabled
-                            ]}>➤</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
             </View>
         </SafeAreaView>
     );
@@ -676,9 +382,6 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-    },
-    scrollView: {
-        flex: 1,
     },
     headerContainer: {
         flexDirection: 'row',
@@ -770,6 +473,7 @@ const styles = StyleSheet.create({
     },
     messagesContainer: {
         flex: 1,
+        marginBottom: 15,
     },
     messagesContent: {
         paddingHorizontal: 16,

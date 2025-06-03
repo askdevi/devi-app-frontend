@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,10 +9,44 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import ChatHistoryCard from '@/components/ChatHistoryCard';
 import Domain from '@/constants/domain';
 import axios from 'axios';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { getUserId } from '@/constants/userId';
+import { ActivityIndicator } from 'react-native';
+
+const EmptyState = () => {
+    const router = useRouter();
+
+    return (
+        <View style={styles.emptyStateContainer}>
+            <Image
+                source={require('../../assets/images/welcome.png')}
+                style={styles.emptyStateImage}
+            />
+            <Text style={styles.emptyStateTitle}>No Chats Yet</Text>
+            <Text style={styles.emptyStateText}>
+                Start your first conversation with Devi to get personalized vedic insights
+            </Text>
+            <TouchableOpacity
+                style={styles.startChatButton}
+                onPress={() => router.push('/main/devi')}
+            >
+                <LinearGradient
+                    colors={['#FFD700', '#FFA500', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.startChatGradient}
+                >
+                    <Text style={styles.startChatText}>Start Chat</Text>
+                </LinearGradient>
+            </TouchableOpacity>
+        </View>
+    );
+};
 
 export default function ChatHistoryScreen() {
     const router = useRouter();
     const [chatHistory, setChatHistory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleBack = () => {
         router.push('/main/home');
@@ -20,46 +54,91 @@ export default function ChatHistoryScreen() {
 
     useEffect(() => {
         const loadChatHistory = async () => {
-            try{
-                const response = await axios.get(`${Domain}/chat-history`);
-                // setChatHistory(response.data);
+            try {
+                const userId = await getUserId();
+                const response = await axios.get(`${Domain}/chat-history`,
+                    {
+                        params: {
+                            userId: userId
+                        }
+                    }
+                );
+                setChatHistory(response.data.chats);
+                setIsLoading(false);
             } catch (error) {
                 console.error('Error loading chat history:', error);
             }
         };
         loadChatHistory();
     }, []);
+
+    const GradientText = ({ children, style }: { children: string; style?: any }) => {
+        return (
+            <MaskedView
+                style={style}
+                maskElement={
+                    <Text style={[style, { backgroundColor: 'transparent' }]}>
+                        {children}
+                    </Text>
+                }
+            >
+                <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={style}
+                >
+                    <Text style={[style, { opacity: 0 }]}>{children}</Text>
+                </LinearGradient>
+            </MaskedView>
+        );
+    };
+
+    const handleChatHistoryDetail = (chat: any) => {
+        router.push({
+            pathname: '/main/chat-history-detail',
+            params: { chat: JSON.stringify(chat) }
+        });
+    };
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
                     <View style={styles.headerContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Ionicons 
-                name="arrow-back" 
-                size={24} 
-                color="#ffcc00" 
-              />
-            </TouchableOpacity>
-            <View style={styles.titleContainer}>
-                <Text style={styles.header}>Chat History</Text>
-                <LinearGradient
-                  colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  locations={[0, 0.3, 0.5, 0.7, 1]}
-                  style={styles.underline}
-                />
-            </View>
-          </View>
-                    <ScrollView style={styles.scrollView}
-                        contentContainerStyle={styles.content}
-                        showsVerticalScrollIndicator={false}>
-                        {chatHistory.map((chat: any, id: any) => (
-                            <ChatHistoryCard key={id} title={chat.createdAt} updatedAt={chat.lastUpdated} preview={chat.messages[chat.messages.length - 1].content} />
-                        ))}
-
+                        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                            <Ionicons
+                                name="arrow-back"
+                                size={24}
+                                color="#ffcc00"
+                            />
+                        </TouchableOpacity>
+                        <View style={styles.titleContainer}>
+                            <GradientText style={styles.header}>Chat History</GradientText>
+                        </View>
+                    </View>
+                    <ScrollView
+                        style={styles.scrollView}
+                        contentContainerStyle={[
+                            styles.content,
+                            (!chatHistory.length && !isLoading) && styles.emptyStateScrollContent
+                        ]}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {isLoading ? (
+                            <ActivityIndicator size="large" color={Colors.gold.DEFAULT} />
+                        ) : chatHistory.length > 0 ? (
+                            chatHistory.map((chat: any, id: any) => (
+                                <ChatHistoryCard
+                                    key={id}
+                                    title={chat.date}
+                                    preview={chat.messages[chat.messages.length - 1].content}
+                                    onPress={() => handleChatHistoryDetail(chat)}
+                                />
+                            ))
+                        ) : (
+                            <EmptyState />
+                        )}
                     </ScrollView>
                 </View>
             </SafeAreaView>
@@ -78,7 +157,6 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        paddingTop: 30,
     },
     scrollView: {
         flex: 1,
@@ -87,31 +165,76 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
-    position: 'relative',
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    left: 12,
-    zIndex: 10,
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#ffcc00',
-  },
-  underline: {
-    height: 3,
-    width: 80,
-    marginTop: 8,
-    borderRadius: 1.5,
-  },
+        position: 'relative',
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 12,
+        zIndex: 10,
+    },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    header: {
+        fontFamily: 'Poppins-Bold',
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: Colors.gold.DEFAULT,
+    },
+    underline: {
+        height: 3,
+        width: 80,
+        marginTop: 8,
+        borderRadius: 1.5,
+    },
+    emptyStateScrollContent: {
+        flexGrow: 1,
+        // justifyContent: 'center',
+    },
+    emptyStateContainer: {
+        alignItems: 'center',
+        padding: 20,
+    },
+    emptyStateImage: {
+        width: 100,
+        height: 200,
+        marginBottom: 20,
+        opacity: 0.8,
+    },
+    emptyStateTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: Colors.gold.DEFAULT,
+        marginBottom: 12,
+    },
+    emptyStateText: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.7)',
+        textAlign: 'center',
+        marginBottom: 24,
+        lineHeight: 24,
+    },
+    startChatButton: {
+        width: '100%',
+        maxWidth: 200,
+        height: 48,
+        borderRadius: 24,
+        overflow: 'hidden',
+    },
+    startChatGradient: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    startChatText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: Colors.deepPurple.DEFAULT,
+    },
 });

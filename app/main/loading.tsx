@@ -147,7 +147,9 @@ export default function LoadingScreen() {
                     await AsyncStorage.setItem('firstName', response2.data.user.firstName);
                     await AsyncStorage.setItem('lastName', response2.data.user.lastName);
 
-                    await AsyncStorage.setItem('birthPlace', response2.data.user.birthPlace.name);
+                    await AsyncStorage.setItem('birthDate', response2.data.user.birthDate);
+                    await AsyncStorage.setItem('birthTime', response2.data.user.birthTime);
+                    await AsyncStorage.setItem('birthPlaceData', JSON.stringify(response2.data.user.birthPlace));
                     await AsyncStorage.setItem('language', response2.data.user.preferredLanguage);
                     await AsyncStorage.setItem('relationshipStatus', response2.data.user.relationshipStatus);
                     await AsyncStorage.setItem('occupation', response2.data.user.occupation);

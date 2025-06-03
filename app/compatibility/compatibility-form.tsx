@@ -14,7 +14,8 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 
 export default function CompatibilityFormScreen() {
     const router = useRouter();
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [date, setDate] = useState(new Date());
     const [time, setTime] = useState(new Date());
     const [birthPlace, setBirthPlace] = useState('');
@@ -24,7 +25,7 @@ export default function CompatibilityFormScreen() {
     const [loading, setLoading] = useState(false);
 
     const handleCheck = async () => {
-        if (!name) {
+        if (!firstName || !lastName) {
             alert('Please enter partner\'s name');
             return;
         }
@@ -41,7 +42,8 @@ export default function CompatibilityFormScreen() {
 
             const response = await axios.post(`${Domain}/get-compatibility-report`, {
                 userId,
-                name: name,
+                firstName,
+                lastName,
                 birthDate: formattedDate,
                 birthTime: formattedTime,
                 birthPlace: {
@@ -100,17 +102,29 @@ export default function CompatibilityFormScreen() {
                         style={styles.scrollView}
                     >
                         <View style={styles.form}>
+                            
                             <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Partner's Name</Text>
+                                <Text style={styles.label}>First Name</Text>
                                 <TextInput
                                     style={styles.input}
-                                    value={name}
-                                    onChangeText={setName}
-                                    placeholder="Enter name"
+                                    value={firstName}
+                                    onChangeText={setFirstName}
+                                    placeholder="Enter first name"
                                     placeholderTextColor={`${Colors.gold.DEFAULT}40`}
                                 />
                             </View>
 
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Last Name</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={lastName}
+                                    onChangeText={setLastName}
+                                    placeholder="Enter last name"
+                                    placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+                                />
+                            </View>
+                            
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Birth Location</Text>
                                 <GooglePlacesAutocomplete

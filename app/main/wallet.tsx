@@ -12,6 +12,7 @@ import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import Footer from '@/components/Footer';
+import MaskedView from '@react-native-masked-view/masked-view';
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -67,7 +68,7 @@ export default function WalletScreen() {
   const handleBack = () => {
     router.push('/main/home');
   };
-  
+
   const handlePurchase = async (pkg: any) => {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -143,28 +144,35 @@ export default function WalletScreen() {
     }
   };
 
+  const GradientText = ({ children, style }: { children: string; style?: any }) => {
+    return (
+      <MaskedView
+        style={style}
+        maskElement={
+          <Text style={[style, { backgroundColor: 'transparent' }]}>
+            {children}
+          </Text>
+        }
+      >
+        <LinearGradient
+          colors={['#FFD700', '#FF8C00', '#FFD700']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={style}
+        >
+          <Text style={[style, { opacity: 0 }]}>{children}</Text>
+        </LinearGradient>
+      </MaskedView>
+    );
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View style={styles.container}>
-          <BackgroundEffects count={30} />
           <View style={styles.headerContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Ionicons 
-                name="arrow-back" 
-                size={24} 
-                color="#ffcc00" 
-              />
-            </TouchableOpacity>
             <View style={styles.titleContainer}>
-                <Text style={styles.header}>Wallet</Text>
-                <LinearGradient
-                  colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  locations={[0, 0.3, 0.5, 0.7, 1]}
-                  style={styles.underline}
-                />
+              <GradientText style={styles.header}>Wallet</GradientText>
             </View>
           </View>
           <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -216,10 +224,10 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingTop: 30,
   },
   scrollView: {
     flex: 1,
+    marginBottom: 70,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -242,9 +250,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    fontSize: 22,
+    fontFamily: 'Poppins-Bold',
+    fontSize: 30,
     fontWeight: 'bold',
-    color: '#ffcc00',
+    color: Colors.gold.DEFAULT,
   },
   underline: {
     height: 3,

@@ -8,6 +8,8 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from '@/components/Footer';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -21,6 +23,28 @@ export default function SettingsScreen() {
 
     const handleSupport = () => {
         router.push('/main/support');
+    };
+
+    const GradientText = ({ children, style }: { children: string; style?: any }) => {
+        return (
+            <MaskedView
+                style={style}
+                maskElement={
+                    <Text style={[style, { backgroundColor: 'transparent' }]}>
+                        {children}
+                    </Text>
+                }
+            >
+                <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={style}
+                >
+                    <Text style={[style, { opacity: 0 }]}>{children}</Text>
+                </LinearGradient>
+            </MaskedView>
+        );
     };
 
     useEffect(() => {
@@ -47,10 +71,10 @@ export default function SettingsScreen() {
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
-
                     <View style={styles.headerContainer}>
-                        <Text style={styles.header}>Profile</Text>
+                        <View style={styles.titleContainer}>
+                            <GradientText style={styles.header}>Profile</GradientText>
+                        </View>
                     </View>
                     <ScrollView style={styles.scrollView}
                         contentContainerStyle={styles.content}
@@ -133,11 +157,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
     },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     header: {
-        fontSize: 22,
+        fontFamily: 'Poppins-Bold',
+        fontSize: 30,
         fontWeight: 'bold',
-        color: '#fff',
-        marginLeft: 20,
+        color: Colors.gold.DEFAULT,
     },
     profileSection: {
         alignItems: 'center',

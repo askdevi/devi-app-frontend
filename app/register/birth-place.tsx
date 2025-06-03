@@ -2,15 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Animated, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react-native';
+import { X, ArrowRight, ArrowLeft} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
-import Dropdown from '@/components/Setup/Dropdown';
-import axios from 'axios';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { getUserId } from '@/constants/userId';
-import Domain from '@/constants/domain';
 import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
 
@@ -82,8 +78,6 @@ export default function BirthPlaceScreen() {
     }
 
     try {
-      await AsyncStorage.setItem('birthPlace', birthPlace);
-
       const birthPlaceData = {
         "latitude": birthPlaceCoords.latitude,
         "longitude": birthPlaceCoords.longitude,
@@ -275,7 +269,7 @@ export default function BirthPlaceScreen() {
             onPress={handleContinue}
           >
             <LinearGradient
-              colors={Colors.gradients.goldPrimary as [string, string]}
+              colors={Colors.gradients.goldPrimary as [string, string, string]}
               style={styles.continueButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
