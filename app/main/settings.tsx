@@ -10,6 +10,7 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import axios from 'axios';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -86,11 +87,33 @@ export default function SettingsScreen() {
         router.push('/main/home');
     };
 
+    const GradientText = ({ children, style }: { children: string; style?: any }) => {
+        return (
+            <MaskedView
+            style={style}
+            maskElement={
+                <Text style={[style, { backgroundColor: 'transparent' }]}>
+                {children}
+                </Text>
+            }
+            >
+            <LinearGradient
+                colors={['#FFD700', '#FF8C00', '#FFD700']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={style}
+            >
+                <Text style={[style, { opacity: 0 }]}>{children}</Text>
+            </LinearGradient>
+            </MaskedView>
+        );
+    };
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
+                    {/* <BackgroundEffects count={30} /> */}
 
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -101,14 +124,14 @@ export default function SettingsScreen() {
                                 />
                         </TouchableOpacity>
                         <View style={styles.titleContainer}>
-                            <Text style={styles.header}>Settings</Text>
-                            <LinearGradient
+                            <GradientText style={styles.header}>Settings</GradientText>
+                            {/* <LinearGradient
                                 colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 locations={[0, 0.3, 0.5, 0.7, 1]}
                                 style={styles.underline}
-                            />
+                            /> */}
                         </View>
                     </View>
                     
@@ -189,7 +212,7 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        paddingTop: 30,
+        // paddingTop: 30,
     },
     scrollView: {
         flex: 1,
@@ -215,9 +238,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     header: {
-        fontSize: 22,
+        fontFamily: 'Poppins-Bold',
+        fontSize: 32,
         fontWeight: 'bold',
-        color: '#ffcc00',
+        color: Colors.gold.DEFAULT,
     },
     underline: {
         height: 3,
