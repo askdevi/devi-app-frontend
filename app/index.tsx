@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { getUserId } from '@/constants/userId';
-import messaging from '@react-native-firebase/messaging';
-import { Alert } from 'react-native';
+// import messaging from '@react-native-firebase/messaging';
+// import { Alert } from 'react-native';
 
 export default function Index() {
   const router = useRouter();
@@ -15,28 +15,28 @@ export default function Index() {
 
     init();
 
-    // Foreground message handler
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.title || 'FCM Message'));
-    });
+    // // Foreground message handler
+    // const unsubscribe = messaging().onMessage(async remoteMessage => {
+    //   Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.title || 'FCM Message'));
+    // });
 
-    return unsubscribe;
+    // return unsubscribe;
   }, [router]);
 
-  const setupFCM = async () => {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  // const setupFCM = async () => {
+  //   const authStatus = await messaging().requestPermission();
+  //   const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      const token = await messaging().getToken();
-      console.log('FCM Token:', token);
-      Alert.alert('FCM Token', token); // For testing
-    } else {
-      Alert.alert('Notification permission denied');
-    }
-  };
+  //   if (enabled) {
+  //     const token = await messaging().getToken();
+  //     console.log('FCM Token:', token);
+  //     Alert.alert('FCM Token', token); // For testing
+  //   } else {
+  //     Alert.alert('Notification permission denied');
+  //   }
+  // };
 
   const checkAuth = async () => {
     const userId = await getUserId();
