@@ -163,7 +163,6 @@ export default function OtpScreen() {
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
       await storeUserId(response.data.userId);
       if (response.data.exists) {
-        console.log("yayy");
         router.push('/main/loading');
       } else {
         router.push('/register/name');
