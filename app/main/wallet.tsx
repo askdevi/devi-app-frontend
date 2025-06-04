@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -46,20 +46,6 @@ export default function WalletScreen() {
   const [time, setTime] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
-
-  useEffect(() => {
-    const backAction = () => {
-      router.push("/main/home")
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, []);
 
   useEffect(() => {
     const loadData = async () => {
