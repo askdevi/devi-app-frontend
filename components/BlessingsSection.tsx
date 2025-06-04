@@ -19,7 +19,7 @@ import Animated, {
   interpolate,
   Easing,
 } from 'react-native-reanimated';
-import BackgroundStars from '../components/BackgroundStars';
+import BackgroundStars from '@/components/BackgroundEffects';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

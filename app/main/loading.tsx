@@ -126,20 +126,20 @@ export default function LoadingScreen() {
 
     useEffect(() => {
         const initializeApp = async () => {
+            const userId = await getUserId();
             try {
-                const userId = await getUserId();
                 if (!userId) {
                     router.push('/signup/phone');
                     return;
                 }
 
-                const response = await axios.get(`${Domain}/daily-blessings`, {
+                const response2 = await axios.get(`${Domain}/get-profile`, {
                     params: {
                         userId: userId
                     }
                 });
 
-                const response2 = await axios.get(`${Domain}/get-profile`, {
+                const response = await axios.get(`${Domain}/daily-blessings`, {
                     params: {
                         userId: userId
                     }
@@ -175,8 +175,12 @@ export default function LoadingScreen() {
                     router.push('/signup/phone');
                 }
             } catch (error) {
-                console.log('Error initializing app:', error);
-                router.push('/signup/phone');
+                // console.log('Error initializing app:', error);
+                if (!userId) {
+                    router.push('/signup/phone');
+                } else {
+                    router.push('/register/name');
+                }
             }
         };
 
