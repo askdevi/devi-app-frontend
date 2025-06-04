@@ -8,9 +8,9 @@ import {
     ScrollView,
     Image,
     Platform,
-    KeyboardAvoidingView,
     SafeAreaView,
     Dimensions,
+    BackHandler,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, Clock } from 'lucide-react-native';
@@ -32,7 +32,10 @@ import { router } from 'expo-router';
 import axios from 'axios';
 import { getUserId } from '@/constants/userId';
 import { ModelURL } from '@/constants/domain';
+import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NoTimePopup from '@/components/Popups/NoTimePopup';
+import { useRouter } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -45,11 +48,6 @@ type Message = {
     timestamp: string;
     date: string;
     status: 'sending' | 'sent' | 'delivered' | 'read';
-};
-
-const ANIMATION_CONFIG = {
-    duration: 1500,
-    easing: Easing.bezier(0.25, 0.1, 0.25, 1),
 };
 
 const DateHeader = React.memo(({ date }: { date: string }) => {
@@ -93,6 +91,7 @@ export default function ChatScreen() {
     const logoGlowScale = useSharedValue(1);
     const logoGlowOpacity = useSharedValue(0);
     const [time, setTime] = useState(0);
+    const [showPopup, setShowPopup] = useState(false);
 
     const [buffer, setBuffer] = useState<Message[]>([]);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -105,6 +104,29 @@ export default function ChatScreen() {
     useEffect(() => {
         bufferRef.current = buffer;
     }, [buffer]);
+
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/main/home")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
+
+    useEffect(() => {
+        if (!isThinking && time <= 0) {
+            setShowPopup(true);
+        }
+        else if (time > 0) {
+            setShowPopup(false);
+        }
+    }, [time, isThinking]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -598,6 +620,7 @@ export default function ChatScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
+            {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
             <View
                 // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.container}
@@ -667,16 +690,20 @@ export default function ChatScreen() {
                             placeholderTextColor="rgba(255, 255, 255, 0.6)"
                             multiline
                         />
-                        <TouchableOpacity
-                            onPress={sendMessage}
-                            style={styles.sendButton}
-                            disabled={time <= 0 || !newMessage.trim()}
-                        >
-                            <Text style={[
-                                styles.sendButtonText,
-                                !newMessage.trim() && styles.sendButtonDisabled
-                            ]}>➤</Text>
-                        </TouchableOpacity>
+                        {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.push("/main/wallet")}>
+                            <Text style={styles.purchaseButtonText}>Ask More</Text>
+                        </TouchableOpacity> :
+                            <TouchableOpacity
+                                onPress={sendMessage}
+                                style={styles.sendButton}
+                                disabled={time <= 0 || !newMessage.trim()}
+                            >
+                                <Text style={[
+                                    styles.sendButtonText,
+                                    !newMessage.trim() && styles.sendButtonDisabled
+                                ]}>➤</Text>
+                            </TouchableOpacity>
+                        }
                     </View>
                 </View>
             </View>
@@ -948,7 +975,7 @@ const styles = StyleSheet.create({
     },
     inputWrapper: {
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        alignItems: 'center',
     },
     input: {
         flex: 1,
@@ -963,6 +990,20 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: 'rgba(247, 198, 21, 0.3)',
+    },
+    purchaseButton: {
+        backgroundColor: Colors.gold.DEFAULT,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: 23,
+        borderWidth: 1,
+        borderColor: 'rgba(247, 198, 21, 0.3)',
+        marginLeft: 12,
+    },
+    purchaseButtonText: {
+        color: "#581c87",
+        fontSize: 16,
+        fontWeight: '600',
     },
     sendButton: {
         position: 'absolute',

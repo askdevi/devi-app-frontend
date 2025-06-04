@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
-import BackgroundGradient from '../BackgroundGradient';
 
 interface Props {
     onClose?: () => void;

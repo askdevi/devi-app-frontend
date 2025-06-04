@@ -3,11 +3,16 @@ import { View, Text, StyleSheet, Pressable, Platform, Animated } from 'react-nat
 import { Home, User, Wallet, Heart } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 
 const Footer = () => {
   const shineAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isActive = (path: string) => {
+    return pathname.includes(path);
+  };
 
   useEffect(() => {
     const shineAnimation = Animated.loop(
@@ -41,13 +46,27 @@ const Footer = () => {
 
       <View style={styles.nav}>
         <Pressable style={styles.navButton} onPress={() => router.push('/main/home')}>
-          <Home size={22} color={Colors.white} strokeWidth={1.5} />
-          <Text style={styles.navText}>Home</Text>
+          <Home
+            size={22}
+            color={isActive('/home') ? Colors.gold.DEFAULT : Colors.white}
+            strokeWidth={1.5}
+          />
+          <Text style={[
+            styles.navText,
+            isActive('/home') && styles.activeNavText
+          ]}>Home</Text>
         </Pressable>
 
         <Pressable style={styles.navButton} onPress={() => router.push('/compatibility/compatibility-main')}>
-          <Heart size={22} color={Colors.white} strokeWidth={1.5} />
-          <Text style={styles.navText}>Compatibility</Text>
+          <Heart
+            size={22}
+            color={isActive('/compatibility') ? Colors.gold.DEFAULT : Colors.white}
+            strokeWidth={1.5}
+          />
+          <Text style={[
+            styles.navText,
+            isActive('/compatibility') && styles.activeNavText
+          ]}>Compatibility</Text>
         </Pressable>
 
         <Pressable style={styles.askButtonContainer} onPress={() => router.push('/main/devi')}>
@@ -73,14 +92,28 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => router.push('/main/wallet')}>
-          <Wallet size={22} color={Colors.white} strokeWidth={1.5} />
-          <Text style={styles.navText}>Wallet</Text>
+        <Pressable style={styles.navButton1} onPress={() => router.push('/main/wallet')}>
+          <Wallet
+            size={22}
+            color={isActive('/wallet') ? Colors.gold.DEFAULT : Colors.white}
+            strokeWidth={1.5}
+          />
+          <Text style={[
+            styles.navText,
+            isActive('/wallet') && styles.activeNavText
+          ]}>Wallet</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => router.push('/main/profile')}>
-          <User size={22} color={Colors.white} strokeWidth={1.5} />
-          <Text style={styles.navText}>Profile</Text>
+        <Pressable style={styles.navButton1} onPress={() => router.push('/main/profile')}>
+          <User
+            size={22}
+            color={isActive('/profile') ? Colors.gold.DEFAULT : Colors.white}
+            strokeWidth={1.5}
+          />
+          <Text style={[
+            styles.navText,
+            isActive('/profile') && styles.activeNavText
+          ]}>Profile</Text>
         </Pressable>
       </View>
     </View>
@@ -110,11 +143,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 60,
     alignItems: 'center',
-    justifyContent: 'space-around',
+    // justifyContent: 'space-around',
     paddingHorizontal: 10,
   },
   navButton: {
     alignItems: 'center',
+    width: '20%',
+    paddingRight: 10,
+  },
+  navButton1: {
+    alignItems: 'center',
+    width: '20%',
+    paddingLeft: 10,
   },
   navText: {
     color: Colors.white,
@@ -123,9 +163,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontFamily: 'Poppins-Medium',
   },
+  activeNavText: {
+    color: Colors.gold.DEFAULT,
+    opacity: 1,
+  },
   askButtonContainer: {
     alignItems: 'center',
     marginTop: -30,
+    width: '20%',
   },
   askButton: {
     width: 56,

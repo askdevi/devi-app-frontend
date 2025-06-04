@@ -3,9 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'rea
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import RazorpayCheckout from 'react-native-razorpay';
 import axios from 'axios';
@@ -13,6 +11,7 @@ import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import Footer from '@/components/Footer';
 import MaskedView from '@react-native-masked-view/masked-view';
+
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -118,9 +117,9 @@ export default function WalletScreen() {
           // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
           // Update local storage or state
           const newTimeEnd = verifyRes.data.timeEnd;
-          await AsyncStorage.setItem('timeEnd', newTimeEnd);
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
+          await AsyncStorage.setItem('timeEnd', newTimeEnd);
           router.push('/main/devi');
         } else {
           throw new Error('Verification failed');

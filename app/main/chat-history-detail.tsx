@@ -9,6 +9,7 @@ import {
     Platform,
     SafeAreaView,
     Dimensions,
+    BackHandler,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X } from 'lucide-react-native';
@@ -111,6 +112,20 @@ export default function ChatHistoryDetailScreen() {
             }
         };
         fetchMessages();
+    }, []);
+
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/main/chat-history")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
     }, []);
 
     const handleBack = () => {

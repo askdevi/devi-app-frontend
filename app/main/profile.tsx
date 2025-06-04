@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from '@/components/Footer';
@@ -16,6 +15,20 @@ export default function SettingsScreen() {
     const [name, setName] = useState('');
     const [time, setTime] = useState(0);
     const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
+
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/main/home")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     const handleLogout = async () => {
         await SecureStore.deleteItemAsync('userToken');

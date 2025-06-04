@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -67,6 +67,20 @@ export default function CompatibilityFormScreen() {
         }
     };
 
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/compatibility/compatibility-main")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
+
     const handleBack = () => {
         router.push('/compatibility/compatibility-main');
     };
@@ -102,7 +116,7 @@ export default function CompatibilityFormScreen() {
                         style={styles.scrollView}
                     >
                         <View style={styles.form}>
-                            
+
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>First Name</Text>
                                 <TextInput
@@ -124,7 +138,7 @@ export default function CompatibilityFormScreen() {
                                     placeholderTextColor={`${Colors.gold.DEFAULT}40`}
                                 />
                             </View>
-                            
+
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Birth Location</Text>
                                 <GooglePlacesAutocomplete

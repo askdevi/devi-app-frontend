@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Platform, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Platform, Pressable, Dimensions, BackHandler } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -17,8 +17,6 @@ import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 
-
-const { width, height } = Dimensions.get('window');
 const GLOW_RADIUS = 140; // Adjusted to match container size
 const FLOWER_COUNT = 12;
 
@@ -112,6 +110,19 @@ const GlowEffect = () => {
 
 export default function LoadingScreen() {
     const router = useRouter();
+
+    useEffect(() => {
+        const backAction = () => {
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     useEffect(() => {
         const initializeApp = async () => {

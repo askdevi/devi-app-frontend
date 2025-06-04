@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -17,6 +17,20 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 export default function CompatibilityScreen() {
     const router = useRouter();
+
+    useEffect(() => {
+        const backAction = () => {
+          router.push("/main/home")
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
 
     const [loading, setLoading] = useState(true);
     const [compatibility, setCompatibility] = useState([]);

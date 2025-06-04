@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Alert, Platform, Animated
+    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Alert, Platform, Animated,
+    BackHandler
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import * as Linking from 'expo-linking';
 import Dropdown from '@/components/Setup/Dropdown';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -18,18 +18,33 @@ export default function SupportScreen() {
     const [name, setName] = useState('');
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
-    
+
     const topicItems = [
-        'General query',
-        'Issue with tokens',
-        'Technical support',
-        'Billing issue'
+        'General Inquiry',
+        'Issue with Tokens',
+        'Payment Issues',
+        'Technical Support',
+        'Feedback and Suggestions',
     ];
-    
+
     const gradientAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const glowAnimation = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const backAction = () => {
+          router.push("/main/home")
+          return true;
+        };
     
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
+
     useEffect(() => {
         const gradientLoop = Animated.loop(
             Animated.timing(gradientAnimation, {
@@ -61,13 +76,13 @@ export default function SupportScreen() {
             glowLoop.stop();
         };
     }, []);
-    
+
     const handleSend = () => {
         if (!name || !topic || !message) {
             Alert.alert('Please fill all fields');
             return;
         }
-        
+
         Animated.sequence([
             Animated.timing(scaleAnimation, {
                 toValue: 0.95,
@@ -93,7 +108,7 @@ export default function SupportScreen() {
     const handleBack = () => {
         router.push('/main/home');
     };
-    
+
     const gradientTranslateX = gradientAnimation.interpolate({
         inputRange: [0, 1],
         outputRange: [-200, 200],
@@ -105,25 +120,25 @@ export default function SupportScreen() {
     });
 
     const isFormValid = name.trim() && topic && message.trim();
-    
+
     const GradientText = ({ children, style }: { children: string; style?: any }) => {
         return (
             <MaskedView
-            style={style}
-            maskElement={
-                <Text style={[style, { backgroundColor: 'transparent' }]}>
-                {children}
-                </Text>
-            }
-            >
-            <LinearGradient
-                colors={['#FFD700', '#FF8C00', '#FFD700']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
                 style={style}
+                maskElement={
+                    <Text style={[style, { backgroundColor: 'transparent' }]}>
+                        {children}
+                    </Text>
+                }
             >
-                <Text style={[style, { opacity: 0 }]}>{children}</Text>
-            </LinearGradient>
+                <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={style}
+                >
+                    <Text style={[style, { opacity: 0 }]}>{children}</Text>
+                </LinearGradient>
             </MaskedView>
         );
     };
@@ -135,11 +150,11 @@ export default function SupportScreen() {
 
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                                <Ionicons 
-                                    name="arrow-back" 
-                                    size={24} 
-                                    color="#ffcc00" 
-                                />
+                            <Ionicons
+                                name="arrow-back"
+                                size={24}
+                                color="#ffcc00"
+                            />
                         </TouchableOpacity>
                         <View style={styles.titleContainer}>
                             <GradientText style={styles.header}>Contact Us</GradientText>
@@ -201,7 +216,7 @@ export default function SupportScreen() {
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                     />
-                                    
+
                                     <Animated.View
                                         style={[
                                             styles.animatedGradientOverlay,
@@ -217,7 +232,7 @@ export default function SupportScreen() {
                                             end={{ x: 1, y: 0 }}
                                         />
                                     </Animated.View>
-                                    
+
                                     <View style={styles.buttonContent}>
                                         <Text style={styles.sendButtonText}>Send Message</Text>
                                     </View>
@@ -282,14 +297,19 @@ const styles = StyleSheet.create({
     label: {
         fontFamily: 'Poppins-Medium',
         fontSize: 14,
-        color: Colors.gold.DEFAULT,
+        color: '#d1d5dbe6',
         marginBottom: 8,
     },
     input: {
-        backgroundColor: '#3b1e69',
-        borderRadius: 10,
-        padding: 12,
-        color: '#fff',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(45, 17, 82, 0.3)',
+        borderWidth: 2,
+        borderColor: `${Colors.gold.DEFAULT}20`,
+        borderRadius: 12,
+        padding: 16,
+        color: Colors.white,
         marginBottom: 15,
     },
     messageInput: {
@@ -308,7 +328,7 @@ const styles = StyleSheet.create({
         color: '#3b1e69',
         fontSize: 16,
     },
-    
+
     sendButton: {
         height: 50,
         borderRadius: 8,
