@@ -21,7 +21,7 @@ export default function NameScreen() {
 
   useEffect(() => {
     const backAction = () => {
-      // router.push("/main/home")
+      BackHandler.exitApp();
       return true;
     };
 
