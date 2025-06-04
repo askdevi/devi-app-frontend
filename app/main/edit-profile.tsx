@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Animated, KeyboardAvoidingView, Platform, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Animated, KeyboardAvoidingView, Platform, FlatList, Alert, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -41,6 +41,20 @@ const genders = [
 
 export default function EditProfileScreen() {
   const router = useRouter();
+
+  useEffect(() => {
+    const backAction = () => {
+      router.push("/main/profile")
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -273,7 +287,7 @@ export default function EditProfileScreen() {
       );
       return;
     }
-    if(!firstName.trim() || !lastName.trim()) {
+    if (!firstName.trim() || !lastName.trim()) {
       Alert.alert(
         'Name Required',
         'Please enter your name before continuing.',

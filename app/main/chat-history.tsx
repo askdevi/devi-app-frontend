@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import ChatHistoryCard from '@/components/ChatHistoryCard';
 import Domain from '@/constants/domain';
 import axios from 'axios';
@@ -47,6 +46,20 @@ export default function ChatHistoryScreen() {
     const router = useRouter();
     const [chatHistory, setChatHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/main/home")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     const handleBack = () => {
         router.push('/main/home');

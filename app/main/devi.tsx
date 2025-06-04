@@ -10,6 +10,7 @@ import {
     Platform,
     SafeAreaView,
     Dimensions,
+    BackHandler,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, Clock } from 'lucide-react-native';
@@ -103,6 +104,20 @@ export default function ChatScreen() {
     useEffect(() => {
         bufferRef.current = buffer;
     }, [buffer]);
+
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/main/home")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     useEffect(() => {
         if (!isThinking && time <= 0) {

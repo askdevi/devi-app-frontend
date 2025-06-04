@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Alert, Platform, Animated
+    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Alert, Platform, Animated,
+    BackHandler
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import * as Linking from 'expo-linking';
 import Dropdown from '@/components/Setup/Dropdown';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -30,6 +30,20 @@ export default function SupportScreen() {
     const gradientAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const glowAnimation = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const backAction = () => {
+          router.push("/main/home")
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
 
     useEffect(() => {
         const gradientLoop = Animated.loop(

@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Alert, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import axios from 'axios';
@@ -14,6 +13,20 @@ import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function SettingsScreen() {
     const router = useRouter();
+
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/main/home")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [soundEnabled, setSoundEnabled] = useState(true);
@@ -42,22 +55,22 @@ export default function SettingsScreen() {
         );
         console.log('Delete account');
     };
-    
+
     const confirmDeleteAccount = async () => {
         try {
             setIsDeleting(true);
-            
+
             const userId = await getUserId();
             console.log('User ID:', userId);
-            
+
             if (!userId) {
                 Alert.alert("Error", "User ID not found. Please try logging in again.");
                 return;
             }
 
             const response = await axios.delete(`${Domain}/delete-user`, {
-            params: { userId }
-        });
+                params: { userId }
+            });
 
             if (response.status === 200) {
                 Alert.alert(
@@ -90,21 +103,21 @@ export default function SettingsScreen() {
     const GradientText = ({ children, style }: { children: string; style?: any }) => {
         return (
             <MaskedView
-            style={style}
-            maskElement={
-                <Text style={[style, { backgroundColor: 'transparent' }]}>
-                {children}
-                </Text>
-            }
-            >
-            <LinearGradient
-                colors={['#FFD700', '#FF8C00', '#FFD700']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
                 style={style}
+                maskElement={
+                    <Text style={[style, { backgroundColor: 'transparent' }]}>
+                        {children}
+                    </Text>
+                }
             >
-                <Text style={[style, { opacity: 0 }]}>{children}</Text>
-            </LinearGradient>
+                <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={style}
+                >
+                    <Text style={[style, { opacity: 0 }]}>{children}</Text>
+                </LinearGradient>
             </MaskedView>
         );
     };
@@ -117,11 +130,11 @@ export default function SettingsScreen() {
 
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                                <Ionicons 
-                                    name="arrow-back" 
-                                    size={24} 
-                                    color="#ffcc00" 
-                                />
+                            <Ionicons
+                                name="arrow-back"
+                                size={24}
+                                color="#ffcc00"
+                            />
                         </TouchableOpacity>
                         <View style={styles.titleContainer}>
                             <GradientText style={styles.header}>Settings</GradientText>
@@ -134,7 +147,7 @@ export default function SettingsScreen() {
                             /> */}
                         </View>
                     </View>
-                    
+
                     <ScrollView style={styles.scrollView}
                         contentContainerStyle={styles.content}
                         showsVerticalScrollIndicator={false}
@@ -185,8 +198,8 @@ export default function SettingsScreen() {
                         </TouchableOpacity>
 
                         {/* Delete Account */}
-                        <TouchableOpacity 
-                            style={[styles.deleteBtn, isDeleting && styles.deleteBtnDisabled]} 
+                        <TouchableOpacity
+                            style={[styles.deleteBtn, isDeleting && styles.deleteBtnDisabled]}
                             onPress={handleDeleteAccount}
                             disabled={isDeleting}
                         >

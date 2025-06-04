@@ -1,6 +1,6 @@
 // name.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard, BackHandler } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight } from 'lucide-react-native';
@@ -18,6 +18,20 @@ export default function NameScreen() {
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
   const glowAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const backAction = () => {
+      // router.push("/main/home")
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     const gradientLoop = Animated.loop(
@@ -110,96 +124,96 @@ export default function NameScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} accessible={false} >
-     <View style={styles.container}>
-      <LinearGradient
-        colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
-        style={StyleSheet.absoluteFill}
-      />
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false} >
+      <View style={styles.container}>
+        <LinearGradient
+          colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
+          style={StyleSheet.absoluteFill}
+        />
 
-      <View style={styles.content}>
-        <SetupProgress currentStep={1} totalSteps={5} />
+        <View style={styles.content}>
+          <SetupProgress currentStep={1} totalSteps={5} />
 
-        {/* <View style={styles.header}> */}
-        <GradientText style={styles.title}>Namaste</GradientText>
-        {/* </View> */}
+          {/* <View style={styles.header}> */}
+          <GradientText style={styles.title}>Namaste</GradientText>
+          {/* </View> */}
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>First Name</Text>
-          <TextInput
-            style={styles.input}
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="Enter your first name"
-            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>First Name</Text>
+            <TextInput
+              style={styles.input}
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder="Enter your first name"
+              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Last Name</Text>
-          <TextInput
-            style={styles.input}
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="Enter your last name"
-            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Last Name</Text>
+            <TextInput
+              style={styles.input}
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder="Enter your last name"
+              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+            />
+          </View>
 
-        <Animated.View
-          style={[
-            styles.continueButton,
-            !(firstName.trim() && lastName.trim()) && styles.continueButtonDisabled,
-            {
-              transform: [{ scale: scaleAnimation }],
-              shadowOpacity: glowOpacity,
-            }
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.continueButtonTouchable}
-            onPress={handleContinue}
-            disabled={!(firstName.trim() && lastName.trim())}
-            activeOpacity={0.8}
+          <Animated.View
+            style={[
+              styles.continueButton,
+              !(firstName.trim() && lastName.trim()) && styles.continueButtonDisabled,
+              {
+                transform: [{ scale: scaleAnimation }],
+                shadowOpacity: glowOpacity,
+              }
+            ]}
           >
-            <View style={styles.gradientContainer}>
-              <LinearGradient
-                colors={['#FFD700', '#FF8C00', '#FFD700']}
-                style={styles.continueButtonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              />
-
-              <Animated.View
-                style={[
-                  styles.animatedGradientOverlay,
-                  {
-                    transform: [{ translateX: gradientTranslateX }],
-                  },
-                ]}
-              >
+            <TouchableOpacity
+              style={styles.continueButtonTouchable}
+              onPress={handleContinue}
+              disabled={!(firstName.trim() && lastName.trim())}
+              activeOpacity={0.8}
+            >
+              <View style={styles.gradientContainer}>
                 <LinearGradient
-                  colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                  style={styles.shimmerGradient}
+                  colors={['#FFD700', '#FF8C00', '#FFD700']}
+                  style={styles.continueButtonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 />
-              </Animated.View>
 
-              <View style={styles.buttonContent}>
-                <Text style={styles.continueButtonText}>Continue</Text>
-                <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
+                <Animated.View
+                  style={[
+                    styles.animatedGradientOverlay,
+                    {
+                      transform: [{ translateX: gradientTranslateX }],
+                    },
+                  ]}
+                >
+                  <LinearGradient
+                    colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                    style={styles.shimmerGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  />
+                </Animated.View>
+
+                <View style={styles.buttonContent}>
+                  <Text style={styles.continueButtonText}>Continue</Text>
+                  <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
+            </TouchableOpacity>
+          </Animated.View>
 
-        <Text style={styles.quote}>
-          The journey of self-discovery begins with a single step
-        </Text>
+          <Text style={styles.quote}>
+            The journey of self-discovery begins with a single step
+          </Text>
 
+        </View>
       </View>
-    </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -332,5 +346,5 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 24,
   },
-  
+
 });

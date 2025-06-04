@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -74,8 +74,22 @@ export default function CompatibilityReportScreen() {
     const { report } = useLocalSearchParams();
     const reportData = JSON.parse(report as string);
 
+    useEffect(() => {
+        const backAction = () => {
+            router.push("/compatibility/compatibility-main")
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
+
     const handleBack = () => {
-        router.push('/compatibility/compatibility-main' as any);
+        router.push('/compatibility/compatibility-main');
     };
 
     const totalPercentage = (reportData.received_points / reportData.total_points) * 100;
