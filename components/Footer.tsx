@@ -110,11 +110,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 60,
     alignItems: 'center',
-    justifyContent: 'space-around',
+    // justifyContent: 'space-around',
     paddingHorizontal: 10,
   },
   navButton: {
     alignItems: 'center',
+    width: '20%',
   },
   navText: {
     color: Colors.white,
@@ -126,6 +127,7 @@ const styles = StyleSheet.create({
   askButtonContainer: {
     alignItems: 'center',
     marginTop: -30,
+    width: '20%',
   },
   askButton: {
     width: 56,
