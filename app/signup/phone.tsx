@@ -36,20 +36,20 @@ export default function PhoneScreen() {
 
   useEffect(() => {
     const startGlowAnimation = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnimation, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: false,
-        }),
-        Animated.timing(glowAnimation, {
-          toValue: 0,
-          duration: 1500,
-          useNativeDriver: false,
-        }),
-      ])
-    ).start();
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnimation, {
+            toValue: 1,
+            duration: 1500,
+            useNativeDriver: false,
+          }),
+          Animated.timing(glowAnimation, {
+            toValue: 0,
+            duration: 1500,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
     };
     startGlowAnimation();
   }, []);
@@ -58,27 +58,27 @@ export default function PhoneScreen() {
     <View style={styles.glowContainer}>
       <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
         <Defs>
-            <RadialGradient
-              id="glow"
-              cx="50%"
-              cy="50%"
-              r="50%"
-              fx="50%"
-              fy="50%"
-              gradientUnits="userSpaceOnUse"
-            >
+          <RadialGradient
+            id="glow"
+            cx="50%"
+            cy="50%"
+            r="50%"
+            fx="50%"
+            fy="50%"
+            gradientUnits="userSpaceOnUse"
+          >
             <Stop offset="0" stopColor="#FFD700" stopOpacity="0.4" />
             <Stop offset="0.4" stopColor="#FFD700" stopOpacity="0.2" />
             <Stop offset="0.7" stopColor="#FFD700" stopOpacity="0.05" />
             <Stop offset="1" stopColor="#FFD700" stopOpacity="0" />
           </RadialGradient>
         </Defs>
-          <Circle
-            cx="120"
-            cy="120"
-            r={GLOW_RADIUS}
-            fill="url(#glow)"
-          />
+        <Circle
+          cx="120"
+          cy="120"
+          r={GLOW_RADIUS}
+          fill="url(#glow)"
+        />
       </Svg>
     </View>
   );
@@ -128,10 +128,10 @@ export default function PhoneScreen() {
   const TermsText = () => (
     <View style={styles.termsContainer}>
       <Text style={styles.termsText}>
-          By continuing, you agree to our{' '}
-          <Text style={styles.termsLink}>Terms</Text>
-          {' '}and{' '}
-          <Text style={styles.termsLink}>Privacy Policy</Text>
+        By continuing, you agree to our{' '}
+        <Text style={styles.termsLink}>Terms</Text>
+        {' '}and{' '}
+        <Text style={styles.termsLink}>Privacy Policy</Text>
       </Text>
     </View>
   );
@@ -169,10 +169,10 @@ export default function PhoneScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-       >
+      >
         <BackgroundGradient />
         <BackgroundEffects count={40} />
 
@@ -226,14 +226,14 @@ export default function PhoneScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  scrollContent: { 
-    flexGrow: 1, 
+  container: { flex: 1, backgroundColor: Colors.deepPurple.DEFAULT, },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 20 
+    padding: 20
   },
-  content: { 
-    alignItems: 'center' 
+  content: {
+    alignItems: 'center'
   },
   logoContainer: {
     width: 240,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     textAlign: 'center',
     marginTop: 10,
-     marginBottom: 16,
+    marginBottom: 16,
   },
   inputContainer: {
     flexDirection: 'row',
