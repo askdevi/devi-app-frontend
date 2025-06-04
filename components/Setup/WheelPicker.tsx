@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
+import { View, Text, StyleSheet, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import Colors from '@/constants/Colors';
 
 interface WheelPickerProps {
@@ -12,39 +12,40 @@ interface WheelPickerProps {
 const ITEM_HEIGHT = 36;
 const VISIBLE_ITEMS = 3;
 
-export default function WheelPicker({ items, value, onChange, label }: WheelPickerProps) {
-  const scrollRef = useRef<ScrollView>(null);
-  const [isDragging, setIsDragging] = React.useState(false);
 
+const WheelPicker = ({ items, value, onChange, label }: WheelPickerProps) => {
+  const scrollRef = useRef<ScrollView>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Sync scroll with selected value
   useEffect(() => {
-    if (scrollRef.current) {
-      const index = items.findIndex(item => item === value);
-      if (index !== -1) {
-        scrollRef.current.scrollTo({
-          y: index * ITEM_HEIGHT,
-          animated: false
-        });
-      }
+    const index = items.findIndex((item) => item === value);
+    if (index !== -1 && index !== selectedIndex) {
+      scrollRef.current?.scrollTo({ y: index * ITEM_HEIGHT, animated: false });
+      setSelectedIndex(index);
     }
   }, [value, items]);
 
-  const handleScroll = (event: any) => {
-    if (!isDragging && scrollRef.current) {
+  // Finalize selection after scroll ends
+  const onMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const y = event.nativeEvent.contentOffset.y;
       const index = Math.round(y / ITEM_HEIGHT);
-      const selectedValue = items[index];
-      
-      if (selectedValue && selectedValue !== value) {
+
+      if (index !== selectedIndex && index >= 0 && index < items.length) {
+        const selectedValue = items[index];
         onChange(selectedValue);
-        
-        // Snap to the selected item
-        scrollRef.current.scrollTo({
-          y: index * ITEM_HEIGHT,
-          animated: true
-        });
+        setSelectedIndex(index);
       }
-    }
-  };
+
+      // Snap exactly to the item
+      scrollRef.current?.scrollTo({
+        y: index * ITEM_HEIGHT,
+        animated: true,
+      });
+    },
+    [items, selectedIndex, onChange]
+  );
 
   return (
     <View style={styles.container}>
@@ -55,20 +56,21 @@ export default function WheelPicker({ items, value, onChange, label }: WheelPick
           ref={scrollRef}
           showsVerticalScrollIndicator={false}
           snapToInterval={ITEM_HEIGHT}
-          onScroll={handleScroll}
+          decelerationRate="fast"
           scrollEventThrottle={16}
-          onScrollBeginDrag={() => setIsDragging(true)}
-          onScrollEndDrag={() => setIsDragging(false)}
+          onMomentumScrollEnd={onMomentumScrollEnd}
           contentContainerStyle={{
-            paddingVertical: ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2)
+            paddingVertical: ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2),
           }}
         >
-          {items.map((item) => (
+          {items.map((item, i) => (
             <View key={item} style={styles.item}>
-              <Text style={[
-                styles.itemText,
-                item === value && styles.selectedItemText
-              ]}>
+              <Text
+                style={[
+                  styles.itemText,
+                  i === selectedIndex && styles.selectedItemText,
+                ]}
+              >
                 {item}
               </Text>
             </View>
@@ -77,7 +79,9 @@ export default function WheelPicker({ items, value, onChange, label }: WheelPick
       </View>
     </View>
   );
-}
+};
+
+export default memo(WheelPicker);
 
 const styles = StyleSheet.create({
   container: {

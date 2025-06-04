@@ -36,6 +36,7 @@ import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NoTimePopup from '@/components/Popups/NoTimePopup';
 import { useRouter } from 'expo-router';
+import { useFloatAnimation } from '@/hooks/useFloatAnimation';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -81,12 +82,12 @@ const DateHeader = React.memo(({ date }: { date: string }) => {
 });
 
 export default function ChatScreen() {
+      const floatStyle = useFloatAnimation(-5,3000);
     const [messages, setMessages] = useState<Message[]>([]);
 
     const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
     const [isThinking, setIsThinking] = useState(false);
-    const logoFloat = useSharedValue(0);
     const glowOpacity = useSharedValue(0);
     const logoGlowScale = useSharedValue(1);
     const logoGlowOpacity = useSharedValue(0);
@@ -194,29 +195,6 @@ export default function ChatScreen() {
         router.push('/main/home');
     };
 
-    const floatAnimation = useMemo(() => {
-        return withRepeat(
-            withSequence(
-                withTiming(-5, {
-                    duration: 2000,
-                    easing: Easing.inOut(Easing.ease),
-                }),
-                withTiming(0, {
-                    duration: 2000,
-                    easing: Easing.inOut(Easing.ease),
-                })
-            ),
-            -1,
-            true
-        );
-    }, []);
-
-    React.useEffect(() => {
-        logoFloat.value = floatAnimation;
-        return () => {
-            cancelAnimation(logoFloat);
-        };
-    }, []);
 
     React.useEffect(() => {
         if (isThinking) {
@@ -257,9 +235,6 @@ export default function ChatScreen() {
         }
     }, [isThinking]);
 
-    const logoStyle = useAnimatedStyle(() => ({
-        transform: [{ translateY: logoFloat.value }]
-    }));
 
     const glowStyle = useAnimatedStyle(() => ({
         opacity: glowOpacity.value,
@@ -540,7 +515,7 @@ export default function ChatScreen() {
                     {isThinking && <AnimatedGlow />}
                     <Animated.Image
                         source={require('../../assets/images/logo.png')}
-                        style={[styles.logo, logoStyle]}
+                        style={[styles.logo, floatStyle]}
                     />
                 </View>
 
@@ -990,6 +965,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: 'rgba(247, 198, 21, 0.3)',
+        marginBottom:12
     },
     purchaseButton: {
         backgroundColor: Colors.gold.DEFAULT,
@@ -1010,7 +986,7 @@ const styles = StyleSheet.create({
         right: 12,
         bottom: 8,
         width: 30,
-        height: 30,
+        height: "100%",
         alignItems: 'center',
         justifyContent: 'center',
     },

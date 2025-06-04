@@ -32,11 +32,6 @@ export default function SettingsScreen() {
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleLogout = () => {
-        SecureStore.deleteItemAsync('userId');
-        router.push('/signup/phone');
-    };
-
     const handleDeleteAccount = () => {
         Alert.alert(
             "Delete Account",
@@ -191,12 +186,6 @@ export default function SettingsScreen() {
                         <TouchableOpacity style={styles.option} onPress={() => Linking.openURL('https://askdevi.com/policies/privacy-policy')}>
                             <Text style={styles.optionText}>Privacy Policy</Text>
                         </TouchableOpacity>
-
-                        {/* Logout */}
-                        <TouchableOpacity style={styles.logout} onPress={handleLogout}>
-                            <Text style={styles.logoutText}>Logout</Text>
-                        </TouchableOpacity>
-
                         {/* Delete Account */}
                         <TouchableOpacity
                             style={[styles.deleteBtn, isDeleting && styles.deleteBtnDisabled]}
@@ -204,7 +193,7 @@ export default function SettingsScreen() {
                             disabled={isDeleting}
                         >
                             <Text style={styles.deleteText}>
-                                {isDeleting ? 'Deleting account...' : 'Delete my account'}
+                                {isDeleting ? 'Deleting account...' : 'Delete Account'}
                             </Text>
                         </TouchableOpacity>
                     </ScrollView>

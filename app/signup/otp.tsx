@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.2)',
-    color: '#FFD700',
+    color: Colors.white,
     fontSize: 20,
     fontWeight: '600',
     textAlign: 'center',

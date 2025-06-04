@@ -46,10 +46,6 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ data }) => {
   }, []);
 
   const handlePress = () => {
-    if (Platform.OS !== 'web') {
-      // Add haptic feedback for mobile
-    }
-
     Animated.spring(flipAnim, {
       toValue: isFlipped ? 0 : 1,
       friction: 8,
@@ -105,6 +101,7 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ data }) => {
             end={{ x: 1, y: 1 }}
           >
             <View style={styles.diagonalLine1} />
+            
             <View style={styles.diagonalLine2} />
 
             <Text style={styles.title}>{data.title}</Text>
@@ -134,7 +131,7 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ data }) => {
               <Text style={styles.titleFlipped}>{data.title}</Text>
               {data.title === 'LUCKY MANTRA' && (
                 <>
-                  <Text style={styles.mantra}>{data.mantra}</Text>
+                  <Text style={styles.mantra}>{data.mantra}jai</Text>
                   <Text style={styles.sanskrit}>{data.sanskrit}</Text>
                   <Text style={styles.description}>{data.direction}</Text>
                 </>
@@ -167,9 +164,9 @@ const BlessingCard: React.FC<BlessingCardProps> = ({ data }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 300,
-    width: 250,
-    marginBottom: 16,
+    alignSelf:"center",
+    height: 250,
+    width: "95%",
     position: 'relative',
   },
   cardFace: {
@@ -213,7 +210,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     fontSize: 24,
     color: Colors.white,
-    marginBottom: 16,
+    marginBottom: 10,
     textAlign: 'center',
   },
   tapText: {
@@ -228,21 +225,21 @@ const styles = StyleSheet.create({
   },
   mantra: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 28,
+    fontSize: 24,
     color: Colors.white,
     marginBottom: 8,
     textAlign: 'center',
   },
   sanskrit: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 24,
+    fontSize: 22,
     color: Colors.white,
-    marginBottom: 12,
+    marginBottom: 10,
     textAlign: 'center',
   },
   mainText: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 28,
+    fontSize: 26,
     color: Colors.white,
     marginBottom: 12,
     textAlign: 'center',

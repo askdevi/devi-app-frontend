@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Platform,
+} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -7,11 +15,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import RazorpayCheckout from 'react-native-razorpay';
 import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import Footer from '@/components/Footer';
 import MaskedView from '@react-native-masked-view/masked-view';
-
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+  interpolateColor,
+} from 'react-native-reanimated';
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -19,8 +36,8 @@ const calculateDiscount = (originalPrice: number, price: number) => {
 
 const timePlans = [
   {
-    name: "10 Minutes Access",
-    duration: "10 Minutes",
+    name: '10 Minutes Access',
+    duration: '10 Minutes',
     originalPrice: 99,
     price: 99,
     get discount() { return calculateDiscount(this.originalPrice, this.price); }
@@ -46,6 +63,43 @@ export default function WalletScreen() {
   const [time, setTime] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
+  const glowOpacity = useSharedValue(0.5);
+  const glowScale = useSharedValue(1);
+
+  useEffect(() => {
+    glowOpacity.value = withRepeat(
+      withSequence(
+        withTiming(0.8, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.5, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    glowScale.value = withRepeat(
+      withSequence(
+        withTiming(1.02, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const glowStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      glowOpacity.value,
+      [0.5, 0.8],
+      ['rgba(255, 215, 0, 0.1)', 'rgba(253, 185, 49, 0.2)']
+    );
+
+    return {
+      backgroundColor,
+      transform: [{ scale: glowScale.value }],
+      borderRadius: 16,
+      opacity: glowOpacity.value,
+    };
+  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -105,15 +159,15 @@ export default function WalletScreen() {
         theme: { color: Colors.deepPurple.DEFAULT },
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
-        // 3. Verify payment
-        const verifyRes = await axios.post(`${Domain}/verify-payment`, {
-          razorpay_payment_id: payment.razorpay_payment_id,
-          userId,
-          tokensBought: 0,
-          timeDuration: pkg.duration,
-          amountPaid: pkg.price,
-        });
-        if (verifyRes.data.success) {
+          // 3. Verify payment
+          const verifyRes = await axios.post(`${Domain}/verify-payment`, {
+            razorpay_payment_id: payment.razorpay_payment_id,
+            userId,
+            tokensBought: 0,
+            timeDuration: pkg.duration,
+            amountPaid: pkg.price,
+          });
+          if (verifyRes.data.success) {
           // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
           // Update local storage or state
           const newTimeEnd = verifyRes.data.timeEnd;
@@ -192,20 +246,40 @@ export default function WalletScreen() {
             <View style={styles.divider} />
             <Text style={styles.packagesTitle}>Time Packages</Text>
             {timePlans.map((pkg, idx) => (
-              <View key={idx} style={styles.packageCard}>
-                {pkg.discount && <Text style={styles.discount}>{pkg.discount}% OFF</Text>}
-                <Text style={styles.packageLabel}>{pkg.duration}</Text>
-                <Text style={styles.packageSub}>Unlimited Questions</Text>
-                {pkg.discount && <Text style={styles.strikePrice}>₹{pkg.originalPrice}</Text>}
-                <Text style={styles.packagePrice}>₹{pkg.price}</Text>
-                <TouchableOpacity
-                  style={[styles.buyButton, isProcessing && { opacity: 0.5 }]}
-                  onPress={() => handlePurchase(pkg)}
-                  disabled={isProcessing}
-                >
-                  <Text style={styles.buyButtonText}>{isProcessing ? 'Processing...' : 'Buy Now'}</Text>
-                </TouchableOpacity>
-              </View>
+              <Animated.View key={idx} style={[styles.packageCard]}>
+                {idx === 1 ? (
+                  <Animated.View style={[styles.glowWrapper, glowStyles]} />
+                ) : null}
+                {pkg.discount && (
+                  <Text style={styles.discount}>{pkg.discount}% OFF</Text>
+                )}
+                <View style={{ margin: 16 }}>
+                  <Text style={styles.packageLabel}>{pkg.duration}</Text>
+                  <Text style={styles.packageSub}>Unlimited Questions</Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginBottom: 5,
+                    }}
+                  >
+                    <Text style={[styles.packagePrice, { marginRight: 10 }]}>
+                      ₹{pkg.price}
+                    </Text>
+                    {pkg.discount && ( <Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.buyButton, isProcessing && { opacity: 0.5 }]}
+                    onPress={() => handlePurchase(pkg)}
+                    disabled={isProcessing}
+                  >
+                    <Ionicons name="card-outline" color={Colors.white} size={20} />
+                    <Text style={styles.buyButtonText}>
+                      {isProcessing ? 'Processing...' : 'Buy Now'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
             ))}
           </ScrollView>
           <Footer />
@@ -225,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.deepPurple.DEFAULT,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   scrollView: {
     flex: 1,
@@ -234,7 +308,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    padding: 15,
     position: 'relative',
   },
   backButton: {
@@ -274,7 +348,7 @@ const styles = StyleSheet.create({
   balanceValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#00e68a',
+    color: Colors.gold.DEFAULT,
   },
   balanceLabel: {
     color: '#ccc',
@@ -285,18 +359,40 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
+    marginTop: 5,
   },
 
   packageCard: {
-    backgroundColor: '#2b0050',
+    height: 170,
+    position: 'relative',
+    borderColor: '#3a1a62',
+    borderWidth: 2,
+    backgroundColor: `${Colors.deepPurple.light}`,
     borderRadius: 16,
-    padding: 16,
     marginBottom: 16,
+  },
+  glowWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: -1,
+    borderRadius: 16, // only works on iOS
   },
 
   discount: {
-    color: '#ffcc00',
+    backgroundColor: `${Colors.gold.DEFAULT}`,
+    opacity: 0.9,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderBottomLeftRadius: 15,
+    borderTopRightRadius: 16,
+    position: 'absolute',
+    textAlign: 'center',
+    right: 0,
+    color: '#000',
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 4,
@@ -317,18 +413,19 @@ const styles = StyleSheet.create({
   strikePrice: {
     color: '#888',
     textDecorationLine: 'line-through',
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: 16,
   },
 
   packagePrice: {
-    color: '#00e68a',
-    fontSize: 16,
+    color: `${Colors.gold.DEFAULT}`,
+    fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 8,
   },
 
   buyButton: {
+    flexDirection:"row",
+    justifyContent:"center",
     backgroundColor: '#a05afc',
     borderRadius: 10,
     paddingVertical: 10,
@@ -339,12 +436,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
+    textAlign:"center",
+    marginLeft:5
   },
 
   divider: {
     height: 1,
     backgroundColor: '#4e2a7f',
-    marginVertical: 20
+    marginVertical: 20,
   },
-
 });

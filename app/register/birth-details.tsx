@@ -6,16 +6,16 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
-  TextInput
+  TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
-import WheelPicker from '@/components/Setup/WheelPicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaskedView from '@react-native-masked-view/masked-view';
+import CompactInput from '@/components/CompactInput';
 
 export default function BirthDetailsScreen() {
   const router = useRouter();
@@ -53,10 +53,11 @@ export default function BirthDetailsScreen() {
     }
   };
 
-  const validateYear = (text: string) => {
+  const validateYear = async(text: string) => {
     let val = text;
-    if (parseInt(val) > currentYear) val = currentYear.toString();
+    if (parseInt(val) > currentYear) val = await currentYear.toString();
     const final = val.toString();
+    console.log("final year",final)
     setYear(final);
   };
 
@@ -75,25 +76,6 @@ export default function BirthDetailsScreen() {
     if (parseInt(val) > 59) val = '';
     setMinute(val);
   };
-
-  const [selectedDate, setSelectedDate] = useState({
-    day: String(new Date().getDate()).padStart(2, '0'),
-    month: String(new Date().getMonth() + 1).padStart(2, '0'),
-    year: String(new Date().getFullYear())
-  });
-
-  const [selectedTime, setSelectedTime] = useState({
-    hour: '01',
-    minute: '00',
-    period: 'AM'
-  });
-
-  const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const years = Array.from({ length: 100 }, (_, i) => String(new Date().getFullYear() - i));
-  const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
-  const periods = ['AM', 'PM'];
 
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
@@ -146,8 +128,7 @@ export default function BirthDetailsScreen() {
     ]).start();
 
     try {
-      // const birthDate = `${selectedDate.year}-${selectedDate.month}-${selectedDate.day}`;
-      const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
       const birthTime = knowsBirthTime
         ? `${
             birthTimePeriod === 'AM'
@@ -200,10 +181,10 @@ export default function BirthDetailsScreen() {
   };
 
   return (
-     <ScrollView 
-            contentContainerStyle={styles.container}
-            keyboardShouldPersistTaps="handled"
-           >
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
       <LinearGradient
         colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
         style={StyleSheet.absoluteFill}
@@ -218,42 +199,40 @@ export default function BirthDetailsScreen() {
         </View>
 
         <View style={styles.datePickerContainer}>
-          <TextInput
-            style={styles.input}
+          <CompactInput
             value={day}
-            onChangeText={validateDay}
+            onChange={validateDay}
             placeholder="DD"
-            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
             keyboardType="number-pad"
             maxLength={2}
             returnKeyType="next"
+            width={60}
           />
+
           <View style={styles.slashBox}>
             <Text style={styles.inputSlash}>/</Text>
           </View>
-          <TextInput
+          <CompactInput
             ref={monthRef}
-            style={styles.input}
             value={month}
-            onChangeText={validateMonth}
+            onChange={validateMonth}
             placeholder="MM"
-            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
             keyboardType="number-pad"
             maxLength={2}
+            width={60}
             returnKeyType="next"
           />
           <View style={styles.slashBox}>
             <Text style={styles.inputSlash}>/</Text>
           </View>
-          <TextInput
+          <CompactInput
             ref={yearRef}
-            style={[styles.input, { width: 80 }]}
             value={year}
-            onChangeText={validateYear}
+            onChange={validateYear}
             placeholder="YYYY"
-            placeholderTextColor={`${Colors.gold.DEFAULT}40`}
             keyboardType="number-pad"
             maxLength={4}
+            width={70}
             returnKeyType="done"
           />
         </View>
@@ -265,16 +244,29 @@ export default function BirthDetailsScreen() {
             style={[styles.timeOption, knowsBirthTime === true && styles.timeOptionSelected]}
             onPress={() => setKnowsBirthTime(true)}
           >
-            <Text style={[styles.timeOptionText, knowsBirthTime === true && styles.timeOptionTextSelected]}>
+            <Text
+              style={[
+                styles.timeOptionText,
+                knowsBirthTime === true && styles.timeOptionTextSelected,
+              ]}
+            >
               Yes, I know
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.timeOption, knowsBirthTime === false && styles.timeOptionSelected]}
+            style={[
+              styles.timeOption,
+              knowsBirthTime === false && styles.timeOptionSelected,
+            ]}
             onPress={() => setKnowsBirthTime(false)}
           >
-            <Text style={[styles.timeOptionText, knowsBirthTime === false && styles.timeOptionTextSelected]}>
+            <Text
+              style={[
+                styles.timeOptionText,
+                knowsBirthTime === false && styles.timeOptionTextSelected,
+              ]}
+            >
               I don't know
             </Text>
           </TouchableOpacity>
@@ -282,31 +274,30 @@ export default function BirthDetailsScreen() {
 
         {knowsBirthTime && (
           <View style={styles.datePickerContainer}>
-            <TextInput
+            <CompactInput
               ref={hourRef}
-              style={styles.input}
               value={hour}
-              onChangeText={validateHour}
+              onChange={validateHour}
               placeholder="HH"
-              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
               keyboardType="number-pad"
               maxLength={2}
+              width={60}
               returnKeyType="next"
             />
             <View style={styles.slashBox}>
               <Text style={styles.inputSlash}>:</Text>
             </View>
-            <TextInput
+            <CompactInput
               ref={minuteRef}
-              style={styles.input}
               value={minute}
-              onChangeText={validateMinute}
+              onChange={validateMinute}
               placeholder="MM"
-              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
               keyboardType="number-pad"
               maxLength={2}
               returnKeyType="done"
+              width={60}
             />
+
             <View style={styles.slashBox}>
               <Text style={styles.inputSlash}>{''}</Text>
             </View>
@@ -349,10 +340,7 @@ export default function BirthDetailsScreen() {
         )}
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBack}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
             <Text style={styles.backButtonText}>Previous</Text>
           </TouchableOpacity>
@@ -383,7 +371,7 @@ export default function BirthDetailsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1, 
+    flexGrow: 1,
     // justifyContent: 'center',
   },
   content: {
@@ -409,6 +397,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   datePickerContainer: {
+    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 16,
@@ -557,7 +546,7 @@ const styles = StyleSheet.create({
     // marginBottom: 8,
   },
   ampmTextSelected: {
-    color: `${Colors.gold.DEFAULT}`,
+    color: Colors.white,
   },
   slashBox: {
     justifyContent: 'center',

@@ -45,6 +45,7 @@ export default CompatibilitySection;
 
 const styles = StyleSheet.create({
     container: {
+        marginTop:220,
         paddingHorizontal: 20,
         paddingVertical: 20,
     },

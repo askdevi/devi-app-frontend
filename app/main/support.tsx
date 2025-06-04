@@ -11,6 +11,8 @@ import Colors from '@/constants/Colors';
 import * as Linking from 'expo-linking';
 import Dropdown from '@/components/Setup/Dropdown';
 import MaskedView from '@react-native-masked-view/masked-view';
+import CustomDropdown from '@/components/CustomDropdown';
+import CustomInput from '@/components/CustomInput';
 
 export default function SupportScreen() {
     const router = useRouter();
@@ -18,7 +20,8 @@ export default function SupportScreen() {
     const [name, setName] = useState('');
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
-
+    const [isFocused,setIsFocused]=useState(false)
+    
     const topicItems = [
         'General Inquiry',
         'Issue with Tokens',
@@ -26,7 +29,13 @@ export default function SupportScreen() {
         'Technical Support',
         'Feedback and Suggestions',
     ];
-
+    const queryTopicData=[
+  { label: 'General Query', value: 'General Query' },
+  { label: 'Issue With Package', value: 'Issue With Package' },
+  { label: 'Technical Support', value: 'Technical Support' },
+  { label: 'Billing Issue', value: 'Billing Issue' }
+];
+    
     const gradientAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const glowAnimation = useRef(new Animated.Value(0)).current;
@@ -98,7 +107,7 @@ export default function SupportScreen() {
 
         const subject = encodeURIComponent(`[${topic}] Support Request from ${name}`);
         const body = encodeURIComponent(`${message}\n\n${name}`);
-        const mailto = `mailto:ashsangwaiya@gmail.com?subject=${subject}&body=${body}`;
+        const mailto = `mailto:support@askdevi.com?subject=${subject}&body=${body}`;
 
         Linking.openURL(mailto).catch(err => {
             Alert.alert('Error', 'Could not open email client');
@@ -162,30 +171,54 @@ export default function SupportScreen() {
                     </View>
 
                     <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-                        <Text style={styles.label}>Name</Text>
+
+                           <CustomInput
+                                              value={name}
+                                              onChange={setName}
+                                              label="Full name"
+                                              errorMsg=""
+                                              placeholder="Enter your name"
+                                            />
+                        {/* <Text style={styles.label}>Name</Text>
                         <TextInput
                             style={styles.input}
                             value={name}
                             onChangeText={setName}
                             placeholder="Your name"
                             placeholderTextColor="#aaa"
-                        />
+                        /> */}
 
-                        <Dropdown
+                        {/* <Dropdown
                             label="Topic"
                             value={topic}
                             items={topicItems}
                             onSelect={setTopic}
                             placeholder="Select a topic..."
-                        />
+                        /> */}
+
+                         <CustomDropdown
+                            renderData={queryTopicData}
+                            labelName="Topic"
+                            placeholder="Select a topic"
+                            // required
+                            selected={topic}
+                            setSelected={setTopic}
+                            search={false}
+                            />
 
                         <Text style={styles.label}>Message</Text>
                         <TextInput
-                            style={[styles.input, styles.messageInput]}
+                            style={[
+                                styles.input, 
+                                styles.messageInput,
+                                {borderColor: (message || isFocused)? `${Colors.gold.DEFAULT}90`: `${Colors.gold.DEFAULT}20`}
+                            ]}
                             value={message}
                             onChangeText={setMessage}
                             placeholder="Type your message here..."
-                            placeholderTextColor="#aaa"
+                            placeholderTextColor={`${Colors.gold.DEFAULT}20`}
+                            onBlur={() => setIsFocused(false)}
+                            onFocus={() => setIsFocused(true)}
                             multiline
                             numberOfLines={4}
                         />
@@ -297,19 +330,17 @@ const styles = StyleSheet.create({
     label: {
         fontFamily: 'Poppins-Medium',
         fontSize: 14,
-        color: '#d1d5dbe6',
+        color: Colors.white,
         marginBottom: 8,
     },
     input: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: 'rgba(45, 17, 82, 0.3)',
-        borderWidth: 2,
-        borderColor: `${Colors.gold.DEFAULT}20`,
-        borderRadius: 12,
-        padding: 16,
-        color: Colors.white,
+        // backgroundColor: '#3b1e69',
+        borderRadius: 10,
+        fontFamily: 'Poppins-Medium',
+        borderWidth:2,
+        fontSize:16,
+        padding: 12,
+        color:`${Colors.gold.DEFAULT}`,
         marginBottom: 15,
     },
     messageInput: {

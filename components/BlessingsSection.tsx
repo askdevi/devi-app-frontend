@@ -326,8 +326,8 @@ export default function BlessingsScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#360059', '#1D0033', '#0D0019']}
-        style={StyleSheet.absoluteFill}
+        colors={['#360059', '#1D0033', '#0D0019','#360059',]}
+        style={[{height:530,},StyleSheet.absoluteFill]}
       />
 
       <BackgroundStars count={30} />
@@ -392,11 +392,12 @@ export default function BlessingsScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop:15,
     flex: 1,
     backgroundColor: '#360059',
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 110 : 90,
+    paddingTop:20,
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
@@ -448,6 +449,7 @@ const styles = StyleSheet.create({
   },
   card: {
     position: 'absolute',
+    top:10,
     width: SCREEN_WIDTH * 0.65,
     height: 380,
     borderRadius: 24,
@@ -585,7 +587,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   navigationButtons: {
-    position: 'absolute',
+    zIndex:2,
+    marginTop:'45%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: SCREEN_WIDTH,
