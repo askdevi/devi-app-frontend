@@ -92,7 +92,7 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => router.push('/main/wallet')}>
+        <Pressable style={styles.navButton1} onPress={() => router.push('/main/wallet')}>
           <Wallet
             size={22}
             color={isActive('/wallet') ? Colors.gold.DEFAULT : Colors.white}
@@ -104,7 +104,7 @@ const Footer = () => {
           ]}>Wallet</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => router.push('/main/profile')}>
+        <Pressable style={styles.navButton1} onPress={() => router.push('/main/profile')}>
           <User
             size={22}
             color={isActive('/profile') ? Colors.gold.DEFAULT : Colors.white}
@@ -149,6 +149,12 @@ const styles = StyleSheet.create({
   navButton: {
     alignItems: 'center',
     width: '20%',
+    paddingRight: 10,
+  },
+  navButton1: {
+    alignItems: 'center',
+    width: '20%',
+    paddingLeft: 10,
   },
   navText: {
     color: Colors.white,
