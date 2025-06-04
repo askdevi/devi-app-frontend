@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Animated,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowLeft, Sparkles } from 'lucide-react-native';
@@ -12,36 +19,36 @@ import { getUserId } from '@/constants/userId';
 import Domain from '@/constants/domain';
 import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
+import CustomDropdown from '@/components/CustomDropdown';
 
-const languages = [
-  "Hinglish",
-  "English"
+const languageData = [
+  { label: 'Hinglish', value: 'Hinglish' },
+  { label: 'English', value: 'English' },
+];
+const relationshipStatusData = [
+  { label: 'Single', value: 'Single' },
+  { label: 'Dating', value: 'Dating' },
+  { label: 'Married', value: 'Married' },
+  { label: 'Other', value: 'Other' },
 ];
 
-const relationshipStatuses = [
-  "Single",
-  "Dating",
-  "Married",
-  "Other"
+const occupationsData = [
+  { label: 'Employed', value: 'Employed' },
+  { label: 'Self-Employed', value: 'Self-Employed' },
+  { label: 'Homemaker', value: 'Homemaker' },
+  { label: 'Student', value: 'Student' },
+  { label: 'Other', value: 'Other' },
 ];
-
-const occupations = [
-  "Employed",
-  "Self-Employed",
-  "Homemaker",
-  "Student",
-  "Other"
-];
-
 export default function PersonalDetailsScreen() {
   const router = useRouter();
   const [language, setLanguage] = useState('');
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
-  
+
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
   const glowAnimation = useRef(new Animated.Value(0)).current;
+  console.log({ language, relationshipStatus, occupation });
 
   useEffect(() => {
     const gradientLoop = Animated.loop(
@@ -113,24 +120,24 @@ export default function PersonalDetailsScreen() {
         lastName,
         birthDate,
         birthTime,
-        gender: gender ? gender.toLowerCase() : "",
+        gender: gender ? gender.toLowerCase() : '',
         birthPlace: birthPlace,
         preferredLanguage: language.toLowerCase(),
         relationshipStatus: relationshipStatus.toLowerCase(),
-        occupation: occupation.toLowerCase()
-      }
+        occupation: occupation.toLowerCase(),
+      };
 
       await axios.post(`${Domain}/register`, body);
       router.push('/main/loading' as any);
     } catch (error) {
-      console.log('Error saving data:', error);
+      console.log('Error saving data:', JSON.stringify(error));
     }
   };
 
   const handleBack = () => {
     router.back();
   };
-  
+
   const gradientTranslateX = gradientAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [-200, 200],
@@ -143,7 +150,13 @@ export default function PersonalDetailsScreen() {
 
   const isFormComplete = language && relationshipStatus && occupation;
 
-  const GradientText = ({ children, style }: { children: string; style?: any }) => {
+  const GradientText = ({
+    children,
+    style,
+  }: {
+    children: string;
+    style?: any;
+  }) => {
     return (
       <MaskedView
         style={style}
@@ -164,11 +177,15 @@ export default function PersonalDetailsScreen() {
       </MaskedView>
     );
   };
-  
+
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
+        colors={[
+          Colors.deepPurple.dark,
+          Colors.deepPurple.DEFAULT,
+          Colors.deepPurple.light,
+        ]}
         style={StyleSheet.absoluteFill}
       />
 
@@ -181,41 +198,41 @@ export default function PersonalDetailsScreen() {
         </View>
 
         <View style={styles.form}>
-          <Dropdown
-            label="Preferred Language"
-            value={language}
-            items={languages}
-            onSelect={setLanguage}
-            placeholder="Select language"
+          <CustomDropdown
+            renderData={languageData}
+            labelName="Preferred Language"
+            placeholder="Select Language"
+            // required
+            selected={language}
+            setSelected={setLanguage}
+            search={false}
           />
-
-          <Dropdown
-            label="Relationship Status"
-            value={relationshipStatus}
-            items={relationshipStatuses}
-            onSelect={setRelationshipStatus}
+          <CustomDropdown
+            renderData={relationshipStatusData}
+            labelName="Relationship Status"
             placeholder="Select status"
+            // required
+            selected={relationshipStatus}
+            setSelected={setRelationshipStatus}
+            search={false}
           />
-
-          <Dropdown
-            label="Occupation"
-            value={occupation}
-            items={occupations}
-            onSelect={setOccupation}
+          <CustomDropdown
+            renderData={occupationsData}
+            labelName="Occupation"
             placeholder="Select occupation"
+            // required
+            selected={occupation}
+            setSelected={setOccupation}
+            search={false}
           />
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBack}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
             <Text style={styles.backButtonText}>Previous</Text>
           </TouchableOpacity>
 
-          
           <Animated.View
             style={[
               styles.completeButton,
@@ -223,7 +240,7 @@ export default function PersonalDetailsScreen() {
               {
                 transform: [{ scale: scaleAnimation }],
                 shadowOpacity: glowOpacity,
-              }
+              },
             ]}
           >
             <TouchableOpacity
@@ -239,7 +256,7 @@ export default function PersonalDetailsScreen() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 />
-                
+
                 <Animated.View
                   style={[
                     styles.animatedGradientOverlay,
@@ -249,13 +266,17 @@ export default function PersonalDetailsScreen() {
                   ]}
                 >
                   <LinearGradient
-                    colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                    colors={[
+                      'transparent',
+                      'rgba(255, 255, 255, 0.3)',
+                      'transparent',
+                    ]}
                     style={styles.shimmerGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                   />
                 </Animated.View>
-                
+
                 <View style={styles.buttonContent}>
                   <Text style={styles.completeButtonText}>Complete</Text>
                   <Sparkles color={Colors.deepPurple.DEFAULT} size={20} />
@@ -268,7 +289,6 @@ export default function PersonalDetailsScreen() {
         <Text style={styles.quote}>
           The cosmos whispers your truth through time and space
         </Text>
-
       </ScrollView>
     </View>
   );
@@ -281,7 +301,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 100,
+    paddingTop: 80,
   },
   header: {
     marginBottom: 32,
@@ -290,7 +310,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 32,
     color: Colors.gold.DEFAULT,
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: 'left',
   },
   subtitle: {

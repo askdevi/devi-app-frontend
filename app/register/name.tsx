@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 import MaskedView from '@react-native-masked-view/masked-view';
+import CustomInput from '@/components/CustomInput';
 
 export default function NameScreen() {
   const [firstName, setFirstName] = useState('');
@@ -137,28 +138,20 @@ export default function NameScreen() {
           {/* <View style={styles.header}> */}
           <GradientText style={styles.title}>Namaste</GradientText>
           {/* </View> */}
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>First Name</Text>
-            <TextInput
-              style={styles.input}
+            <CustomInput
               value={firstName}
-              onChangeText={setFirstName}
-              placeholder="Enter your first name"
-              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Last Name</Text>
-            <TextInput
-              style={styles.input}
-              value={lastName}
-              onChangeText={setLastName}
+              onChange={setFirstName}
+              label="Last name"
+              errorMsg=""
               placeholder="Enter your last name"
-              placeholderTextColor={`${Colors.gold.DEFAULT}40`}
             />
-          </View>
+            <CustomInput
+              value={lastName}
+              onChange={setLastName}
+              label="Last Name"
+              errorMsg=""
+              placeholder="Enter your last name"
+            />
 
           <Animated.View
             style={[
@@ -263,7 +256,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontFamily: 'Poppins-Medium',
     fontSize: 16,
-    color: '#d1d5dbe6',
+    color: '#FFFFFF',
     marginBottom: 8,
     marginLeft: 4,
   },

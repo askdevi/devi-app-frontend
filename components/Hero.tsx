@@ -1,35 +1,68 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, Animated, Platform, Image } from 'react-native';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Platform,
+  Image,
+  Alert,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import OrbitingStars from '@/components/orbitingStars';
 import RippleRings from '@/components/RippleRings';
+import { useFloatAnimation } from '@/hooks/useFloatAnimation';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import ShinyButton from './ShinyButton';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
 const Hero = () => {
-  const buttonGradient = useRef(new Animated.Value(0)).current;
+  const floatStyle = useFloatAnimation(-5, 3000);
+  const buttonGradient = useSharedValue(0);
+
+  const duration = 3000;
+  const gradientAnimation = useMemo(() => {
+    return withRepeat(
+      withSequence(
+        withTiming(1, { duration, easing: Easing.linear }),
+        withTiming(0, { duration, easing: Easing.linear })
+      ),
+      -1,
+      true
+    );
+  }, []);
 
   useEffect(() => {
-    // Button gradient animation
-    const buttonAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(buttonGradient, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(buttonGradient, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-      ])
+    buttonGradient.value = gradientAnimation;
+    return () => {
+      cancelAnimation(buttonGradient);
+    };
+  }, [gradientAnimation]);
+
+  const shineStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(
+      buttonGradient.value,
+      [0, 1],
+      [-100, 200] // same as your original
     );
 
-    buttonAnimation.start();
-  }, []);
+    return {
+      transform: [{ translateX }],
+    };
+  });
 
   const GlowEffect = () => {
     return (
@@ -68,9 +101,9 @@ const Hero = () => {
         <View style={styles.logoContainer}>
           <RippleRings />
           <GlowEffect />
-          <Image
+          <Animated.Image
             source={require('../assets/images/logo.png')}
-            style={styles.logo}
+            style={[styles.logo, floatStyle]}
             resizeMode="contain"
           />
           <OrbitingStars />
@@ -79,29 +112,10 @@ const Hero = () => {
         {/* <Text style={styles.title}>Ask Devi</Text> */}
       </View>
 
-      <Pressable style={styles.buttonContainer}>
-        <LinearGradient
-          colors={Colors.gradients.goldPrimary}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Open Chat</Text>
-          <Animated.View
-            style={[
-              styles.buttonShine,
-              {
-                transform: [{
-                  translateX: buttonGradient.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-100, 200]
-                  })
-                }]
-              }
-            ]}
-          />
-        </LinearGradient>
-      </Pressable>
+      <ShinyButton
+        title="Open Chat"
+        onPress={() => Alert.alert('Chat opened!')}
+      />
     </View>
   );
 };
@@ -111,6 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     zIndex: 10,
+    marginTop: -20,
   },
   background: {
     position: 'absolute',
@@ -130,7 +145,7 @@ const styles = StyleSheet.create({
     height: 240,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 40,
+    // marginBottom: 40,
     borderRadius: 120,
     overflow: 'hidden',
   },
@@ -225,6 +240,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+    marginTop: -10,
     elevation: 5,
   },
   button: {
@@ -252,4 +268,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Hero;
+export default memo(Hero);

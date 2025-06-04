@@ -23,6 +23,7 @@ import OrbitingStars from '@/components/orbitingStars';
 import BackgroundGradient from '@/components/BackgroundGradient';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import PhoneTextInput from '@/components/PhoneTextInput';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
@@ -137,6 +138,7 @@ export default function PhoneScreen() {
   );
 
   const handleSubmit = async () => {
+      // router.push({ pathname: '/main/loading', params: { phone } });
     if (!phone || phone.length < 10) {
       setError('Please enter a valid phone number');
       return;
@@ -190,25 +192,13 @@ export default function PhoneScreen() {
 
           <GradientTitle />
           <Text style={styles.subtitle}>Your Personal Vedic Astrologer</Text>
-
-          <View style={styles.inputContainer}>
-            <View style={styles.phonePrefix}>
-              <Text style={styles.prefixText}>+91</Text>
-            </View>
-            <View style={styles.divider} />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your phone number"
-              placeholderTextColor="rgba(255, 215, 0, 0.4)"
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={(text) => {
-                setPhone(text);
-                if (text.length === 10) Keyboard.dismiss();
-              }}
-              maxLength={10}
-            />
-          </View>
+   <PhoneTextInput
+                  placeholder="Enter your phone number"
+                  value={phone}
+                  editable={true}
+                  // label='Phone Number'
+                  onChange={setPhone}
+                />
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 

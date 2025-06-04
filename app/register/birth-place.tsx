@@ -17,7 +17,8 @@ export default function BirthPlaceScreen() {
   const [birthPlace, setBirthPlace] = useState('');
   const [birthPlaceCoords, setBirthPlaceCoords] = useState({ latitude: 0, longitude: 0 });
   const [isValidPlaceSelected, setIsValidPlaceSelected] = useState(false);
-
+  const [isFocused, setIsFocused] = useState(false);
+  
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
   const glowAnimation = useRef(new Animated.Value(0)).current;
@@ -172,7 +173,9 @@ export default function BirthPlaceScreen() {
                 textInput: {
                   backgroundColor: 'rgba(45, 17, 82, 0.3)',
                   borderWidth: 2,
-                  borderColor: `${Colors.gold.DEFAULT}20`,
+                  borderColor: (birthPlace.length>0 || isFocused)
+                            ? `${Colors.gold.DEFAULT}90`
+                            : `${Colors.gold.DEFAULT}20`,
                   borderRadius: 12,
                   padding: 16,
                   color: Colors.white,
@@ -241,6 +244,8 @@ export default function BirthPlaceScreen() {
               suppressDefaultStyles={false}
               textInputHide={false}
               textInputProps={{
+                onFocus: () => setIsFocused(true),
+                onBlur: () => setIsFocused(false),
                 placeholderTextColor: `${Colors.gold.DEFAULT}20`,
                 // placeholderTextColor: `${Colors.gold.DEFAULT}40`,
                 onChangeText: (text) => {

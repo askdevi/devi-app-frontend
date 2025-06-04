@@ -11,34 +11,52 @@ import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import MaskedView from '@react-native-masked-view/masked-view';
-import { GooglePlacesAutocomplete, GooglePlacesAutocompleteRef } from 'react-native-google-places-autocomplete';
+import {
+  GooglePlacesAutocomplete,
+  GooglePlacesAutocompleteRef,
+} from 'react-native-google-places-autocomplete';
 import 'react-native-get-random-values';
+import CompactInput from '@/components/CompactInput';
+import CustomInput from '@/components/CustomInput';
+import CustomDropdown from '@/components/CustomDropdown';
+import PhoneTextInput from '@/components/PhoneTextInput';
 
-const languages = [
-  "Hinglish",
-  "English"
-];
+const languages = ['Hinglish', 'English'];
 
-const relationshipStatuses = [
-  "Single",
-  "Dating",
-  "Married",
-  "Other"
-];
+const relationshipStatuses = ['Single', 'Dating', 'Married', 'Other'];
 
 const occupations = [
-  "Employed",
-  "Self-Employed",
-  "Homemaker",
-  "Student",
-  "Other"
+  'Employed',
+  'Self-Employed',
+  'Homemaker',
+  'Student',
+  'Other',
 ];
 
-const genders = [
-  "Male",
-  "Female"
+const genders = ['Male', 'Female'];
+
+const languageData = [
+  { label: 'Hinglish', value: 'Hinglish' },
+  { label: 'English', value: 'English' },
+];
+const relationshipStatusData = [
+  { label: 'Single', value: 'Single' },
+  { label: 'Dating', value: 'Dating' },
+  { label: 'Married', value: 'Married' },
+  { label: 'Other', value: 'Other' },
 ];
 
+const occupationsData = [
+  { label: 'Employed', value: 'Employed' },
+  { label: 'Self-Employed', value: 'Self-Employed' },
+  { label: 'Homemaker', value: 'Homemaker' },
+  { label: 'Student', value: 'Student' },
+  { label: 'Other', value: 'Other' },
+];
+const genderData = [
+  { label: 'Male', value: 'Male' },
+  { label: 'Female', value: 'Female' },
+];
 export default function EditProfileScreen() {
   const router = useRouter();
 
@@ -121,7 +139,7 @@ export default function EditProfileScreen() {
     if (parseInt(val) > 59) val = '';
     setMinute(val);
   };
-
+  const [isFocused, setIsFocused] = useState(false);
   const [originalValues, setOriginalValues] = useState({
     firstName: '',
     lastName: '',
@@ -184,43 +202,66 @@ export default function EditProfileScreen() {
         const storedPhoneNumber = await AsyncStorage.getItem('phoneNumber');
         const storedBirthPlace1 = await AsyncStorage.getItem('birthPlaceData');
         let storedLanguage = await AsyncStorage.getItem('language');
-        let storedRelationshipStatus = await AsyncStorage.getItem('relationshipStatus');
+        let storedRelationshipStatus = await AsyncStorage.getItem(
+          'relationshipStatus'
+        );
         let storedOccupation = await AsyncStorage.getItem('occupation');
         let storedGender = await AsyncStorage.getItem('gender');
-        const storedBirthPlace = storedBirthPlace1 ? JSON.parse(storedBirthPlace1) : null;
+        const storedBirthPlace = storedBirthPlace1
+          ? JSON.parse(storedBirthPlace1)
+          : null;
         const storedBirthDate = await AsyncStorage.getItem('birthDate');
         const storedBirthTime = await AsyncStorage.getItem('birthTime');
         const storedDay = storedBirthDate ? storedBirthDate.split('-')[2] : '';
-        const storedMonth = storedBirthDate ? storedBirthDate.split('-')[1] : '';
+        const storedMonth = storedBirthDate
+          ? storedBirthDate.split('-')[1]
+          : '';
         const storedYear = storedBirthDate ? storedBirthDate.split('-')[0] : '';
         const storedHour = storedBirthTime ? storedBirthTime.split(':')[0] : '';
-        const storedMinute = storedBirthTime ? storedBirthTime.split(':')[1] : '';
-        const storedBirthTimePeriod = storedBirthTime ? storedBirthTime.split(':')[0] < '12' ? 'AM' : 'PM' : '';
+        const storedMinute = storedBirthTime
+          ? storedBirthTime.split(':')[1]
+          : '';
+        const storedBirthTimePeriod = storedBirthTime
+          ? storedBirthTime.split(':')[0] < '12'
+            ? 'AM'
+            : 'PM'
+          : '';
 
-
-        if (!storedLanguage || !storedRelationshipStatus || !storedOccupation || !storedGender) {
+        if (
+          !storedLanguage ||
+          !storedRelationshipStatus ||
+          !storedOccupation ||
+          !storedGender
+        ) {
           return;
         }
 
         // capitalize the first letter of the storedLanguage
-        storedLanguage = storedLanguage?.charAt(0).toUpperCase() + storedLanguage?.slice(1);
-        storedRelationshipStatus = storedRelationshipStatus?.charAt(0).toUpperCase() + storedRelationshipStatus?.slice(1);
-        storedOccupation = storedOccupation?.charAt(0).toUpperCase() + storedOccupation?.slice(1);
-        storedGender = storedGender?.charAt(0).toUpperCase() + storedGender?.slice(1);
+        storedLanguage =
+          storedLanguage?.charAt(0).toUpperCase() + storedLanguage?.slice(1);
+        storedRelationshipStatus =
+          storedRelationshipStatus?.charAt(0).toUpperCase() +
+          storedRelationshipStatus?.slice(1);
+        storedOccupation =
+          storedOccupation?.charAt(0).toUpperCase() +
+          storedOccupation?.slice(1);
+        storedGender =
+          storedGender?.charAt(0).toUpperCase() + storedGender?.slice(1);
 
         if (storedFirstName) setFirstName(storedFirstName);
         if (storedLastName) setLastName(storedLastName);
-        if (storedPhoneNumber) setPhoneNumber(storedPhoneNumber);
+        if (storedPhoneNumber) setPhoneNumber(storedPhoneNumber?.split("+91")[1]);
         if (storedBirthPlace) {
           setBirthPlace(storedBirthPlace.name);
           setBirthPlaceCoords({
             latitude: storedBirthPlace.latitude,
-            longitude: storedBirthPlace.longitude
+            longitude: storedBirthPlace.longitude,
           });
         }
 
         if (storedLanguage) setLanguage(storedLanguage);
-        if (storedRelationshipStatus) setRelationshipStatus(storedRelationshipStatus);
+        if (storedRelationshipStatus)
+          setRelationshipStatus(storedRelationshipStatus);
         if (storedOccupation) setOccupation(storedOccupation);
         if (storedGender) setGender(storedGender);
         if (storedDay) setDay(storedDay);
@@ -230,12 +271,14 @@ export default function EditProfileScreen() {
         if (storedMinute) setMinute(storedMinute);
         if (storedBirthTimePeriod) setBirthTimePeriod(storedBirthTimePeriod);
 
-
         setOriginalValues({
           firstName: storedFirstName || '',
           lastName: storedLastName || '',
           birthPlace: storedBirthPlace.name || '',
-          birthPlaceCoords: { latitude: storedBirthPlace.latitude, longitude: storedBirthPlace.longitude },
+          birthPlaceCoords: {
+            latitude: storedBirthPlace.latitude,
+            longitude: storedBirthPlace.longitude,
+          },
           language: storedLanguage || '',
           relationshipStatus: storedRelationshipStatus || '',
           occupation: storedOccupation || '',
@@ -245,7 +288,7 @@ export default function EditProfileScreen() {
           hour: storedHour || '',
           minute: storedMinute || '',
           birthTimePeriod: storedBirthTimePeriod || '',
-          gender: storedGender || ''
+          gender: storedGender || '',
         });
       } catch (e) {
         console.log('Error loading profile data', e);
@@ -298,28 +341,32 @@ export default function EditProfileScreen() {
     try {
       const userId = await getUserId();
 
-      const response = await axios.post(`${Domain}/update-profile`, {
-        userId,
-        firstName,
-        lastName,
-        birthPlace: {
-          name: birthPlace,
-          latitude: birthPlaceCoords.latitude,
-          longitude: birthPlaceCoords.longitude
+      const response = await axios.post(
+        `${Domain}/update-profile`,
+        {
+          userId,
+          firstName,
+          lastName,
+          birthPlace: {
+            name: birthPlace,
+            latitude: birthPlaceCoords.latitude,
+            longitude: birthPlaceCoords.longitude,
+          },
+          preferredLanguage: language.toLowerCase(),
+          relationshipStatus: relationshipStatus.toLowerCase(),
+          occupation: occupation.toLowerCase(),
+          gender: gender.toLowerCase(),
+          birthDate: `${year}-${month}-${day}`,
+          birthTime: `${
+            birthTimePeriod === 'AM' ? hour : parseInt(hour) + 12
+          }:${minute}`,
         },
-        preferredLanguage: language.toLowerCase(),
-        relationshipStatus: relationshipStatus.toLowerCase(),
-        occupation: occupation.toLowerCase(),
-        gender: gender.toLowerCase(),
-        birthDate: `${year}-${month}-${day}`,
-        birthTime: `${birthTimePeriod === 'AM' ? hour : parseInt(hour) + 12}:${minute}`
-      },
         {
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         }
-      )
+      );
       if (response.status != 200) {
         alert('Error updating profile');
         return;
@@ -327,13 +374,19 @@ export default function EditProfileScreen() {
       await AsyncStorage.setItem('firstName', firstName);
       await AsyncStorage.setItem('lastName', lastName);
       await AsyncStorage.setItem('phoneNumber', phoneNumber);
-      await AsyncStorage.setItem('birthPlaceData', JSON.stringify({
-        name: birthPlace,
-        latitude: birthPlaceCoords.latitude,
-        longitude: birthPlaceCoords.longitude
-      }));
+      await AsyncStorage.setItem(
+        'birthPlaceData',
+        JSON.stringify({
+          name: birthPlace,
+          latitude: birthPlaceCoords.latitude,
+          longitude: birthPlaceCoords.longitude,
+        })
+      );
       await AsyncStorage.setItem('language', language.toLowerCase());
-      await AsyncStorage.setItem('relationshipStatus', relationshipStatus.toLowerCase());
+      await AsyncStorage.setItem(
+        'relationshipStatus',
+        relationshipStatus.toLowerCase()
+      );
       await AsyncStorage.setItem('occupation', occupation.toLowerCase());
       await AsyncStorage.setItem('gender', gender.toLowerCase());
       alert('Profile updated successfully!');
@@ -354,7 +407,13 @@ export default function EditProfileScreen() {
     outputRange: [0.3, 0.8],
   });
 
-  const GradientText = ({ children, style }: { children: string; style?: any }) => {
+  const GradientText = ({
+    children,
+    style,
+  }: {
+    children: string;
+    style?: any;
+  }) => {
     return (
       <MaskedView
         style={style}
@@ -401,60 +460,43 @@ export default function EditProfileScreen() {
         >
           <View style={styles.headerContainer}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color="#ffcc00"
-              />
+              <Ionicons name="arrow-back" size={24} color="#ffcc00" />
             </TouchableOpacity>
             <View style={styles.titleContainer}>
               <GradientText style={styles.header}>Edit Profile</GradientText>
             </View>
           </View>
-
-          {/* <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.content}
-            showsVerticalScrollIndicator={false}
-          > */}
           <FlatList
             data={[{ key: 'form' }]}
             renderItem={() => (
               <>
                 <View style={styles.row}>
                   <View style={styles.nameContainer}>
-                    <Text style={styles.label}>First Name</Text>
-                    <TextInput
-                      style={styles.inputHalf}
-                      placeholder="First Name"
-                      placeholderTextColor="#ccc"
+                    <CustomInput
                       value={firstName}
-                      onChangeText={setFirstName}
+                      onChange={setFirstName}
+                      label="First name"
+                      errorMsg=""
+                      placeholder="Enter your first name"
                     />
                   </View>
                   <View style={styles.nameContainer}>
-                    <Text style={styles.label}>Last Name</Text>
-                    <TextInput
-                      style={styles.inputHalf}
-                      placeholder="Last Name"
-                      placeholderTextColor="#ccc"
+                    <CustomInput
                       value={lastName}
-                      onChangeText={setLastName}
+                      onChange={setLastName}
+                      label="Last name"
+                      errorMsg=""
+                      placeholder="Enter your last name"
                     />
                   </View>
                 </View>
-
-                <View style={styles.nameContainer}>
-                  <Text style={styles.label}>Phone Number</Text>
-                  <TextInput
-                    style={[styles.input, { color: '#aaa' }]}
-                    placeholder="Phone Number"
-                    placeholderTextColor="#aaa"
-                    keyboardType="phone-pad"
-                    value={phoneNumber}
-                    editable={false}
-                  />
-                </View>
+                <PhoneTextInput
+                  placeholder="Enter your phone number"
+                  value={phoneNumber}
+                  editable={false}
+                  label='Phone Number'
+                  onChange={setPhoneNumber}
+                />
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Birth Location</Text>
@@ -467,7 +509,7 @@ export default function EditProfileScreen() {
                         setBirthPlace(data.description);
                         setBirthPlaceCoords({
                           latitude: details.geometry.location.lat,
-                          longitude: details.geometry.location.lng
+                          longitude: details.geometry.location.lng,
                         });
                         setIsValidPlaceSelected(true);
                       }
@@ -482,9 +524,12 @@ export default function EditProfileScreen() {
                         flex: 0,
                       },
                       textInput: {
-                        backgroundColor: 'rgba(45, 17, 82, 0.3)',
+                        backgroundColor: 'transparent',
                         borderWidth: 2,
-                        borderColor: `${Colors.gold.DEFAULT}20`,
+                        borderColor:
+                          (birthPlace.length > 0 || isFocused)
+                            ? `${Colors.gold.DEFAULT}90`
+                            : `${Colors.gold.DEFAULT}20`,
                         borderRadius: 12,
                         padding: 16,
                         color: Colors.white,
@@ -497,7 +542,7 @@ export default function EditProfileScreen() {
                         borderWidth: 2,
                         borderColor: `${Colors.gold.DEFAULT}20`,
                         borderRadius: 12,
-                        marginTop: 8,
+                        marginTop: 4,
                         position: 'absolute',
                         top: 50,
                         left: 0,
@@ -552,13 +597,15 @@ export default function EditProfileScreen() {
                     suppressDefaultStyles={false}
                     textInputHide={false}
                     textInputProps={{
+                      onFocus: () => setIsFocused(true),
+                      onBlur: () => setIsFocused(false),
                       placeholderTextColor: `${Colors.gold.DEFAULT}20`,
                       onChangeText: (text) => {
                         if (text.length === 0) {
                           setIsValidPlaceSelected(false);
                           setBirthPlace('');
                         }
-                      }
+                      },
                     }}
                     timeout={20000}
                   />
@@ -566,72 +613,69 @@ export default function EditProfileScreen() {
 
                 <Text style={styles.label}>Birth Date</Text>
                 <View style={styles.datePickerContainer}>
-                  <TextInput
-                    style={[styles.input, { width: 46 }]}
+                  <CompactInput
                     value={day}
-                    onChangeText={validateDay}
+                    onChange={validateDay}
                     placeholder="DD"
-                    placeholderTextColor={"#ccc"}
                     keyboardType="number-pad"
                     maxLength={2}
                     returnKeyType="next"
+                    width={60}
                   />
                   <View style={styles.slashBox}>
                     <Text style={styles.inputSlash}>/</Text>
                   </View>
-                  <TextInput
+                  <CompactInput
                     ref={monthRef}
-                    style={[styles.input, { width: 53 }]}
                     value={month}
-                    onChangeText={validateMonth}
+                    onChange={validateMonth}
                     placeholder="MM"
-                    placeholderTextColor={"#ccc"}
                     keyboardType="number-pad"
                     maxLength={2}
                     returnKeyType="next"
+                    width={60}
                   />
+
                   <View style={styles.slashBox}>
                     <Text style={styles.inputSlash}>/</Text>
                   </View>
-                  <TextInput
+                  <CompactInput
                     ref={yearRef}
-                    style={[styles.input, { width: 63 }]}
                     value={year}
-                    onChangeText={validateYear}
+                    onChange={validateYear}
                     placeholder="YYYY"
-                    placeholderTextColor={"#ccc"}
                     keyboardType="number-pad"
                     maxLength={4}
+                    width={70}
                     returnKeyType="done"
                   />
                 </View>
 
                 <Text style={styles.label}>Birth Time</Text>
                 <View style={styles.datePickerContainer}>
-                  <TextInput
+                  <CompactInput
                     ref={hourRef}
-                    style={styles.input}
                     value={hour}
-                    onChangeText={validateHour}
+                    onChange={validateHour}
                     placeholder="HH"
-                    placeholderTextColor={"#ccc"}
                     keyboardType="number-pad"
                     maxLength={2}
+                    width={60}
                     returnKeyType="next"
                   />
                   <View style={styles.slashBox}>
                     <Text style={styles.inputSlash}>:</Text>
                   </View>
-                  <TextInput
+
+                  <CompactInput
                     ref={minuteRef}
-                    style={styles.input}
                     value={minute}
-                    onChangeText={validateMinute}
+                    onChange={validateMinute}
                     placeholder="MM"
-                    placeholderTextColor={"#ccc"}
                     keyboardType="number-pad"
                     maxLength={2}
                     returnKeyType="done"
+                    width={60}
                   />
                   <View style={styles.slashBox}>
                     <Text style={styles.inputSlash}>{''}</Text>
@@ -639,7 +683,9 @@ export default function EditProfileScreen() {
                   <View style={styles.amPmContainer}>
                     <TouchableOpacity
                       style={[
-                        birthTimePeriod === 'AM' ? styles.ampmSelected : styles.ampm,
+                        birthTimePeriod === 'AM'
+                          ? styles.ampmSelected
+                          : styles.ampm,
                         { marginRight: 5 },
                       ]}
                       onPress={() => setBirthTimePeriod('AM')}
@@ -656,7 +702,9 @@ export default function EditProfileScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[
-                        birthTimePeriod === 'PM' ? styles.ampmSelected : styles.ampm,
+                        birthTimePeriod === 'PM'
+                          ? styles.ampmSelected
+                          : styles.ampm,
                       ]}
                       onPress={() => setBirthTimePeriod('PM')}
                     >
@@ -673,37 +721,49 @@ export default function EditProfileScreen() {
                   </View>
                 </View>
 
-                <Dropdown
+                <CustomDropdown
+                  renderData={relationshipStatusData}
+                  labelName="Relationship Status"
+                  placeholder="Select status"
+                  // required
+                  selected={relationshipStatus}
+                  setSelected={setRelationshipStatus}
+                  search={false}
+                />
+                <CustomDropdown
+                  renderData={languageData}
+                  labelName="Preferred Language"
+                  placeholder="Select Language"
+                  // required
+                  selected={language}
+                  setSelected={setLanguage}
+                  search={false}
+                />
+                <CustomDropdown
+                  renderData={occupationsData}
+                  labelName="Occupation"
+                  placeholder="Select occupation"
+                  // required
+                  selected={occupation}
+                  setSelected={setOccupation}
+                  search={false}
+                />
+                <CustomDropdown
+                  renderData={genderData}
+                  labelName="Gender"
+                  placeholder="Select gender"
+                  // required
+                  selected={gender}
+                  setSelected={setGender}
+                  search={false}
+                />
+                {/* <Dropdown
                   label="Relationship Status"
                   value={relationshipStatus}
                   items={relationshipStatuses}
                   onSelect={setRelationshipStatus}
                   placeholder="Select status"
-                />
-
-                <Dropdown
-                  label="Occupation"
-                  value={occupation}
-                  items={occupations}
-                  onSelect={setOccupation}
-                  placeholder="Select occupation"
-                />
-
-                <Dropdown
-                  label="Gender"
-                  value={gender}
-                  items={genders}
-                  onSelect={setGender}
-                  placeholder="Select gender"
-                />
-
-                <Dropdown
-                  label="Preferred Language"
-                  value={language}
-                  items={languages}
-                  onSelect={setLanguage}
-                  placeholder="Select language"
-                />
+                /> */}
 
                 <Animated.View
                   style={[
@@ -712,7 +772,7 @@ export default function EditProfileScreen() {
                     {
                       transform: [{ scale: scaleAnimation }],
                       shadowOpacity: glowOpacity,
-                    }
+                    },
                   ]}
                 >
                   <TouchableOpacity
@@ -738,7 +798,11 @@ export default function EditProfileScreen() {
                         ]}
                       >
                         <LinearGradient
-                          colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                          colors={[
+                            'transparent',
+                            'rgba(255, 255, 255, 0.3)',
+                            'transparent',
+                          ]}
                           style={styles.shimmerGradient}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 1, y: 0 }}
@@ -746,7 +810,9 @@ export default function EditProfileScreen() {
                       </Animated.View>
 
                       <View style={styles.buttonContent}>
-                        <Text style={styles.continueButtonText}>Update Your Data</Text>
+                        <Text style={styles.continueButtonText}>
+                          Update Your Data
+                        </Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -781,7 +847,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    padding: 10,
     position: 'relative',
   },
   backButton: {
@@ -833,6 +899,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   datePickerContainer: {
+    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -846,13 +913,12 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: `${Colors.gold.DEFAULT}20`,
+    borderColor: `${Colors.gold.DEFAULT}90`,
     borderRadius: 12,
     padding: 5,
     color: `${Colors.gold.DEFAULT}`,
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    marginTop: -15,
   },
 
   ampm: {
@@ -880,7 +946,7 @@ const styles = StyleSheet.create({
     color: `${Colors.gold.DEFAULT}40`,
   },
   ampmTextSelected: {
-    color: `${Colors.gold.DEFAULT}`,
+    color: Colors.white,
   },
   slashBox: {
     justifyContent: 'center',
@@ -923,8 +989,8 @@ const styles = StyleSheet.create({
   continueButton: {
     height: 50,
     borderRadius: 8,
-    marginTop: 4,
-    marginBottom: 16,
+    marginTop: 20,
+    marginBottom: 36,
     shadowColor: Colors.gold.DEFAULT,
     shadowOffset: {
       width: 0,

@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, Pressable, Platform, Animated } from 'react-nat
 import { Home, User, Wallet, Heart } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import { useRouter, usePathname } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 
 const Footer = () => {
   const shineAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
   const pathname = usePathname();
 
-  const isActive = (path: string) => {
+   const isActive = (path: string) => {
     return pathname.includes(path);
   };
 
@@ -37,16 +37,22 @@ const Footer = () => {
     };
   }, []);
 
+  const tabHandler = (tab: string) => {
+  if (pathname !== tab) {
+    router.push(tab as any);
+  }
+};
+
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['transparent', `${Colors.gold.DEFAULT}10`]}
+        colors={['transparent', `${Colors.gold.DEFAULT}20`]}
         style={styles.gradientBg}
       />
-
+     
       <View style={styles.nav}>
-        <Pressable style={styles.navButton} onPress={() => router.push('/main/home')}>
-          <Home
+        <Pressable style={styles.navButton} onPress={()=>tabHandler("/main/home")}>
+           <Home
             size={22}
             color={isActive('/home') ? Colors.gold.DEFAULT : Colors.white}
             strokeWidth={1.5}
@@ -57,8 +63,8 @@ const Footer = () => {
           ]}>Home</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => router.push('/compatibility/compatibility-main')}>
-          <Heart
+        <Pressable style={styles.navButton} onPress={()=>tabHandler("/compatibility/compatibility-main")}>
+           <Heart
             size={22}
             color={isActive('/compatibility') ? Colors.gold.DEFAULT : Colors.white}
             strokeWidth={1.5}
@@ -66,12 +72,12 @@ const Footer = () => {
           <Text style={[
             styles.navText,
             isActive('/compatibility') && styles.activeNavText
-          ]}>Compatibility</Text>
+          ]}>Partner</Text>
         </Pressable>
 
         <Pressable style={styles.askButtonContainer} onPress={() => router.push('/main/devi')}>
           <LinearGradient
-            colors={Colors.gradients.goldPrimary as [string, string, string]}
+            colors={Colors.gradients.goldPrimary as [string, string,string]}
             style={styles.askButton}
           >
             <Text style={styles.omText}>ॐ</Text>
@@ -92,8 +98,8 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton1} onPress={() => router.push('/main/wallet')}>
-          <Wallet
+        <Pressable style={styles.navButton} onPress={()=>tabHandler('/main/wallet')}>
+           <Wallet
             size={22}
             color={isActive('/wallet') ? Colors.gold.DEFAULT : Colors.white}
             strokeWidth={1.5}
@@ -104,7 +110,7 @@ const Footer = () => {
           ]}>Wallet</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton1} onPress={() => router.push('/main/profile')}>
+        <Pressable style={styles.navButton1} onPress={()=>tabHandler('/main/profile')}>
           <User
             size={22}
             color={isActive('/profile') ? Colors.gold.DEFAULT : Colors.white}
@@ -170,6 +176,7 @@ const styles = StyleSheet.create({
   askButtonContainer: {
     alignItems: 'center',
     marginTop: -30,
+    marginRight:5,
     width: '20%',
   },
   askButton: {
