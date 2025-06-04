@@ -70,33 +70,7 @@ function ProgressDots({ activeIndex }: { activeIndex: number }) {
 function CardPattern() {
   return (
     <View style={styles.cardPattern}>
-      {/* Corner Mandalas */}
-      {[0, 1, 2, 3].map((corner) => (
-        <View
-          key={`corner-${corner}`}
-          style={[
-            styles.cornerMandala,
-            {
-              top: corner < 2 ? 20 : undefined,
-              bottom: corner >= 2 ? 20 : undefined,
-              left: corner % 2 === 0 ? 20 : undefined,
-              right: corner % 2 === 1 ? 20 : undefined,
-            },
-          ]}
-        >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <View
-              key={`petal-${i}`}
-              style={[
-                styles.mandalaPetal,
-                {
-                  transform: [{ rotate: `${i * 45}deg` }],
-                },
-              ]}
-            />
-          ))}
-        </View>
-      ))}
+      
 
       {/* Border Pattern */}
       {Array.from({ length: 4 }).map((_, side) => (
@@ -131,7 +105,7 @@ function CardPattern() {
             styles.diagonalLine,
             {
               transform: [{ rotate: `${i * 45}deg` }],
-              opacity: 0.08,
+              opacity: 0.15,
             },
           ]}
         />
@@ -258,48 +232,61 @@ function BlessingCard({
             />
           </Animated.View>
           <CardPattern />
-          <Text style={styles.starTop}>✦</Text>
+          <Text style={styles.starTop}>⊰∙∘❀∘∙⊱</Text>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{card.title}</Text>
             <Animated.Text style={[styles.tapText, tapTextStyle]}>
               TAP TO REVEAL YOUR DESTINY
             </Animated.Text>
           </View>
-          <Text style={styles.starBottom}>✦</Text>
+          <Text style={styles.starBottom}>⊰∙∘❀∘∙⊱</Text>
         </Pressable>
       </Animated.View>
 
       <Animated.View style={[styles.card, styles.cardBack, backStyle]}>
-        <Pressable
-          style={styles.cardInner}
-          onPress={isActive ? onFlip : undefined}
-        >
-          <LinearGradient
-            colors={['#581189', '#360059']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <Animated.View style={[styles.animatedGradient, gradientStyle]}>
-            <LinearGradient
-              colors={['transparent', 'rgba(255, 215, 0, 0.2)', 'transparent']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-          </Animated.View>
-          <Text style={styles.starTop}>✦</Text>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardValue}>{card.value}</Text>
-            <View style={styles.separator} />
-            <Text style={styles.cardDescription}>{card.description}</Text>
-          </View>
-          <Text style={styles.starBottom}>✦</Text>
-        </Pressable>
-      </Animated.View>
-    </>
+  <Pressable
+    style={styles.cardInner}
+    onPress={isActive ? onFlip : undefined}
+  >
+    {/* ✅ Add this as a floating overlay inside Pressable */}
+    <View style={styles.innerBorder} />
+
+    {/* ✨ Background Layer */}
+    <LinearGradient
+      colors={['#e6c4ff', '#e6c4ff']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={StyleSheet.absoluteFill}
+    />
+
+    {/* ✨ Shimmer Effect */}
+    <Animated.View style={[styles.animatedGradient, gradientStyle]}>
+      <LinearGradient
+        colors={['transparent', 'rgba(255, 255, 255, 0.4)', 'transparent']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={StyleSheet.absoluteFill}
+      />
+    </Animated.View>
+
+    {/* 🌟 Content */}
+    <Text style={styles.starTop}> </Text>
+    <View style={styles.cardContent}>
+      <Text style={styles.cardValue}>{card.value}</Text>
+      {card.id === 'color' && (
+        <Text style={styles.colorIconLine}>ꕥ</Text>
+      )}
+      <View style={styles.separator} />
+      <Text style={styles.cardDescription}>{card.description}</Text>
+    </View>
+    <Text style={styles.starBottom}> </Text>
+  </Pressable>
+</Animated.View>
+
+</>
   );
 }
+
 
 export default function BlessingsScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -501,7 +488,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 2,
     backgroundColor: '#FFD700',
-    opacity: 0.15,
+    opacity: 0.3,
     borderRadius: 1,
     transform: [{ translateX: 15 }],
   },
@@ -519,7 +506,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderWidth: 1,
     borderColor: '#FFD700',
-    opacity: 0.15,
+    opacity: 0.3,
     transform: [{ rotate: '45deg' }],
   },
   diagonalLine: {
@@ -537,8 +524,8 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
     fontSize: 24,
-    color: '#FFD700',
-    opacity: 0.8,
+    color: '#360059',
+    opacity: 0.3,
   },
   starBottom: {
     position: 'absolute',
@@ -547,8 +534,8 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
     fontSize: 24,
-    color: '#FFD700',
-    opacity: 0.8,
+    color: '#360059',
+    opacity: 0.3,
   },
   cardContent: {
     flex: 1,
@@ -568,7 +555,7 @@ const styles = StyleSheet.create({
   cardValue: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#FFD700',
+    color: '#360059',
     textAlign: 'center',
     letterSpacing: 1,
     marginBottom: 20,
@@ -576,12 +563,13 @@ const styles = StyleSheet.create({
   separator: {
     width: '80%',
     height: 1,
-    backgroundColor: 'rgba(255, 215, 0, 0.3)',
+    backgroundColor: '#360059',
     marginVertical: 15,
+  
   },
   cardDescription: {
     fontSize: 14,
-    color: '#FFD700',
+    color: '#360059',
     textAlign: 'center',
     opacity: 0.8,
     lineHeight: 20,
@@ -632,4 +620,27 @@ const styles = StyleSheet.create({
     left: '-50%',
     top: '-20%',
   },
+
+  colorIconLine: {
+    fontSize: 30,
+    color: '#4B0082', // Deep purple
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+
+  innerBorder: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    right: 8,
+    bottom: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFD700', // or a soft glow like 'rgba(255,215,0,0.5)'
+    zIndex: 1,
+  },
+  
+  
+  
+  
 });
