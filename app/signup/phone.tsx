@@ -158,7 +158,7 @@ export default function PhoneScreen() {
       // console.log(response);
       router.push({ pathname: '/signup/otp', params: { phone } });
     } catch (err) {
-      console.log(err);
+      console.log('AXIOS ERROR:', JSON.stringify(err, null, 2));
       setError('Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
@@ -169,14 +169,14 @@ export default function PhoneScreen() {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+      // keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <BackgroundGradient />
-        <BackgroundEffects count={40} />
+        <BackgroundEffects count={20}/>
 
         <View style={styles.content}>
           <View style={styles.logoContainer}>
@@ -246,19 +246,20 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
+    marginTop: 10,
     marginBottom: 4,
     position: 'relative',
   },
   titleMask: {
     fontSize: 36,
-    lineHeight: 32,
+    lineHeight: 36,
     fontWeight: '700',
     textAlign: 'center',
     includeFontPadding: false,
     letterSpacing: 0.025 * 36,
   },
   titleGradient: {
-    height: 32,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
     minWidth: 200,
@@ -276,36 +277,8 @@ const styles = StyleSheet.create({
     color: '#FFD700CC',
     opacity: 0.8,
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 6,
     marginBottom: 16,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
-    marginBottom: 16,
-  },
-  phonePrefix: {
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
-  },
-  prefixText: { color: '#FFD700', fontWeight: 'bold' },
-  divider: {
-    width: 1,
-    backgroundColor: 'rgba(255, 215, 0, 0.3)',
-    marginVertical: 8,
-  },
-  input: {
-    flex: 1,
-    paddingHorizontal: 12,
-    color: '#FFD700',
-    fontSize: 16,
   },
   errorText: { color: 'red', marginBottom: 8, textAlign: 'center' },
   buttonContainer: {

@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     marginBottom: 16,
+    minHeight: 48,
   },
   phonePrefix: {
     paddingHorizontal: 16,
