@@ -27,8 +27,8 @@ const MainLayout = () => {
     <SafeAreaProvider>
       {showPopup && <FreeTimePopup onClose={() => setShowPopup(false)} />}
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
-        <View 
-        style={styles.container} >
+        <View
+          style={styles.container} >
           <BackgroundEffects count={45} />
 
           <Header />
@@ -57,19 +57,17 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.deepPurple.DEFAULT,
   },
   container: {
-    
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    // backgroundColor: Colors.deepPurple.DEFAULT,
   },
   scrollView: {
-
     flex: 1,
   },
   content: {
     // paddingBottom: 40,
   },
   bottomPadding: {
-    height: 100, // Space for footer
+    height: 100,
   },
 });
 

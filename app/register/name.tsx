@@ -141,14 +141,14 @@ export default function NameScreen() {
             <CustomInput
               value={firstName}
               onChange={setFirstName}
-              label="Last name"
+              label="First name"
               errorMsg=""
-              placeholder="Enter your last name"
+              placeholder="Enter your first name"
             />
             <CustomInput
               value={lastName}
               onChange={setLastName}
-              label="Last Name"
+              label="Last name"
               errorMsg=""
               placeholder="Enter your last name"
             />

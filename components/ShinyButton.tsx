@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { Text, Pressable, StyleSheet, ViewStyle, ColorValue } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -53,7 +53,7 @@ const ShinyButton: React.FC<ShinyButtonProps> = ({
   return (
     <Pressable onPress={onPress} style={[styles.container, style]}>
       <LinearGradient
-        colors={linerColors}
+        colors={linerColors as [ColorValue, ColorValue, ...ColorValue[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}

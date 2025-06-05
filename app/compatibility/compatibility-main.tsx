@@ -13,6 +13,7 @@ import CompatibilityCard from '@/components/CompatibilityCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import ShinyButton from '@/components/ShinyButton';
 
 
 export default function CompatibilityScreen() {
@@ -20,21 +21,20 @@ export default function CompatibilityScreen() {
 
     useEffect(() => {
         const backAction = () => {
-          router.push("/main/home")
-          return true;
+            router.push("/main/home")
+            return true;
         };
-    
+
         const backHandler = BackHandler.addEventListener(
-          'hardwareBackPress',
-          backAction
+            'hardwareBackPress',
+            backAction
         );
-    
+
         return () => backHandler.remove();
-      }, []);
+    }, []);
 
     const [loading, setLoading] = useState(true);
     const [compatibility, setCompatibility] = useState([]);
-    const [initials, setInitials] = useState('');
 
     useEffect(() => {
         const fetchCompatibility = async () => {
@@ -77,17 +77,6 @@ export default function CompatibilityScreen() {
         );
     };
 
-    useEffect(() => {
-        const fetchInitials = async () => {
-            const firstName = await AsyncStorage.getItem('firstName');
-            const lastName = await AsyncStorage.getItem('lastName');
-            if (firstName && lastName) {
-                setInitials(firstName[0] + lastName[0]);
-            }
-        }
-        fetchInitials();
-    }, []);
-
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
@@ -113,6 +102,10 @@ export default function CompatibilityScreen() {
                                         date={item.birthDate}
                                         time={item.birthTime}
                                         location={item.birthPlace.name}
+                                        score={{
+                                            received: item.received_points,
+                                            total: item.total_points
+                                        }}
                                         onPress={() => router.push({
                                             pathname: '/compatibility/compatibility-report',
                                             params: { report: JSON.stringify(item) }
@@ -127,19 +120,12 @@ export default function CompatibilityScreen() {
                             </View>
                         )}
                     </ScrollView>
+                    
                     <View style={styles.newCompatibilityContainer}>
-                        <View style={styles.circlesContainer}>
-                            <View style={styles.circle}>
-                                <Text style={styles.circleText}>{initials}</Text>
-                            </View>
-                            <Text style={styles.plusSign}>+</Text>
-                            <TouchableOpacity
-                                style={styles.circle}
-                                onPress={() => router.push('/compatibility/compatibility-form')}
-                            >
-                                <Text style={styles.circleText}>Add</Text>
-                            </TouchableOpacity>
-                        </View>
+                        <ShinyButton
+                            title="Add New Partner"
+                            onPress={() => router.push('/compatibility/compatibility-form')}
+                        />
                     </View>
                     <Footer />
                 </View>
@@ -186,19 +172,38 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     cardContainer: {
-        marginBottom: 20,
+        marginBottom: 5,
     },
     newCompatibilityContainer: {
-        borderTopWidth: 1,
-        borderTopColor: Colors.gold.DEFAULT,
-        height: "25%",
+        // height: "27%",
         padding: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 70,
     },
     circlesContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 20,
+    },
+    nameCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 215, 0, 0.5)',
+    },
+    nameCircleText: {
+        color: Colors.deepPurple.DEFAULT,
+        fontSize: 30,
+        fontFamily: 'Poppins-Medium',
+        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 2,
     },
     circle: {
         width: 80,
@@ -207,6 +212,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 215, 0, 0.1)',
         borderWidth: 2,
         borderColor: Colors.gold.DEFAULT,
+        borderStyle: 'dashed',
         justifyContent: 'center',
         alignItems: 'center',
     },

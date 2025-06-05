@@ -26,12 +26,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import ShinyButton from './ShinyButton';
+import { router } from 'expo-router';
 
-const GLOW_RADIUS = 120; // Matches the logo container size
+const GLOW_RADIUS = 180; // Increased from 120 for a larger glow
 
 const Hero = () => {
   const floatStyle = useFloatAnimation(-5, 3000);
   const buttonGradient = useSharedValue(0);
+  const glowOpacity = useSharedValue(1);
 
   const duration = 3000;
   const gradientAnimation = useMemo(() => {
@@ -47,8 +49,20 @@ const Hero = () => {
 
   useEffect(() => {
     buttonGradient.value = gradientAnimation;
+
+    // Start glow blinking animation
+    glowOpacity.value = withRepeat(
+      withSequence(
+        withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) })
+      ),
+      -1,
+      true
+    );
+
     return () => {
       cancelAnimation(buttonGradient);
+      cancelAnimation(glowOpacity);
     };
   }, [gradientAnimation]);
 
@@ -64,10 +78,14 @@ const Hero = () => {
     };
   });
 
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+  }));
+
   const GlowEffect = () => {
     return (
-      <View style={styles.glowContainer}>
-        <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+      <Animated.View style={[styles.glowContainer, glowStyle]}>
+        <Svg height="200%" width="200%" style={[StyleSheet.absoluteFill, { top: '-50%', left: '-50%' }]}>
           <Defs>
             <RadialGradient
               id="glow"
@@ -78,20 +96,25 @@ const Hero = () => {
               fy="50%"
               gradientUnits="userSpaceOnUse"
             >
-              <Stop offset="0" stopColor="#FFD700" stopOpacity="0.4" />
-              <Stop offset="0.4" stopColor="#FFD700" stopOpacity="0.2" />
-              <Stop offset="0.7" stopColor="#FFD700" stopOpacity="0.05" />
-              <Stop offset="1" stopColor="#FFD700" stopOpacity="0" />
+              <Stop offset="0" stopColor="#FFA500" stopOpacity="0.8" />
+              <Stop offset="0.1" stopColor="#FFA500" stopOpacity="0.6" />
+              <Stop offset="0.3" stopColor="#FFA500" stopOpacity="0.25" />
+              <Stop offset="0.5" stopColor="#FFA500" stopOpacity="0.1" />
+              <Stop offset="0.7" stopColor="#FFA500" stopOpacity="0.01" />
+              <Stop offset="0.9" stopColor="#FFA500" stopOpacity="0.005" />
+              <Stop offset="0.95" stopColor="#FFA500" stopOpacity="0.002" />
+              <Stop offset="0.98" stopColor="#FFA500" stopOpacity="0.001" />
+              <Stop offset="1" stopColor="#FFA500" stopOpacity="0" />
             </RadialGradient>
           </Defs>
           <Circle
-            cx="120"
-            cy="120"
+            cx="50%"
+            cy="50%"
             r={GLOW_RADIUS}
             fill="url(#glow)"
           />
         </Svg>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -114,7 +137,7 @@ const Hero = () => {
 
       <ShinyButton
         title="Open Chat"
-        onPress={() => Alert.alert('Chat opened!')}
+        onPress={() => router.push('/main/devi')}
       />
     </View>
   );
@@ -125,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     zIndex: 10,
-    marginTop: -20,
+    marginTop: 30,
   },
   background: {
     position: 'absolute',
@@ -145,15 +168,14 @@ const styles = StyleSheet.create({
     height: 240,
     alignItems: 'center',
     justifyContent: 'center',
-    // marginBottom: 40,
     borderRadius: 120,
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   glowContainer: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    overflow: 'hidden',
+    overflow: 'visible',
     borderRadius: 120,
   },
   logo: {
@@ -179,58 +201,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
-  // logoContainer: {
-  //   width: 220,
-  //   height: 220,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   marginBottom: 20,
-  //   position: 'relative',
-  // },
-  // glow: {
-  //   position: 'absolute',
-  //   width: 180,
-  //   height: 180,
-  //   borderRadius: 90,
-  //   backgroundColor: `${Colors.gold.DEFAULT}20`,
-  //   shadowColor: Colors.gold.DEFAULT,
-  //   shadowOffset: { width: 0, height: 0 },
-  //   shadowOpacity: 0.8,
-  //   shadowRadius: 30,
-  //   transform: [{ scale: 1.2 }],
-  // },
-  // starOrbit: {
-  //   position: 'absolute',
-  //   width: ORBIT_RADIUS_2 * 2,
-  //   height: ORBIT_RADIUS_2 * 2,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-  // star: {
-  //   position: 'absolute',
-  //   width: 4,
-  //   height: 4,
-  //   backgroundColor: Colors.gold.DEFAULT,
-  //   borderRadius: 2,
-  //   shadowColor: Colors.gold.DEFAULT,
-  //   shadowOffset: { width: 0, height: 0 },
-  //   shadowOpacity: 0.8,
-  //   shadowRadius: 4,
-  // },
-  // logo: {
-  //   width: '100%',
-  //   height: '100%',
-  //   zIndex: 2,
-  // },
-  // title: {
-  //   fontFamily: 'Poppins-Bold',
-  //   fontSize: 36,
-  //   marginBottom: 20,
-  //   color: Colors.gold.DEFAULT,
-  //   textShadowColor: 'rgba(255, 215, 0, 0.5)',
-  //   textShadowOffset: { width: 0, height: 0 },
-  //   textShadowRadius: 10,
-  // },
   buttonContainer: {
     width: 180,
     height: 48,

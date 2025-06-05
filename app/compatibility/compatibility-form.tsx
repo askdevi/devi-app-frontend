@@ -11,6 +11,8 @@ import { getUserId } from '@/constants/userId';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import 'react-native-get-random-values';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Ionicons } from '@expo/vector-icons';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function CompatibilityFormScreen() {
     const router = useRouter();
@@ -23,6 +25,34 @@ export default function CompatibilityFormScreen() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const GradientText = ({
+        children,
+        style,
+    }: {
+        children: string;
+        style?: any;
+    }) => {
+        return (
+            <MaskedView
+                style={style}
+                maskElement={
+                    <Text style={[style, { backgroundColor: 'transparent' }]}>
+                        {children}
+                    </Text>
+                }
+            >
+                <LinearGradient
+                    colors={['#FFD700', '#FF8C00', '#FFD700']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={style}
+                >
+                    <Text style={[style, { opacity: 0 }]}>{children}</Text>
+                </LinearGradient>
+            </MaskedView>
+        );
+    };
 
     const handleCheck = async () => {
         if (!firstName || !lastName) {
@@ -106,10 +136,12 @@ export default function CompatibilityFormScreen() {
                     <BackgroundEffects count={30} />
 
                     <View style={styles.headerContainer}>
-                        <TouchableOpacity onPress={handleBack}>
-                            <Text style={styles.backText}>{'<-'}</Text>
+                        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                            <Ionicons name="arrow-back" size={24} color="#ffcc00" />
                         </TouchableOpacity>
-                        <Text style={styles.header}>Check Partner Compatibility</Text>
+                        <View style={styles.titleContainer}>
+                            <GradientText style={styles.header}>Check Compatibility</GradientText>
+                        </View>
                     </View>
 
                     <View
@@ -124,7 +156,7 @@ export default function CompatibilityFormScreen() {
                                     value={firstName}
                                     onChangeText={setFirstName}
                                     placeholder="Enter first name"
-                                    placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+                                    placeholderTextColor={"#b3b3b3"}
                                 />
                             </View>
 
@@ -135,7 +167,7 @@ export default function CompatibilityFormScreen() {
                                     value={lastName}
                                     onChangeText={setLastName}
                                     placeholder="Enter last name"
-                                    placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+                                    placeholderTextColor={"#b3b3b3"}
                                 />
                             </View>
 
@@ -320,18 +352,29 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
+        padding: 10,
+        position: 'relative',
     },
-    backText: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff',
+    backButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 12,
+        zIndex: 10,
+    },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 20,
     },
     header: {
-        fontSize: 22,
+        fontFamily: 'Poppins-Bold',
+        fontSize: 30,
         fontWeight: 'bold',
-        color: '#fff',
-        marginLeft: 20,
+        color: Colors.gold.DEFAULT,
     },
     form: {
         flex: 1,

@@ -6,6 +6,7 @@ import Colors from '@/constants/Colors';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import { useLocalSearchParams } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
 
 interface CircularProgressProps {
     percentage: number;
@@ -101,10 +102,12 @@ export default function CompatibilityReportScreen() {
                     <BackgroundEffects count={30} />
 
                     <View style={styles.headerContainer}>
-                        <TouchableOpacity onPress={handleBack}>
-                            <Text style={styles.backText}>{'<-'}</Text>
+                        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                            <Ionicons name="arrow-back" size={24} color="#ffcc00" />
                         </TouchableOpacity>
-                        <Text style={styles.header}>Compatibility Report</Text>
+                        <View style={styles.titleContainer}>
+                            <Text style={styles.header}>Check Compatibility</Text>
+                        </View>
                     </View>
 
                     <ScrollView
@@ -175,18 +178,29 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
+        padding: 10,
+        position: 'relative',
     },
-    backText: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#fff',
+    backButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 12,
+        zIndex: 10,
+    },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 20,
     },
     header: {
-        fontSize: 22,
+        fontFamily: 'Poppins-Bold',
+        fontSize: 30,
         fontWeight: 'bold',
-        color: '#fff',
-        marginLeft: 20,
+        color: Colors.gold.DEFAULT,
     },
     partnerInfo: {
         alignItems: 'center',
