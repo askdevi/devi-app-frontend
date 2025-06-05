@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Animated, KeyboardAvoidingView, Platform, FlatList, Alert, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Animated, KeyboardAvoidingView, Platform, FlatList, Alert, BackHandler, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,20 +21,6 @@ import CustomInput from '@/components/CustomInput';
 import CustomDropdown from '@/components/CustomDropdown';
 import PhoneTextInput from '@/components/PhoneTextInput';
 
-const languages = ['Hinglish', 'English'];
-
-const relationshipStatuses = ['Single', 'Dating', 'Married', 'Other'];
-
-const occupations = [
-  'Employed',
-  'Self-Employed',
-  'Homemaker',
-  'Student',
-  'Other',
-];
-
-const genders = ['Male', 'Female'];
-
 const languageData = [
   { label: 'Hinglish', value: 'Hinglish' },
   { label: 'English', value: 'English' },
@@ -48,7 +34,7 @@ const relationshipStatusData = [
 
 const occupationsData = [
   { label: 'Employed', value: 'Employed' },
-  { label: 'Self-Employed', value: 'Self-Employed' },
+  { label: 'Self-Employed', value: 'Self-employed' },
   { label: 'Homemaker', value: 'Homemaker' },
   { label: 'Student', value: 'Student' },
   { label: 'Other', value: 'Other' },
@@ -84,6 +70,7 @@ export default function EditProfileScreen() {
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
   const [gender, setGender] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   const currentYear = new Date().getFullYear();
   const [day, setDay] = useState('');
@@ -157,42 +144,8 @@ export default function EditProfileScreen() {
     gender: '',
   });
 
-  const gradientAnimation = useRef(new Animated.Value(0)).current;
-  const scaleAnimation = useRef(new Animated.Value(1)).current;
-  const glowAnimation = useRef(new Animated.Value(0)).current;
   const googlePlacesRef = useRef<GooglePlacesAutocompleteRef>(null);
 
-  useEffect(() => {
-    const gradientLoop = Animated.loop(
-      Animated.timing(gradientAnimation, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: false,
-      })
-    );
-    gradientLoop.start();
-
-    const glowLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnimation, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(glowAnimation, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-      ])
-    );
-    glowLoop.start();
-
-    return () => {
-      gradientLoop.stop();
-      glowLoop.stop();
-    };
-  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -207,9 +160,11 @@ export default function EditProfileScreen() {
         );
         let storedOccupation = await AsyncStorage.getItem('occupation');
         let storedGender = await AsyncStorage.getItem('gender');
+        
         const storedBirthPlace = storedBirthPlace1
           ? JSON.parse(storedBirthPlace1)
           : null;
+          
         const storedBirthDate = await AsyncStorage.getItem('birthDate');
         const storedBirthTime = await AsyncStorage.getItem('birthTime');
         const storedDay = storedBirthDate ? storedBirthDate.split('-')[2] : '';
@@ -250,19 +205,25 @@ export default function EditProfileScreen() {
 
         if (storedFirstName) setFirstName(storedFirstName);
         if (storedLastName) setLastName(storedLastName);
-        if (storedPhoneNumber) setPhoneNumber(storedPhoneNumber?.split("+91")[1]);
+        if (storedPhoneNumber) {
+          const phoneWithoutCountryCode = storedPhoneNumber?.split("+91")[1];
+          setPhoneNumber(phoneWithoutCountryCode || storedPhoneNumber);
+        }
         if (storedBirthPlace) {
           setBirthPlace(storedBirthPlace.name);
           setBirthPlaceCoords({
             latitude: storedBirthPlace.latitude,
             longitude: storedBirthPlace.longitude,
           });
+          setIsValidPlaceSelected(true);
         }
 
         if (storedLanguage) setLanguage(storedLanguage);
         if (storedRelationshipStatus)
           setRelationshipStatus(storedRelationshipStatus);
-        if (storedOccupation) setOccupation(storedOccupation);
+        if (storedOccupation) {
+          setOccupation(storedOccupation);
+        }
         if (storedGender) setGender(storedGender);
         if (storedDay) setDay(storedDay);
         if (storedMonth) setMonth(storedMonth);
@@ -274,10 +235,10 @@ export default function EditProfileScreen() {
         setOriginalValues({
           firstName: storedFirstName || '',
           lastName: storedLastName || '',
-          birthPlace: storedBirthPlace.name || '',
+          birthPlace: storedBirthPlace?.name || '',
           birthPlaceCoords: {
-            latitude: storedBirthPlace.latitude,
-            longitude: storedBirthPlace.longitude,
+            latitude: storedBirthPlace?.latitude || 0,
+            longitude: storedBirthPlace?.longitude || 0,
           },
           language: storedLanguage || '',
           relationshipStatus: storedRelationshipStatus || '',
@@ -305,41 +266,47 @@ export default function EditProfileScreen() {
   }, [birthPlace]);
 
   const handleBack = () => {
-    router.push('/main/home');
+    router.push('/main/profile');
   };
 
   const handleUpdate = async () => {
-    Animated.sequence([
-      Animated.timing(scaleAnimation, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-      Animated.timing(scaleAnimation, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-    ]).start();
-
-    if (!isValidPlaceSelected || !birthPlace.trim()) {
-      Alert.alert(
-        'Birth Place Required',
-        'Please select your birth location before continuing.',
-        [{ text: 'OK', style: 'default' }]
-      );
-      return;
-    }
-    if (!firstName.trim() || !lastName.trim()) {
+    if (!firstName?.trim() || !lastName?.trim()) {
       Alert.alert(
         'Name Required',
         'Please enter your name before continuing.',
         [{ text: 'OK', style: 'default' }]
       );
+      return;
     }
+
+    setUpdating(true);
 
     try {
       const userId = await getUserId();
+
+      // Convert 12-hour format to 24-hour format
+      let hour24 = parseInt(hour);
+      
+      if (birthTimePeriod === 'AM') {
+        // Handle AM times
+        if (hour24 === 12) {
+          hour24 = 0; // 12 AM is midnight (00:xx)
+        }
+        // 1-11 AM remain the same
+      } else {
+        // Handle PM times
+        if (hour24 !== 12) {
+          hour24 += 12; // 1-11 PM become 13-23
+        }
+        // 12 PM remains 12 (noon)
+      }
+      
+      const birthTime = `${hour24.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
+
+      if (!birthPlace) {
+        setBirthPlace(originalValues.birthPlace);
+        setBirthPlaceCoords(originalValues.birthPlaceCoords);
+      }
 
       const response = await axios.post(
         `${Domain}/update-profile`,
@@ -357,9 +324,7 @@ export default function EditProfileScreen() {
           occupation: occupation.toLowerCase(),
           gender: gender.toLowerCase(),
           birthDate: `${year}-${month}-${day}`,
-          birthTime: `${
-            birthTimePeriod === 'AM' ? hour : parseInt(hour) + 12
-          }:${minute}`,
+          birthTime: birthTime,
         },
         {
           headers: {
@@ -373,7 +338,7 @@ export default function EditProfileScreen() {
       }
       await AsyncStorage.setItem('firstName', firstName);
       await AsyncStorage.setItem('lastName', lastName);
-      await AsyncStorage.setItem('phoneNumber', phoneNumber);
+      await AsyncStorage.setItem('phoneNumber', `+91${phoneNumber}`);
       await AsyncStorage.setItem(
         'birthPlaceData',
         JSON.stringify({
@@ -382,6 +347,8 @@ export default function EditProfileScreen() {
           longitude: birthPlaceCoords.longitude,
         })
       );
+      await AsyncStorage.setItem('birthDate', `${year}-${month}-${day}`);
+      await AsyncStorage.setItem('birthTime', birthTime);
       await AsyncStorage.setItem('language', language.toLowerCase());
       await AsyncStorage.setItem(
         'relationshipStatus',
@@ -389,23 +356,14 @@ export default function EditProfileScreen() {
       );
       await AsyncStorage.setItem('occupation', occupation.toLowerCase());
       await AsyncStorage.setItem('gender', gender.toLowerCase());
-      alert('Profile updated successfully!');
-      router.push('/main/home');
+      router.push('/main/profile');
     } catch (e) {
       // console.log('Error saving profile data', e);
       alert('Error saving profile data');
+    } finally {
+      setUpdating(false);
     }
   };
-
-  const gradientTranslateX = gradientAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-200, 200],
-  });
-
-  const glowOpacity = glowAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 0.8],
-  });
 
   const GradientText = ({
     children,
@@ -436,9 +394,8 @@ export default function EditProfileScreen() {
   };
 
   const isFormValid =
-    firstName.trim() !== originalValues.firstName ||
-    lastName.trim() !== originalValues.lastName ||
-    birthPlace.trim() !== originalValues.birthPlace ||
+    firstName?.trim() !== originalValues.firstName ||
+    lastName?.trim() !== originalValues.lastName ||
     language !== originalValues.language ||
     relationshipStatus !== originalValues.relationshipStatus ||
     occupation !== originalValues.occupation ||
@@ -475,7 +432,7 @@ export default function EditProfileScreen() {
                     <CustomInput
                       value={firstName}
                       onChange={setFirstName}
-                      label="First name"
+                      label="First Name"
                       errorMsg=""
                       placeholder="Enter your first name"
                     />
@@ -484,7 +441,7 @@ export default function EditProfileScreen() {
                     <CustomInput
                       value={lastName}
                       onChange={setLastName}
-                      label="Last name"
+                      label="Last Name"
                       errorMsg=""
                       placeholder="Enter your last name"
                     />
@@ -602,8 +559,10 @@ export default function EditProfileScreen() {
                       placeholderTextColor: `${Colors.gold.DEFAULT}20`,
                       onChangeText: (text) => {
                         if (text.length === 0) {
-                          setIsValidPlaceSelected(false);
-                          setBirthPlace('');
+                          if (!birthPlace || birthPlace !== text) {
+                            setIsValidPlaceSelected(false);
+                            setBirthPlace('');
+                          }
                         }
                       },
                     }}
@@ -724,7 +683,7 @@ export default function EditProfileScreen() {
                 <CustomDropdown
                   renderData={relationshipStatusData}
                   labelName="Relationship Status"
-                  placeholder="Select status"
+                  placeholder="Select Relationship Status"
                   // required
                   selected={relationshipStatus}
                   setSelected={setRelationshipStatus}
@@ -733,7 +692,7 @@ export default function EditProfileScreen() {
                 <CustomDropdown
                   renderData={languageData}
                   labelName="Preferred Language"
-                  placeholder="Select Language"
+                  placeholder="Select Preferred Language"
                   // required
                   selected={language}
                   setSelected={setLanguage}
@@ -742,7 +701,7 @@ export default function EditProfileScreen() {
                 <CustomDropdown
                   renderData={occupationsData}
                   labelName="Occupation"
-                  placeholder="Select occupation"
+                  placeholder="Select Occupation"
                   // required
                   selected={occupation}
                   setSelected={setOccupation}
@@ -751,7 +710,7 @@ export default function EditProfileScreen() {
                 <CustomDropdown
                   renderData={genderData}
                   labelName="Gender"
-                  placeholder="Select gender"
+                  placeholder="Select Gender"
                   // required
                   selected={gender}
                   setSelected={setGender}
@@ -765,58 +724,46 @@ export default function EditProfileScreen() {
                   placeholder="Select status"
                 /> */}
 
-                <Animated.View
+                <View
                   style={[
                     styles.continueButton,
-                    !isFormValid && styles.continueButtonDisabled,
-                    {
-                      transform: [{ scale: scaleAnimation }],
-                      shadowOpacity: glowOpacity,
-                    },
+                    !(isFormValid && firstName?.trim() && lastName?.trim() && phoneNumber?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && relationshipStatus?.trim() && language?.trim() && occupation?.trim() && gender?.trim()) && styles.continueButtonDisabled,
                   ]}
                 >
                   <TouchableOpacity
                     style={styles.continueButtonTouchable}
                     onPress={handleUpdate}
-                    disabled={!isFormValid}
+                    disabled={updating || !(isFormValid && firstName?.trim() && lastName?.trim() && phoneNumber?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && relationshipStatus?.trim() && language?.trim() && occupation?.trim() && gender?.trim())}
                     activeOpacity={0.8}
                   >
-                    <View style={styles.gradientContainer}>
-                      <LinearGradient
-                        colors={['#FFD700', '#FF8C00', '#FFD700']}
-                        style={styles.continueButtonGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                      />
+                    <LinearGradient
+                      colors={['#FFD700', '#FF8C00', '#FFD700']}
+                      style={styles.continueButtonGradient}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                    />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                    />
 
-                      <Animated.View
-                        style={[
-                          styles.animatedGradientOverlay,
-                          {
-                            transform: [{ translateX: gradientTranslateX }],
-                          },
-                        ]}
-                      >
-                        <LinearGradient
-                          colors={[
-                            'transparent',
-                            'rgba(255, 255, 255, 0.3)',
-                            'transparent',
-                          ]}
-                          style={styles.shimmerGradient}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                        />
-                      </Animated.View>
-
-                      <View style={styles.buttonContent}>
-                        <Text style={styles.continueButtonText}>
-                          Update Your Data
-                        </Text>
-                      </View>
+                    <View style={styles.buttonContent}>
+                      {updating ? (
+                        <>
+                          <ActivityIndicator 
+                            size="small" 
+                            color={Colors.deepPurple.DEFAULT} 
+                            style={{ marginRight: 8 }}
+                          />
+                          <Text style={styles.continueButtonText}>Updating...</Text>
+                        </>
+                      ) : (
+                        <Text style={styles.continueButtonText}>Update Your Profile</Text>
+                      )}
                     </View>
                   </TouchableOpacity>
-                </Animated.View>
+                </View>
               </>
             )}
             keyExtractor={(item) => item.key}
@@ -970,7 +917,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 14,
+    fontSize: 16,
     color: '#d1d5dbe6',
     marginBottom: 8,
   },

@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   label: {
          fontFamily: 'Poppins-Medium',
-        fontSize: 14,
+        fontSize: 16,
         color: '#d1d5dbe6',
         // marginBottom: 8,
   },
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   textItem: {
-    fontSize: 14,
+    fontSize: 16,
     marginBottom: 1,
   },
   dropdown: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     color: `${Colors.gold.DEFAULT}20`,
   },
   selectedTextStyle: {
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.white,
     paddingBottom:5,
   },
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   itemStyle: {
-    paddingVertical: 5,
+    paddingVertical: 10,
     paddingHorizontal: 10,
     flexDirection: 'row',
     backgroundColor: 'rgba(45, 17, 82, 0.9)',

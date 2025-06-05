@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 60,
     alignItems: 'center',
-    // justifyContent: 'space-around',
+    justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
   navButton: {

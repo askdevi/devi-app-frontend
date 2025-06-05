@@ -8,7 +8,6 @@ import {
     ScrollView,
     Image,
     Platform,
-    SafeAreaView,
     Dimensions,
     BackHandler,
 } from 'react-native';
@@ -37,6 +36,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NoTimePopup from '@/components/Popups/NoTimePopup';
 import { useRouter } from 'expo-router';
 import { useFloatAnimation } from '@/hooks/useFloatAnimation';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -594,95 +594,97 @@ export default function ChatScreen() {
     }, [messages]);
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
-            <View
-                // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.container}
-            // keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-            >
-                <LinearGradient
-                    colors={['#360059', '#1D0033', '#0D0019']}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0.5, y: 0 }}
-                    end={{ x: 0.5, y: 1 }}
-                />
-
-                <BackgroundStars count={30} />
-
-                <View style={styles.header}>
-                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                        <LinearGradient
-                            colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0.5, y: 0 }}
-                            end={{ x: 0.5, y: 1 }}
-                        />
-                    </BlurView>
-                    <HeaderContent />
-                </View>
-
-                <ScrollView
-                    ref={scrollViewRef}
-                    style={styles.messagesContainer}
-                    contentContainerStyle={styles.messagesContent}
-                    onContentSizeChange={() => {
-                        scrollViewRef.current?.scrollToEnd({ animated: true });
-                    }}
+        <SafeAreaProvider>
+            <SafeAreaView style={styles.safeArea}>
+                {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
+                <View
+                    // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.container}
+                // keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
                 >
-                    {groupedMessages.map(([date, msgs]) => (
-                        <View key={date}>
-                            <DateHeader date={date} />
-                            {msgs.map((message) => (
-                                <MessageBubble key={message.id} message={message} />
-                            ))}
-                        </View>
-                    ))}
-                    {isThinking && (
-                        <View style={styles.typingIndicator}>
-                            <View style={styles.typingContainer}>
-                                <TypingDots />
-                            </View>
-                        </View>
-                    )}
-                </ScrollView>
+                    <LinearGradient
+                        colors={['#360059', '#1D0033', '#0D0019']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0.5, y: 0 }}
+                        end={{ x: 0.5, y: 1 }}
+                    />
 
-                <View style={styles.inputContainer}>
-                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                        <LinearGradient
-                            colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0.5, y: 0 }}
-                            end={{ x: 0.5, y: 1 }}
-                        />
-                    </BlurView>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
-                            style={styles.input}
-                            value={newMessage}
-                            onChangeText={setNewMessage}
-                            placeholder="Type your question..."
-                            placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                            multiline
-                        />
-                        {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.push("/main/wallet")}>
-                            <Text style={styles.purchaseButtonText}>Ask More</Text>
-                        </TouchableOpacity> :
-                            <TouchableOpacity
-                                onPress={sendMessage}
-                                style={styles.sendButton}
-                                disabled={time <= 0 || !newMessage.trim()}
-                            >
-                                <Text style={[
-                                    styles.sendButtonText,
-                                    !newMessage.trim() && styles.sendButtonDisabled
-                                ]}>➤</Text>
-                            </TouchableOpacity>
-                        }
+                    <BackgroundStars count={30} />
+
+                    <View style={styles.header}>
+                        <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                            <LinearGradient
+                                colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                                style={StyleSheet.absoluteFill}
+                                start={{ x: 0.5, y: 0 }}
+                                end={{ x: 0.5, y: 1 }}
+                            />
+                        </BlurView>
+                        <HeaderContent />
+                    </View>
+
+                    <ScrollView
+                        ref={scrollViewRef}
+                        style={styles.messagesContainer}
+                        contentContainerStyle={styles.messagesContent}
+                        onContentSizeChange={() => {
+                            scrollViewRef.current?.scrollToEnd({ animated: true });
+                        }}
+                    >
+                        {groupedMessages.map(([date, msgs]) => (
+                            <View key={date}>
+                                <DateHeader date={date} />
+                                {msgs.map((message) => (
+                                    <MessageBubble key={message.id} message={message} />
+                                ))}
+                            </View>
+                        ))}
+                        {isThinking && (
+                            <View style={styles.typingIndicator}>
+                                <View style={styles.typingContainer}>
+                                    <TypingDots />
+                                </View>
+                            </View>
+                        )}
+                    </ScrollView>
+
+                    <View style={styles.inputContainer}>
+                        <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                            <LinearGradient
+                                colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                                style={StyleSheet.absoluteFill}
+                                start={{ x: 0.5, y: 0 }}
+                                end={{ x: 0.5, y: 1 }}
+                            />
+                        </BlurView>
+                        <View style={styles.inputWrapper}>
+                            <TextInput
+                                style={styles.input}
+                                value={newMessage}
+                                onChangeText={setNewMessage}
+                                placeholder="Type your question..."
+                                placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                                multiline
+                            />
+                            {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.push("/main/wallet")}>
+                                <Text style={styles.purchaseButtonText}>Ask More</Text>
+                            </TouchableOpacity> :
+                                <TouchableOpacity
+                                    onPress={sendMessage}
+                                    style={styles.sendButton}
+                                    disabled={time <= 0 || !newMessage.trim()}
+                                >
+                                    <Text style={[
+                                        styles.sendButtonText,
+                                        !newMessage.trim() && styles.sendButtonDisabled
+                                    ]}>➤</Text>
+                                </TouchableOpacity>
+                            }
+                        </View>
                     </View>
                 </View>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView>
+        </SafeAreaProvider>
     );
 }
 

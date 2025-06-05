@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontFamily: 'Poppins-Medium',
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#d1d5dbe6',
     marginBottom: 8,
     marginLeft: 4,
   },

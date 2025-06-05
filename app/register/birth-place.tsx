@@ -16,64 +16,9 @@ export default function BirthPlaceScreen() {
   const [birthPlaceCoords, setBirthPlaceCoords] = useState({ latitude: 0, longitude: 0 });
   const [isValidPlaceSelected, setIsValidPlaceSelected] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  
-  const gradientAnimation = useRef(new Animated.Value(0)).current;
-  const scaleAnimation = useRef(new Animated.Value(1)).current;
-  const glowAnimation = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    const gradientLoop = Animated.loop(
-      Animated.timing(gradientAnimation, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: false,
-      })
-    );
-    gradientLoop.start();
-
-    const glowLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnimation, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(glowAnimation, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-      ])
-    );
-    glowLoop.start();
-
-    return () => {
-      gradientLoop.stop();
-      glowLoop.stop();
-    };
-  }, []);
   
   const handleContinue = async () => {
-    console.log('handleContinue called');
-    console.log('Current state:', {
-      birthPlace,
-      birthPlaceCoords,
-      isValidPlaceSelected
-    });
-    // Animated.sequence([
-    //   Animated.timing(scaleAnimation, {
-    //     toValue: 0.95,
-    //     duration: 100,
-    //     useNativeDriver: false,
-    //   }),
-    //   Animated.timing(scaleAnimation, {
-    //     toValue: 1,
-    //     duration: 100,
-    //     useNativeDriver: false,
-    //   }),
-    // ]).start(() => {
-    //   console.log('Scale animation completed');
-    // });
 
     if (!isValidPlaceSelected || !birthPlace.trim()) {
       console.log('Validation failed:', {
@@ -95,10 +40,7 @@ export default function BirthPlaceScreen() {
         "longitude": birthPlaceCoords.longitude,
         "name": birthPlace
       }
-      console.log('Saving birthPlaceData to AsyncStorage:', birthPlaceData);
       await AsyncStorage.setItem('birthPlaceData', JSON.stringify(birthPlaceData));
-      console.log('birthPlaceData saved successfully');
-      console.log('Navigating to /register/personal-details');
       router.push('/register/personal-details' as any);
     } catch (error) {
       console.log('Error saving birth place data:', JSON.stringify(error));
@@ -264,19 +206,21 @@ export default function BirthPlaceScreen() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.backButton}
+            style={styles.previousButton}
             onPress={handleBack}
           >
             <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
-            <Text style={styles.backButtonText}>Previous</Text>
+            <Text style={styles.previousButtonText}>Previous</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.continueButton}
+            style={[styles.continueButton, !isValidPlaceSelected && styles.continueButtonDisabled]}
             onPress={handleContinue}
+            disabled={!isValidPlaceSelected}
+            activeOpacity={0.8}
           >
             <LinearGradient
-              colors={Colors.gradients.goldPrimary as [string, string, string]}
+              colors={Colors.gradients.goldPrimary}
               style={styles.continueButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
@@ -286,7 +230,6 @@ export default function BirthPlaceScreen() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
         <Text style={styles.quote}>
           The cosmos whispers your truth through time and space
         </Text>
@@ -331,45 +274,48 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 14,
+    fontSize: 16,
     color: '#d1d5dbe6',
     marginBottom: 8,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 16,
     marginBottom: 24,
   },
-  backButton: {
+  previousButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    justifyContent: 'center',
+    height: 50,
     borderRadius: 8,
     backgroundColor: 'rgba(45, 17, 82, 0.3)',
     borderWidth: 2,
     borderColor: `${Colors.gold.DEFAULT}20`,
   },
-  backButtonText: {
-    fontFamily: 'Poppins-Medium',
+  previousButtonText: {
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: Colors.gold.DEFAULT,
     marginLeft: 8,
   },
   continueButton: {
     flex: 1,
-    marginLeft: 16,
     height: 50,
     borderRadius: 8,
     overflow: 'hidden',
   },
+  continueButtonDisabled: {
+    opacity: 0.5,
+    shadowOpacity: 0,
+  },
   continueButtonGradient: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
-    paddingHorizontal: 24,
   },
   continueButtonText: {
     fontFamily: 'Poppins-SemiBold',
