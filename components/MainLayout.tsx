@@ -6,7 +6,6 @@ import Hero from './Hero';
 import BlessingsSection from './BlessingsSection';
 import BackgroundEffects from './BackgroundEffects';
 import Footer from './Footer';
-import Colors from '@/constants/Colors';
 import CompatibilitySection from './CompatibilitySection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FreeTimePopup from './Popups/FreeTimePopup';
@@ -23,6 +22,7 @@ const MainLayout = () => {
     };
     loadData();
   }, []);
+  
   return (
     <SafeAreaProvider>
       {showPopup && <FreeTimePopup onClose={() => setShowPopup(false)} />}
@@ -54,11 +54,11 @@ const MainLayout = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   container: {
     flex: 1,
-    // backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   scrollView: {
     flex: 1,

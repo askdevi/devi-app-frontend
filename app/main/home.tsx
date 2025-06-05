@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, BackHandler} from 'react-native';
+import { View, StyleSheet, BackHandler } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MainLayout from '@/components/MainLayout';
-import Colors from '@/constants/Colors';
 
 export default function HomeScreen() {
 
@@ -36,7 +35,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   background: {
     ...StyleSheet.absoluteFillObject,

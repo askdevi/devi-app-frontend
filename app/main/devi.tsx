@@ -82,12 +82,12 @@ const DateHeader = React.memo(({ date }: { date: string }) => {
 });
 
 export default function ChatScreen() {
-      const floatStyle = useFloatAnimation(-5,3000);
+    const floatStyle = useFloatAnimation(-5, 3000);
     const [messages, setMessages] = useState<Message[]>([]);
 
     const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
-    const [isThinking, setIsThinking] = useState(false);
+    const [isThinking, setIsThinking] = useState(true);
     const glowOpacity = useSharedValue(0);
     const logoGlowScale = useSharedValue(1);
     const logoGlowOpacity = useSharedValue(0);
@@ -195,7 +195,6 @@ export default function ChatScreen() {
         router.push('/main/home');
     };
 
-
     React.useEffect(() => {
         if (isThinking) {
             glowOpacity.value = withRepeat(
@@ -235,10 +234,6 @@ export default function ChatScreen() {
         }
     }, [isThinking]);
 
-
-    const glowStyle = useAnimatedStyle(() => ({
-        opacity: glowOpacity.value,
-    }));
 
     const logoGlowStyle = useAnimatedStyle(() => {
         const scale = interpolate(
@@ -556,21 +551,24 @@ export default function ChatScreen() {
         }, []);
 
         return (
-            <View style={styles.dotsContainer}>
-                <View style={styles.dotsBlurBackground}>
-                    {dots.map((_, index) => (
-                        <Animated.View
-                            key={index}
-                            style={[
-                                styles.dot,
-                                useAnimatedStyle(() => ({
-                                    transform: [{ scale: animations[index].value }],
-                                    opacity: animations[index].value,
-                                })),
-                            ]}
-                        />
-                    ))}
-                </View>
+            <View style={[
+                styles.messageBubble,
+                styles.botMessage,
+                styles.botMessageBorder,
+                styles.dotsContainer,
+            ]}>
+                {dots.map((_, index) => (
+                    <Animated.View
+                        key={index}
+                        style={[
+                            styles.dot,
+                            useAnimatedStyle(() => ({
+                                transform: [{ scale: animations[index].value }],
+                                opacity: animations[index].value,
+                            })),
+                        ]}
+                    />
+                ))}
             </View>
         );
     };
@@ -639,10 +637,8 @@ export default function ChatScreen() {
                         </View>
                     ))}
                     {isThinking && (
-                        <View style={styles.typingIndicator}>
-                            <View style={styles.typingContainer}>
-                                <TypingDots />
-                            </View>
+                        <View style={{ marginTop: 10 }}>
+                            <TypingDots />
                         </View>
                     )}
                 </ScrollView>
@@ -891,47 +887,25 @@ const styles = StyleSheet.create({
         opacity: 0.8,
         resizeMode: 'contain',
     },
-    typingIndicator: {
-        // position: 'absolute',
-        // bottom: -70,
-        // left: -210,
-        // right: 0,
-        width: 120,
-        alignItems: 'center',
-        // justifyContent: 'center',
-        zIndex: -1,
-    },
-    typingContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-    },
-    typingImage: {
-        width: 160,
-        height: 160,
-        marginRight: -20,
-        marginTop: 20,
-    },
     dotsContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
-    },
-    dotsBlurBackground: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        backgroundColor: 'rgba(101, 101, 101, 0.8)',
-        borderRadius: 16,
-        padding: 6,
-        borderWidth: 1.5,
+        width: 43,
+        gap: 2,
+        maxWidth: '100%',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderRadius: 20,
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: '#e3dff2',
+        borderWidth: 1,
         borderColor: 'rgba(247, 198, 21, 0.3)',
     },
     dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        width: 5,
+        height: 5,
+        borderRadius: 2.5,
+        backgroundColor: 'black',
     },
     copyright: {
         textAlign: 'center',

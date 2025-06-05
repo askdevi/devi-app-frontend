@@ -170,6 +170,10 @@ export default function LoadingScreen() {
 
                     await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
 
+                    if (response2.data.user.sign) {
+                        await AsyncStorage.setItem('profilePic', response2.data.user.sign + " " + response2.data.user.gender);
+                    }
+
                     router.push('/main/home');
                 } else {
                     router.push('/signup/phone');

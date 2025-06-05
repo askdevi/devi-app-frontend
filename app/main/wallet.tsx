@@ -154,7 +154,7 @@ export default function WalletScreen() {
           email: '',
           contact: contact,
         },
-        theme: { color: Colors.deepPurple.DEFAULT },
+        theme: { color: "hsl(274, 100%, 10%)" },
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
         // 3. Verify payment
@@ -288,11 +288,11 @@ export default function WalletScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   content: {
     paddingHorizontal: 20,

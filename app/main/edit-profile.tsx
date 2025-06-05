@@ -834,11 +834,11 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 10%)",
   },
   scrollView: {
     flex: 1,

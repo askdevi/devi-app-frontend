@@ -120,7 +120,7 @@ export default function CompatibilityScreen() {
                             </View>
                         )}
                     </ScrollView>
-                    
+
                     <View style={styles.newCompatibilityContainer}>
                         <ShinyButton
                             title="Add New Partner"
@@ -137,11 +137,11 @@ export default function CompatibilityScreen() {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     container: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     content: {
         padding: 20,

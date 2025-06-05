@@ -20,8 +20,8 @@ export default function SupportScreen() {
     const [name, setName] = useState('');
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
-    const [isFocused,setIsFocused]=useState(false)
-    
+    const [isFocused, setIsFocused] = useState(false)
+
     const topicItems = [
         'General Inquiry',
         'Issue with Tokens',
@@ -29,30 +29,30 @@ export default function SupportScreen() {
         'Technical Support',
         'Feedback and Suggestions',
     ];
-    const queryTopicData=[
-  { label: 'General Query', value: 'General Query' },
-  { label: 'Issue With Package', value: 'Issue With Package' },
-  { label: 'Technical Support', value: 'Technical Support' },
-  { label: 'Billing Issue', value: 'Billing Issue' }
-];
-    
+    const queryTopicData = [
+        { label: 'General Query', value: 'General Query' },
+        { label: 'Issue With Package', value: 'Issue With Package' },
+        { label: 'Technical Support', value: 'Technical Support' },
+        { label: 'Billing Issue', value: 'Billing Issue' }
+    ];
+
     const gradientAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const glowAnimation = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         const backAction = () => {
-          router.push("/main/home")
-          return true;
+            router.push("/main/home")
+            return true;
         };
-    
+
         const backHandler = BackHandler.addEventListener(
-          'hardwareBackPress',
-          backAction
+            'hardwareBackPress',
+            backAction
         );
-    
+
         return () => backHandler.remove();
-      }, []);
+    }, []);
 
     useEffect(() => {
         const gradientLoop = Animated.loop(
@@ -172,13 +172,13 @@ export default function SupportScreen() {
 
                     <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
 
-                           <CustomInput
-                                              value={name}
-                                              onChange={setName}
-                                              label="Full name"
-                                              errorMsg=""
-                                              placeholder="Enter your name"
-                                            />
+                        <CustomInput
+                            value={name}
+                            onChange={setName}
+                            label="Full name"
+                            errorMsg=""
+                            placeholder="Enter your name"
+                        />
                         {/* <Text style={styles.label}>Name</Text>
                         <TextInput
                             style={styles.input}
@@ -196,7 +196,7 @@ export default function SupportScreen() {
                             placeholder="Select a topic..."
                         /> */}
 
-                         <CustomDropdown
+                        <CustomDropdown
                             renderData={queryTopicData}
                             labelName="Topic"
                             placeholder="Select a topic"
@@ -204,14 +204,14 @@ export default function SupportScreen() {
                             selected={topic}
                             setSelected={setTopic}
                             search={false}
-                            />
+                        />
 
                         <Text style={styles.label}>Message</Text>
                         <TextInput
                             style={[
-                                styles.input, 
+                                styles.input,
                                 styles.messageInput,
-                                {borderColor: (message || isFocused)? `${Colors.gold.DEFAULT}90`: `${Colors.gold.DEFAULT}20`}
+                                { borderColor: (message || isFocused) ? `${Colors.gold.DEFAULT}90` : `${Colors.gold.DEFAULT}20` }
                             ]}
                             value={message}
                             onChangeText={setMessage}
@@ -282,11 +282,11 @@ export default function SupportScreen() {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     container: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     headerContainer: {
         flexDirection: 'row',
@@ -337,10 +337,10 @@ const styles = StyleSheet.create({
         // backgroundColor: '#3b1e69',
         borderRadius: 10,
         fontFamily: 'Poppins-Medium',
-        borderWidth:2,
-        fontSize:16,
+        borderWidth: 2,
+        fontSize: 16,
         padding: 12,
-        color:`${Colors.gold.DEFAULT}`,
+        color: `${Colors.gold.DEFAULT}`,
         marginBottom: 15,
     },
     messageInput: {

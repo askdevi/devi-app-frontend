@@ -61,7 +61,7 @@ export default function CompatibilityFormScreen() {
             return;
         }
 
-        if(loading) return;
+        if (loading) return;
         setLoading(true);
         try {
             const userId = await getUserId();
@@ -337,11 +337,11 @@ export default function CompatibilityFormScreen() {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     container: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     content: {
         padding: 20,

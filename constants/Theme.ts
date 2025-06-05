@@ -4,7 +4,7 @@ import Colors from './Colors';
 export const GlobalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.deepPurple.DEFAULT,
+    backgroundColor: "hsl(274, 100%, 15%)",
   },
   centerContent: {
     justifyContent: 'center',

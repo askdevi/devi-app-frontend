@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image, BackHandler, ImageSourcePropType } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -9,12 +9,44 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Footer from '@/components/Footer';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import ProfilePics from '@/components/ProfilePics';
+
+const profileImages = {
+    'aquarius female': require('@/assets/images/profile/aquarius female.png'),
+    'aquarius male': require('@/assets/images/profile/aquarius male.png'),
+    'aries female': require('@/assets/images/profile/aries female.png'),
+    'aries male': require('@/assets/images/profile/aries male.png'),
+    'cancer female': require('@/assets/images/profile/cancer female.png'),
+    'cancer male': require('@/assets/images/profile/cancer male.png'),
+    'capricorn female': require('@/assets/images/profile/capricorn female.png'),
+    'capricorn male': require('@/assets/images/profile/capricorn male.png'),
+    'gemini female': require('@/assets/images/profile/gemini female.png'),
+    'gemini male': require('@/assets/images/profile/gemini male.png'),
+    'leo female': require('@/assets/images/profile/leo female.png'),
+    'leo male': require('@/assets/images/profile/leo male.png'),
+    'libra female': require('@/assets/images/profile/libra female.png'),
+    'libra male': require('@/assets/images/profile/libra male.png'),
+    'pisces female': require('@/assets/images/profile/pisces female.png'),
+    'pisces male': require('@/assets/images/profile/pisces male.png'),
+    'sagittarius female': require('@/assets/images/profile/sagittarius female.png'),
+    'sagittarius male': require('@/assets/images/profile/sagittarius male.png'),
+    'scorpio female': require('@/assets/images/profile/scorpio female.png'),
+    'scorpio male': require('@/assets/images/profile/scorpio male.png'),
+    'taurus female': require('@/assets/images/profile/taurus female.png'),
+    'taurus male': require('@/assets/images/profile/taurus male.png'),
+    'virgo female': require('@/assets/images/profile/virgo female.png'),
+    'virgo male': require('@/assets/images/profile/virgo male.png'),
+} as const;
+
+type ProfilePicType = keyof typeof profileImages;
 
 export default function SettingsScreen() {
     const router = useRouter();
     const [name, setName] = useState('');
     const [time, setTime] = useState(0);
     const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
+    const [profilePic, setProfilePic] = useState('');
+    const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
         const backAction = () => {
@@ -76,6 +108,10 @@ export default function SettingsScreen() {
             if (startedFreeMinutes1) {
                 setStartedFreeMinutes(startedFreeMinutesInt);
             }
+            const profilePic1 = await AsyncStorage.getItem('profilePic');
+            if (profilePic1) {
+                setProfilePic(profilePic1);
+            }
         };
         loadData();
 
@@ -86,8 +122,17 @@ export default function SettingsScreen() {
         return () => clearInterval(interval);
     }, []);
 
+    const handleProfilePic = async () => {
+        const sign = await AsyncStorage.getItem('profilePic');
+        if (sign) {
+            setProfilePic(sign);
+        }
+        setShowPopup(false);
+    };
+
     return (
         <SafeAreaProvider>
+            {showPopup && <ProfilePics onClose={() => handleProfilePic()} />}
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
                     <View style={styles.headerContainer}>
@@ -101,9 +146,27 @@ export default function SettingsScreen() {
                     >
                         <View style={styles.profileSection}>
                             <View style={styles.profileImageContainer}>
-                                <View style={styles.profileImage}>
-                                    <Ionicons name="person" size={60} color="rgba(255,255,255,0.5)" />
+                                <View style={styles.touchableProfile}>
+                                    {profilePic ? (
+                                        <Image
+                                            source={profileImages[profilePic as ProfilePicType]}
+                                            style={styles.profileImageContent}
+                                            resizeMode="cover"
+                                        />
+                                    ) : (
+                                        <View style={styles.placeholderContainer}>
+                                            <Ionicons name="person" size={60} color="rgba(255,255,255,0.5)" />
+                                        </View>
+                                    )}
                                 </View>
+                                <TouchableOpacity
+                                    style={styles.editButton}
+                                    onPress={() => setShowPopup(true)}
+                                >
+                                    <View style={styles.editButtonInner}>
+                                        <Ionicons name="pencil" size={16} color={Colors.deepPurple.DEFAULT} />
+                                    </View>
+                                </TouchableOpacity>
                             </View>
                             <Text style={styles.profileName}>{name}</Text>
                             <View style={styles.infoContainer}>
@@ -155,11 +218,11 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     container: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     content: {
         padding: 20,
@@ -195,15 +258,50 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#FFD700',
         marginBottom: 16,
-        padding: 3,
+        overflow: 'visible',
+        position: 'relative',
     },
-    profileImage: {
+    touchableProfile: {
         width: '100%',
         height: '100%',
         borderRadius: 60,
+        overflow: 'hidden',
+    },
+    editButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#FFD700',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: Colors.deepPurple.DEFAULT,
+    },
+    editButtonInner: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 16,
+    },
+    profileImageContent: {
+        width: '110%',
+        height: '110%',
+        borderRadius: 60,
+        transform: [{ scale: 1.01 }],
+        marginLeft: '-5%',
+        marginTop: '-5%',
+    },
+    placeholderContainer: {
+        width: '100%',
+        height: '100%',
         backgroundColor: 'rgba(255,255,255,0.1)',
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: 60,
     },
     profileName: {
         fontSize: 24,

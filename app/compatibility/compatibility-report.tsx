@@ -162,11 +162,11 @@ export default function CompatibilityReportScreen() {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     container: {
         flex: 1,
-        backgroundColor: Colors.deepPurple.DEFAULT,
+        backgroundColor: "hsl(274, 100%, 10%)",
     },
     content: {
         padding: 20,
