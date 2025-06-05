@@ -340,14 +340,18 @@ export default function BirthDetailsScreen() {
         )}
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <TouchableOpacity
+            style={styles.previousButton}
+            onPress={handleBack}
+          >
             <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
-            <Text style={styles.backButtonText}>Previous</Text>
+            <Text style={styles.previousButtonText}>Previous</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.continueButton}
+            style={[styles.continueButton, (!day || !month || !year || (knowsBirthTime && (!hour || !minute)) || knowsBirthTime === null) && styles.continueButtonDisabled]}
             onPress={handleContinue}
+            activeOpacity={0.8}
           >
             <LinearGradient
               colors={Colors.gradients.goldPrimary}
@@ -407,13 +411,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#d1d5dbe6',
     textAlign: 'left',
-    marginBottom: 12,
+    marginBottom: 16,
     opacity: 0.9,
   },
   timeOptionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 24,
     gap: 16,
   },
   timeOption: {
@@ -441,43 +445,48 @@ const styles = StyleSheet.create({
   timePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 16,
+    marginTop: 24,
+    marginHorizontal: 8,
     marginBottom: 24,
   },
-  backButton: {
+  previousButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    justifyContent: 'center',
+    height: 50,
     borderRadius: 8,
     backgroundColor: 'rgba(45, 17, 82, 0.3)',
     borderWidth: 2,
     borderColor: `${Colors.gold.DEFAULT}20`,
   },
-  backButtonText: {
-    fontFamily: 'Poppins-Medium',
+  previousButtonText: {
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: Colors.gold.DEFAULT,
     marginLeft: 8,
   },
   continueButton: {
     flex: 1,
-    marginLeft: 16,
     height: 50,
     borderRadius: 8,
     overflow: 'hidden',
   },
+  continueButtonDisabled: {
+    opacity: 0.5,
+    shadowOpacity: 0,
+  },
   continueButtonGradient: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
-    paddingHorizontal: 24,
   },
   continueButtonText: {
     fontFamily: 'Poppins-SemiBold',

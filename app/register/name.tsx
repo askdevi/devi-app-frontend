@@ -16,10 +16,6 @@ export default function NameScreen() {
   const [lastName, setLastName] = useState('');
   const router = useRouter();
 
-  const gradientAnimation = useRef(new Animated.Value(0)).current;
-  const scaleAnimation = useRef(new Animated.Value(1)).current;
-  const glowAnimation = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
     const backAction = () => {
       BackHandler.exitApp();
@@ -34,53 +30,9 @@ export default function NameScreen() {
     return () => backHandler.remove();
   }, []);
 
-  useEffect(() => {
-    const gradientLoop = Animated.loop(
-      Animated.timing(gradientAnimation, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: false,
-      })
-    );
-    gradientLoop.start();
-
-    const glowLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnimation, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(glowAnimation, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-      ])
-    );
-    glowLoop.start();
-
-    return () => {
-      gradientLoop.stop();
-      glowLoop.stop();
-    };
-  }, []);
-
   const handleContinue = async () => {
     Keyboard.dismiss()
     if (firstName.trim() && lastName.trim()) {
-      Animated.sequence([
-        Animated.timing(scaleAnimation, {
-          toValue: 0.95,
-          duration: 100,
-          useNativeDriver: false,
-        }),
-        Animated.timing(scaleAnimation, {
-          toValue: 1,
-          duration: 100,
-          useNativeDriver: false,
-        }),
-      ]).start();
 
       try {
         await AsyncStorage.setItem('firstName', firstName.trim());
@@ -91,16 +43,6 @@ export default function NameScreen() {
       }
     }
   };
-
-  const gradientTranslateX = gradientAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-200, 200],
-  });
-
-  const glowOpacity = glowAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 0.8],
-  });
 
   const GradientText = ({ children, style }: { children: string; style?: any }) => {
     return (
@@ -141,7 +83,7 @@ export default function NameScreen() {
             <CustomInput
               value={firstName}
               onChange={setFirstName}
-              label="First name"
+              label="First Name"
               errorMsg=""
               placeholder="Enter your first name"
             />
@@ -153,14 +95,10 @@ export default function NameScreen() {
               placeholder="Enter your last name"
             />
 
-          <Animated.View
+          <View
             style={[
               styles.continueButton,
               !(firstName.trim() && lastName.trim()) && styles.continueButtonDisabled,
-              {
-                transform: [{ scale: scaleAnimation }],
-                shadowOpacity: glowOpacity,
-              }
             ]}
           >
             <TouchableOpacity
@@ -169,37 +107,24 @@ export default function NameScreen() {
               disabled={!(firstName.trim() && lastName.trim())}
               activeOpacity={0.8}
             >
-              <View style={styles.gradientContainer}>
-                <LinearGradient
-                  colors={['#FFD700', '#FF8C00', '#FFD700']}
-                  style={styles.continueButtonGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
+              <LinearGradient
+                colors={['#FFD700', '#FF8C00', '#FFD700']}
+                style={styles.continueButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
+              <LinearGradient
+                colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
 
-                <Animated.View
-                  style={[
-                    styles.animatedGradientOverlay,
-                    {
-                      transform: [{ translateX: gradientTranslateX }],
-                    },
-                  ]}
-                >
-                  <LinearGradient
-                    colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                    style={styles.shimmerGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  />
-                </Animated.View>
-
-                <View style={styles.buttonContent}>
-                  <Text style={styles.continueButtonText}>Continue</Text>
-                  <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
-                </View>
+              <View style={styles.buttonContent}>
+                <Text style={styles.continueButtonText}>Continue</Text>
+                <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
               </View>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
 
           <Text style={styles.quote}>
             The journey of self-discovery begins with a single step
@@ -292,10 +217,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  gradientContainer: {
-    flex: 1,
-    position: 'relative',
-  },
   continueButtonGradient: {
     position: 'absolute',
     top: 0,
@@ -309,9 +230,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 100,
     zIndex: 1,
-  },
-  shimmerGradient: {
-    flex: 1,
   },
   buttonContent: {
     flexDirection: 'row',

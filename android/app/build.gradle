@@ -1,7 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: 'com.google.gms.google-services' 
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
@@ -175,13 +174,4 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-
-    // Firebase BoM (Bill of Materials) manages Firebase library versions
-    implementation platform('com.google.firebase:firebase-bom:33.14.0')
-
-    // Firebase Analytics (optional but recommended)
-    implementation 'com.google.firebase:firebase-analytics'
-
-    // Example: Firebase Messaging (for push notifications)
-    implementation 'com.google.firebase:firebase-messaging'
 }

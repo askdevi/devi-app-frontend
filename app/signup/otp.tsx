@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import MaskedView from '@react-native-masked-view/masked-view';
 import BackgroundGradient from '@/components/BackgroundGradient';
 import BackgroundEffects from '@/components/BackgroundEffects';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export async function storeUserId(userId: string) {
   await SecureStore.setItemAsync('userId', userId);
@@ -187,77 +188,80 @@ export default function OtpScreen() {
   };
 
   return (
-    <TouchableNativeFeedback  onPress={()=>Keyboard.dismiss()} accessible={false}>
-    <View style={styles.container}>
+    <>
       <BackgroundGradient />
-      <BackgroundEffects count={30} />
+      <BackgroundEffects count={20} />
+      <SafeAreaView style={{ flex: 1 }}>
+        <TouchableNativeFeedback  onPress={()=>Keyboard.dismiss()} accessible={false}>
+          <View style={styles.container}>
+            {/* Back Button */}
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                <Ionicons 
+                  name="arrow-back" 
+                  size={24} 
+                  color="#ffcc00" 
+                />
+            </TouchableOpacity>
 
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons 
-            name="arrow-back" 
-            size={24} 
-            color="#ffcc00" 
-          />
-      </TouchableOpacity>
+            <View style={styles.content}>
+              <GradientTitle />
+              <Text style={styles.subtitle}>
+                {"A verification code has been sent to\n"}
+                <Text style={styles.phoneNumber}>+91 {phone}</Text>
+              </Text>
 
-      <View style={styles.content}>
-        <GradientTitle />
-        <Text style={styles.subtitle}>
-          A verification code has been sent to{'\n'}
-          <Text style={styles.phoneNumber}>+91 {phone}</Text>
-        </Text>
+              <View style={styles.otpContainer}>
+                {otp.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={(ref) => { inputRefs.current[index] = ref; }}
+                    style={[
+                      styles.otpInput,
+                      digit ? styles.otpInputFilled : null,
+                      focusedIndex === index ? styles.otpInputFocused : null
+                    ]}
+                    value={digit}
+                    onChangeText={(value) => handleOtpChange(value, index)}
+                    onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                    onFocus={() => handleFocus(index)}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    autoFocus={index === 0}
+                    selectTextOnFocus
+                  />
+                ))}
+              </View>
 
-        <View style={styles.otpContainer}>
-          {otp.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => { inputRefs.current[index] = ref; }}
-              style={[
-                styles.otpInput,
-                digit ? styles.otpInputFilled : null,
-                focusedIndex === index ? styles.otpInputFocused : null
-              ]}
-              value={digit}
-              onChangeText={(value) => handleOtpChange(value, index)}
-              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
-              onFocus={() => handleFocus(index)}
-              keyboardType="number-pad"
-              maxLength={1}
-              autoFocus={index === 0}
-              selectTextOnFocus
-            />
-          ))}
-        </View>
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              <TouchableOpacity
+                style={styles.buttonContainer}
+                onPress={handleSubmit}
+                activeOpacity={0.8}
+                disabled={loading}
+              >
+                <LinearGradient
+                  colors={['#FFD700', '#FFA500', '#FFD700']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.button}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? 'Verifying...' : 'Verify'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.buttonContainer}
-          onPress={handleSubmit}
-          activeOpacity={0.8}
-          disabled={loading}
-        >
-          <LinearGradient
-            colors={['#FFD700', '#FFA500', '#FFD700']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? 'Verifying...' : 'Verify'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleResendCode} style={styles.resendContainer}>
-          <Text style={styles.resendText}>
-            Didn't receive code? <Text style={styles.resendLink}>Resend</Text>
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-    </TouchableNativeFeedback>
+              <TouchableOpacity onPress={handleResendCode} style={styles.resendContainer}>
+                <Text style={styles.resendText}>
+                  Didn't receive code? <Text style={styles.resendLink}>Resend</Text>
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableNativeFeedback>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -269,8 +273,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 30,
-    left: 12,
+    top: 0,
+    left: 10,
     zIndex: 10,
     width: 44,
     height: 44,
@@ -383,7 +387,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Bold',
+    fontWeight: 'bold',
     fontSize: 16,
     color: Colors.deepPurple.DEFAULT,
   },
