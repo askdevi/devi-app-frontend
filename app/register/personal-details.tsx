@@ -20,6 +20,7 @@ import Domain from '@/constants/domain';
 import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CustomDropdown from '@/components/CustomDropdown';
+import { ActivityIndicator } from 'react-native';
 
 const languageData = [
   { label: 'Hinglish', value: 'Hinglish' },
@@ -40,20 +41,17 @@ const occupationsData = [
   { label: 'Other', value: 'Other' },
 ];
 export default function PersonalDetailsScreen() {
-  console.log('PersonalDetailsScreen: Component rendering');
-  
   const router = useRouter();
   const [language, setLanguage] = useState('');
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const gradientAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(1)).current;
   const glowAnimation = useRef(new Animated.Value(0)).current;
-  console.log({ language, relationshipStatus, occupation });
 
   useEffect(() => {
-    console.log('PersonalDetailsScreen: Starting animations');
     const gradientLoop = Animated.loop(
       Animated.timing(gradientAnimation, {
         toValue: 1,
@@ -80,32 +78,13 @@ export default function PersonalDetailsScreen() {
     // glowLoop.start();
 
     return () => {
-      console.log('PersonalDetailsScreen: Stopping animations');
       gradientLoop.stop();
       // glowLoop.stop();
     };
   }, []);
 
-  // Log state changes
-  useEffect(() => {
-    console.log('PersonalDetailsScreen: State updated', {
-      language,
-      relationshipStatus,
-      occupation
-    });
-  }, [language, relationshipStatus, occupation]);
-
-  // Log component mount/unmount
-  useEffect(() => {
-    console.log('PersonalDetailsScreen: Component mounted');
-    return () => {
-      console.log('PersonalDetailsScreen: Component unmounted');
-    };
-  }, []);
 
   const handleComplete = async () => {
-    console.log('PersonalDetailsScreen: handleComplete called');
-    
     Animated.sequence([
       Animated.timing(scaleAnimation, {
         toValue: 0.95,
@@ -120,14 +99,13 @@ export default function PersonalDetailsScreen() {
     ]).start();
 
     try {
-      console.log('PersonalDetailsScreen: Starting AsyncStorage operations');
+      if (loading) return;
+      setLoading(true);
       await AsyncStorage.setItem('language', language);
       await AsyncStorage.setItem('relationshipStatus', relationshipStatus);
       await AsyncStorage.setItem('occupation', occupation);
       await AsyncStorage.setItem('startedFreeMinutes', '0');
-      console.log('PersonalDetailsScreen: AsyncStorage operations completed');
 
-      console.log('PersonalDetailsScreen: Fetching stored data');
       const phoneNumber = await AsyncStorage.getItem('phoneNumber');
       const firstName = await AsyncStorage.getItem('firstName');
       const lastName = await AsyncStorage.getItem('lastName');
@@ -135,16 +113,6 @@ export default function PersonalDetailsScreen() {
       const birthTime = await AsyncStorage.getItem('birthTime');
       const gender = await AsyncStorage.getItem('gender');
       const birthPlaceData = await AsyncStorage.getItem('birthPlaceData');
-      console.log('PersonalDetailsScreen: Stored data fetched', {
-        phoneNumber,
-        firstName,
-        lastName,
-        birthDate,
-        birthTime,
-        gender,
-        birthPlaceData
-      });
-
       const birthPlace = birthPlaceData ? JSON.parse(birthPlaceData) : null;
       const userId = await getUserId();
 
@@ -162,10 +130,8 @@ export default function PersonalDetailsScreen() {
         occupation: occupation.toLowerCase(),
       };
 
-      console.log('PersonalDetailsScreen: Making API call with body:', body);
       await axios.post(`${Domain}/register`, body);
-      console.log('PersonalDetailsScreen: API call successful, navigating to loading screen');
-      
+
       router.push('/main/loading' as any);
     } catch (error: any) {
       console.log('PersonalDetailsScreen: Error in handleComplete:', {
@@ -173,11 +139,12 @@ export default function PersonalDetailsScreen() {
         response: error.response?.data,
         stack: error.stack
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleBack = () => {
-    console.log('PersonalDetailsScreen: handleBack called');
     router.back();
   };
 
@@ -192,16 +159,6 @@ export default function PersonalDetailsScreen() {
   });
 
   const isFormComplete = language && relationshipStatus && occupation;
-
-  // Log when form completion status changes
-  useEffect(() => {
-    console.log('PersonalDetailsScreen: Form completion status:', {
-      isComplete: isFormComplete,
-      language,
-      relationshipStatus,
-      occupation
-    });
-  }, [isFormComplete, language, relationshipStatus, occupation]);
 
   const GradientText = ({
     children,
@@ -331,8 +288,8 @@ export default function PersonalDetailsScreen() {
                 </Animated.View>
 
                 <View style={styles.buttonContent}>
-                  <Text style={styles.completeButtonText}>Complete</Text>
-                  <Sparkles color={Colors.deepPurple.DEFAULT} size={20} />
+                  <Text style={styles.completeButtonText}>{loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Complete'}</Text>
+                  {!loading && <Sparkles color={Colors.deepPurple.DEFAULT} size={20} />}
                 </View>
               </View>
             </TouchableOpacity>

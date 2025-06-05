@@ -943,8 +943,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginTop: 8,
         paddingHorizontal: 16,
-        // paddingVertical: 16,
-        paddingVertical: Platform.OS === 'ios' ? 24 : 14,
+        paddingVertical: Platform.OS === 'ios' ? 26 : 16,
         borderTopWidth: 0.5,
         borderTopColor: 'rgba(247, 198, 21, 0.3)',
     },
@@ -965,7 +964,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: 'rgba(247, 198, 21, 0.3)',
-        marginBottom:12
+
     },
     purchaseButton: {
         backgroundColor: Colors.gold.DEFAULT,

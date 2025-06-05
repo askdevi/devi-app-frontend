@@ -13,6 +13,7 @@ import 'react-native-get-random-values';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Ionicons } from '@expo/vector-icons';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { ActivityIndicator } from 'react-native';
 
 export default function CompatibilityFormScreen() {
     const router = useRouter();
@@ -60,6 +61,7 @@ export default function CompatibilityFormScreen() {
             return;
         }
 
+        if(loading) return;
         setLoading(true);
         try {
             const userId = await getUserId();
@@ -320,7 +322,7 @@ export default function CompatibilityFormScreen() {
                                     end={{ x: 1, y: 0 }}
                                 >
                                     <Text style={styles.checkButtonText}>
-                                        {loading ? 'Checking...' : 'Check Compatibility'}
+                                        {loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Check Compatibility'}
                                     </Text>
                                 </LinearGradient>
                             </TouchableOpacity>

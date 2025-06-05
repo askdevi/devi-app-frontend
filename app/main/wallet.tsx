@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Platform,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -29,6 +28,8 @@ import Animated, {
   Easing,
   interpolateColor,
 } from 'react-native-reanimated';
+import { ActivityIndicator } from 'react-native';
+
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -61,7 +62,7 @@ const timePlans = [
 export default function WalletScreen() {
   const router = useRouter();
   const [time, setTime] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingId, setProcessingId] = useState<number | null>(null);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
   const glowOpacity = useSharedValue(0.5);
   const glowScale = useSharedValue(1);
@@ -124,13 +125,10 @@ export default function WalletScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleBack = () => {
-    router.push('/main/home');
-  };
 
-  const handlePurchase = async (pkg: any) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
+  const handlePurchase = async (pkg: any, index: number) => {
+    if (processingId !== null) return;
+    setProcessingId(index);
     try {
       const userId = await getUserId();
       // 1. Create order on server
@@ -159,17 +157,15 @@ export default function WalletScreen() {
         theme: { color: Colors.deepPurple.DEFAULT },
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
-          // 3. Verify payment
-          const verifyRes = await axios.post(`${Domain}/verify-payment`, {
-            razorpay_payment_id: payment.razorpay_payment_id,
-            userId,
-            tokensBought: 0,
-            timeDuration: pkg.duration,
-            amountPaid: pkg.price,
-          });
-          if (verifyRes.data.success) {
-          // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
-          // Update local storage or state
+        // 3. Verify payment
+        const verifyRes = await axios.post(`${Domain}/verify-payment`, {
+          razorpay_payment_id: payment.razorpay_payment_id,
+          userId,
+          tokensBought: 0,
+          timeDuration: pkg.duration,
+          amountPaid: pkg.price,
+        });
+        if (verifyRes.data.success) {
           const newTimeEnd = verifyRes.data.timeEnd;
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
@@ -186,7 +182,7 @@ export default function WalletScreen() {
       console.error(e);
       Alert.alert('Error', e.message || 'Something went wrong.');
     } finally {
-      setIsProcessing(false);
+      setProcessingId(null);
     }
   };
 
@@ -266,16 +262,16 @@ export default function WalletScreen() {
                     <Text style={[styles.packagePrice, { marginRight: 10 }]}>
                       ₹{pkg.price}
                     </Text>
-                    {pkg.discount && ( <Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
+                    {pkg.discount && (<Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
                   </View>
                   <TouchableOpacity
-                    style={[styles.buyButton, isProcessing && { opacity: 0.5 }]}
-                    onPress={() => handlePurchase(pkg)}
-                    disabled={isProcessing}
+                    style={[styles.buyButton, processingId === idx && { opacity: 0.5 }]}
+                    onPress={() => handlePurchase(pkg, idx)}
+                    disabled={processingId !== null}
                   >
-                    <Ionicons name="card-outline" color={Colors.white} size={20} />
+                    {processingId !== idx && <Ionicons name="card-outline" color={Colors.white} size={20} />}
                     <Text style={styles.buyButtonText}>
-                      {isProcessing ? 'Processing...' : 'Buy Now'}
+                      {processingId === idx ? <ActivityIndicator size="small" color="white" /> : 'Buy Now'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -424,8 +420,8 @@ const styles = StyleSheet.create({
   },
 
   buyButton: {
-    flexDirection:"row",
-    justifyContent:"center",
+    flexDirection: "row",
+    justifyContent: "center",
     backgroundColor: '#a05afc',
     borderRadius: 10,
     paddingVertical: 10,
@@ -436,8 +432,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
-    textAlign:"center",
-    marginLeft:5
+    textAlign: "center",
+    marginLeft: 5
   },
 
   divider: {

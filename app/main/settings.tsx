@@ -48,7 +48,6 @@ export default function SettingsScreen() {
                 }
             ]
         );
-        console.log('Delete account');
     };
 
     const confirmDeleteAccount = async () => {
@@ -56,7 +55,6 @@ export default function SettingsScreen() {
             setIsDeleting(true);
 
             const userId = await getUserId();
-            console.log('User ID:', userId);
 
             if (!userId) {
                 Alert.alert("Error", "User ID not found. Please try logging in again.");

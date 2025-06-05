@@ -12,6 +12,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import BackgroundGradient from '@/components/BackgroundGradient';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator } from 'react-native';
 
 export async function storeUserId(userId: string) {
   await SecureStore.setItemAsync('userId', userId);
@@ -134,13 +135,15 @@ export default function OtpScreen() {
   const handleFocus = (index: number) => {
     setFocusedIndex(index);
   };
-  useEffect(()=>{
-      const allDigitsFilled = otp.every(digit => digit !== '');
+  useEffect(() => {
+    const allDigitsFilled = otp.every(digit => digit !== '');
     if (otp && allDigitsFilled) {
       handleSubmit()
-      }
-  },[otp])
+    }
+  }, [otp])
   const handleSubmit = async () => {
+    if(loading) return;
+
     const otpString = otp.join('');
     const allDigitsFilled = otp.every(digit => digit !== '');
     if (!otp || !allDigitsFilled) {
@@ -168,7 +171,6 @@ export default function OtpScreen() {
       } else {
         router.push('/register/name');
       }
-      // console.log(response.data);
     } catch (err) {
       console.log(err);
       setError('Invalid code. Please try again.');
@@ -179,7 +181,6 @@ export default function OtpScreen() {
 
   const handleResendCode = async () => {
     try {
-      console.log('Resending code to:', phone);
       setError('Code resent successfully!');
     } catch (err) {
       console.log(err);
@@ -192,15 +193,15 @@ export default function OtpScreen() {
       <BackgroundGradient />
       <BackgroundEffects count={20} />
       <SafeAreaView style={{ flex: 1 }}>
-        <TouchableNativeFeedback  onPress={()=>Keyboard.dismiss()} accessible={false}>
+        <TouchableNativeFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
           <View style={styles.container}>
             {/* Back Button */}
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                <Ionicons 
-                  name="arrow-back" 
-                  size={24} 
-                  color="#ffcc00" 
-                />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color="#ffcc00"
+              />
             </TouchableOpacity>
 
             <View style={styles.content}>
@@ -247,7 +248,7 @@ export default function OtpScreen() {
                   style={styles.button}
                 >
                   <Text style={styles.buttonText}>
-                    {loading ? 'Verifying...' : 'Verify'}
+                    {loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Verify'}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -373,7 +374,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    alignSelf:"center",
+    alignSelf: "center",
     width: '90%',
     height: 50,
     borderRadius: 8,

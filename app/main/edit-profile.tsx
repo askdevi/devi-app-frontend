@@ -6,7 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import Dropdown from '@/components/Setup/Dropdown';
 import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
@@ -20,6 +19,7 @@ import CompactInput from '@/components/CompactInput';
 import CustomInput from '@/components/CustomInput';
 import CustomDropdown from '@/components/CustomDropdown';
 import PhoneTextInput from '@/components/PhoneTextInput';
+import { ActivityIndicator } from 'react-native';
 
 const languages = ['Hinglish', 'English'];
 
@@ -84,7 +84,7 @@ export default function EditProfileScreen() {
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
   const [gender, setGender] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const currentYear = new Date().getFullYear();
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
@@ -309,6 +309,7 @@ export default function EditProfileScreen() {
   };
 
   const handleUpdate = async () => {
+    if (loading) return;
     Animated.sequence([
       Animated.timing(scaleAnimation, {
         toValue: 0.95,
@@ -339,6 +340,7 @@ export default function EditProfileScreen() {
     }
 
     try {
+      setLoading(true);
       const userId = await getUserId();
 
       const response = await axios.post(
@@ -357,9 +359,8 @@ export default function EditProfileScreen() {
           occupation: occupation.toLowerCase(),
           gender: gender.toLowerCase(),
           birthDate: `${year}-${month}-${day}`,
-          birthTime: `${
-            birthTimePeriod === 'AM' ? hour : parseInt(hour) + 12
-          }:${minute}`,
+          birthTime: `${birthTimePeriod === 'AM' ? hour : parseInt(hour) + 12
+            }:${minute}`,
         },
         {
           headers: {
@@ -392,8 +393,9 @@ export default function EditProfileScreen() {
       alert('Profile updated successfully!');
       router.push('/main/home');
     } catch (e) {
-      // console.log('Error saving profile data', e);
       alert('Error saving profile data');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -811,7 +813,7 @@ export default function EditProfileScreen() {
 
                       <View style={styles.buttonContent}>
                         <Text style={styles.continueButtonText}>
-                          Update Your Data
+                          {loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Update Your Data'}
                         </Text>
                       </View>
                     </View>

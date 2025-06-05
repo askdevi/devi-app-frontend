@@ -54,33 +54,7 @@ export default function BirthPlaceScreen() {
   }, []);
   
   const handleContinue = async () => {
-    console.log('handleContinue called');
-    console.log('Current state:', {
-      birthPlace,
-      birthPlaceCoords,
-      isValidPlaceSelected
-    });
-    // Animated.sequence([
-    //   Animated.timing(scaleAnimation, {
-    //     toValue: 0.95,
-    //     duration: 100,
-    //     useNativeDriver: false,
-    //   }),
-    //   Animated.timing(scaleAnimation, {
-    //     toValue: 1,
-    //     duration: 100,
-    //     useNativeDriver: false,
-    //   }),
-    // ]).start(() => {
-    //   console.log('Scale animation completed');
-    // });
-
     if (!isValidPlaceSelected || !birthPlace.trim()) {
-      console.log('Validation failed:', {
-        isValidPlaceSelected,
-        birthPlace,
-        birthPlaceTrimmed: birthPlace.trim()
-      });
       Alert.alert(
         'Birth Place Required',
         'Please select your birth location before continuing.',
@@ -95,10 +69,7 @@ export default function BirthPlaceScreen() {
         "longitude": birthPlaceCoords.longitude,
         "name": birthPlace
       }
-      console.log('Saving birthPlaceData to AsyncStorage:', birthPlaceData);
       await AsyncStorage.setItem('birthPlaceData', JSON.stringify(birthPlaceData));
-      console.log('birthPlaceData saved successfully');
-      console.log('Navigating to /register/personal-details');
       router.push('/register/personal-details' as any);
     } catch (error) {
       console.log('Error saving birth place data:', JSON.stringify(error));

@@ -57,7 +57,6 @@ export default function BirthDetailsScreen() {
     let val = text;
     if (parseInt(val) > currentYear) val = await currentYear.toString();
     const final = val.toString();
-    console.log("final year",final)
     setYear(final);
   };
 

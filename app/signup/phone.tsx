@@ -24,6 +24,7 @@ import BackgroundGradient from '@/components/BackgroundGradient';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import PhoneTextInput from '@/components/PhoneTextInput';
+import {ActivityIndicator} from 'react-native';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
@@ -138,7 +139,8 @@ export default function PhoneScreen() {
   );
 
   const handleSubmit = async () => {
-      // router.push({ pathname: '/main/loading', params: { phone } });
+    if(loading) return;
+    
     if (!phone || phone.length < 10) {
       setError('Please enter a valid phone number');
       return;
@@ -155,10 +157,8 @@ export default function PhoneScreen() {
           'Content-Type': 'application/json'
         }
       });
-      // console.log(response);
       router.push({ pathname: '/signup/otp', params: { phone } });
     } catch (err) {
-      console.log('AXIOS ERROR:', JSON.stringify(err, null, 2));
       setError('Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
@@ -204,7 +204,7 @@ export default function PhoneScreen() {
 
           <TouchableOpacity style={styles.buttonContainer} onPress={handleSubmit} activeOpacity={0.8} disabled={loading}>
             <LinearGradient colors={['#FFD700', '#FFA500', '#FFD700']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.button}>
-              <Text style={styles.buttonText}>{loading ? 'Sending...' : 'Send OTP'}</Text>
+              <Text style={styles.buttonText}>{loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Send OTP'}</Text>
             </LinearGradient>
           </TouchableOpacity>
 

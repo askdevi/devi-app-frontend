@@ -175,7 +175,6 @@ export default function LoadingScreen() {
                     router.push('/signup/phone');
                 }
             } catch (error) {
-                // console.log('Error initializing app:', error);
                 if (!userId) {
                     router.push('/signup/phone');
                 } else {
