@@ -87,7 +87,7 @@ export default function ChatScreen() {
 
     const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
-    const [isThinking, setIsThinking] = useState(true);
+    const [isThinking, setIsThinking] = useState(false);
     const glowOpacity = useSharedValue(0);
     const logoGlowScale = useSharedValue(1);
     const logoGlowOpacity = useSharedValue(0);
