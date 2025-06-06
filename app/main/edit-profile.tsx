@@ -281,7 +281,6 @@ export default function EditProfileScreen() {
     setUpdating(true);
 
     try {
-      setLoading(true);
       const userId = await getUserId();
 
       // Convert 12-hour format to 24-hour format
