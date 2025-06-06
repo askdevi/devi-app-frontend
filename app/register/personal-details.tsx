@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,7 +19,6 @@ import Domain from '@/constants/domain';
 import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CustomDropdown from '@/components/CustomDropdown';
-import { ActivityIndicator } from 'react-native';
 
 const languageData = [
   { label: 'Hinglish', value: 'Hinglish' },
@@ -41,66 +39,16 @@ const occupationsData = [
   { label: 'Other', value: 'Other' },
 ];
 export default function PersonalDetailsScreen() {
+  
   const router = useRouter();
   const [language, setLanguage] = useState('');
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const gradientAnimation = useRef(new Animated.Value(0)).current;
-  const scaleAnimation = useRef(new Animated.Value(1)).current;
-  const glowAnimation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const gradientLoop = Animated.loop(
-      Animated.timing(gradientAnimation, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: false,
-      })
-    );
-    gradientLoop.start();
-
-    // const glowLoop = Animated.loop(
-    //   Animated.sequence([
-    //     Animated.timing(glowAnimation, {
-    //       toValue: 1,
-    //       duration: 2000,
-    //       useNativeDriver: false,
-    //     }),
-    //     Animated.timing(glowAnimation, {
-    //       toValue: 0,
-    //       duration: 2000,
-    //       useNativeDriver: false,
-    //     }),
-    //   ])
-    // );
-    // glowLoop.start();
-
-    return () => {
-      gradientLoop.stop();
-      // glowLoop.stop();
-    };
-  }, []);
-
 
   const handleComplete = async () => {
-    Animated.sequence([
-      Animated.timing(scaleAnimation, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-      Animated.timing(scaleAnimation, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-    ]).start();
-
     try {
-      if (loading) return;
-      setLoading(true);
       await AsyncStorage.setItem('language', language);
       await AsyncStorage.setItem('relationshipStatus', relationshipStatus);
       await AsyncStorage.setItem('occupation', occupation);
@@ -113,26 +61,50 @@ export default function PersonalDetailsScreen() {
       const birthTime = await AsyncStorage.getItem('birthTime');
       const gender = await AsyncStorage.getItem('gender');
       const birthPlaceData = await AsyncStorage.getItem('birthPlaceData');
+
       const birthPlace = birthPlaceData ? JSON.parse(birthPlaceData) : null;
       const userId = await getUserId();
 
-      const body = {
-        userId,
-        phoneNumber,
-        firstName,
-        lastName,
-        birthDate,
-        birthTime,
-        gender: gender ? gender.toLowerCase() : '',
-        birthPlace: birthPlace,
-        preferredLanguage: language.toLowerCase(),
-        relationshipStatus: relationshipStatus.toLowerCase(),
-        occupation: occupation.toLowerCase(),
+      // Push to loading immediately after saving local data
+      router.push('/main/loading' as any);
+
+      // Start the registration API call asynchronously (without await)
+      // This WILL execute after router.push since router.push is non-blocking
+      const registerUser = async () => {
+        try {
+          console.log('Starting background registration...');
+          await AsyncStorage.setItem('registrationComplete', 'false');
+          const body = {
+            userId,
+            phoneNumber,
+            firstName,
+            lastName,
+            birthDate,
+            birthTime,
+            gender: gender ? gender.toLowerCase() : '',
+            birthPlace: birthPlace,
+            preferredLanguage: language.toLowerCase(),
+            relationshipStatus: relationshipStatus.toLowerCase(),
+            occupation: occupation.toLowerCase(),
+          };
+          await axios.post(`${Domain}/register`, body);
+          console.log('Registration completed successfully');
+          // Mark registration as complete
+          await AsyncStorage.setItem('registrationComplete', 'true');
+        } catch (error: any) {
+          console.log('PersonalDetailsScreen: Error in registration:', {
+            message: error.message,
+            response: error.response?.data,
+            stack: error.stack
+          });
+          // Mark registration as failed so loading page can handle it
+          await AsyncStorage.setItem('registrationComplete', 'false');
+        }
       };
 
-      await axios.post(`${Domain}/register`, body);
-
-      router.push('/main/loading' as any);
+      // Execute registration in background - this runs after router.push
+      registerUser();
+      
     } catch (error: any) {
       console.log('PersonalDetailsScreen: Error in handleComplete:', {
         message: error.message,
@@ -148,17 +120,9 @@ export default function PersonalDetailsScreen() {
     router.back();
   };
 
-  const gradientTranslateX = gradientAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-200, 200],
-  });
-
-  const glowOpacity = glowAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 0.8],
-  });
-
   const isFormComplete = language && relationshipStatus && occupation;
+
+
 
   const GradientText = ({
     children,
@@ -220,7 +184,7 @@ export default function PersonalDetailsScreen() {
           <CustomDropdown
             renderData={relationshipStatusData}
             labelName="Relationship Status"
-            placeholder="Select status"
+            placeholder="Select Status"
             // required
             selected={relationshipStatus}
             setSelected={setRelationshipStatus}
@@ -229,7 +193,7 @@ export default function PersonalDetailsScreen() {
           <CustomDropdown
             renderData={occupationsData}
             labelName="Occupation"
-            placeholder="Select occupation"
+            placeholder="Select Occupation"
             // required
             selected={occupation}
             setSelected={setOccupation}
@@ -238,62 +202,30 @@ export default function PersonalDetailsScreen() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <TouchableOpacity
+            style={styles.previousButton}
+            onPress={handleBack}
+          >
             <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
-            <Text style={styles.backButtonText}>Previous</Text>
+            <Text style={styles.previousButtonText}>Previous</Text>
           </TouchableOpacity>
 
-          <Animated.View
-            style={[
-              styles.completeButton,
-              !isFormComplete && styles.completeButtonDisabled,
-              {
-                transform: [{ scale: scaleAnimation }],
-                shadowOpacity: glowOpacity,
-              },
-            ]}
+          <TouchableOpacity
+            style={[styles.continueButton, !isFormComplete && styles.continueButtonDisabled]}
+            onPress={handleComplete}
+            disabled={!isFormComplete}
+            activeOpacity={0.8}
           >
-            <TouchableOpacity
-              style={styles.completeButtonTouchable}
-              onPress={handleComplete}
-              disabled={!isFormComplete}
-              activeOpacity={0.8}
+            <LinearGradient
+              colors={Colors.gradients.goldPrimary}
+              style={styles.continueButtonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
             >
-              <View style={styles.gradientContainer}>
-                <LinearGradient
-                  colors={['#FFD700', '#FF8C00', '#FFD700']}
-                  style={styles.completeButtonGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                />
-
-                <Animated.View
-                  style={[
-                    styles.animatedGradientOverlay,
-                    {
-                      transform: [{ translateX: gradientTranslateX }],
-                    },
-                  ]}
-                >
-                  <LinearGradient
-                    colors={[
-                      'transparent',
-                      'rgba(255, 255, 255, 0.3)',
-                      'transparent',
-                    ]}
-                    style={styles.shimmerGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  />
-                </Animated.View>
-
-                <View style={styles.buttonContent}>
-                  <Text style={styles.completeButtonText}>{loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Complete'}</Text>
-                  {!loading && <Sparkles color={Colors.deepPurple.DEFAULT} size={20} />}
-                </View>
-              </View>
-            </TouchableOpacity>
-          </Animated.View>
+              <Text style={styles.continueButtonText}>Complete</Text>
+              <Sparkles color={Colors.deepPurple.DEFAULT} size={20} />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.quote}>
@@ -336,85 +268,47 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 16,
     marginBottom: 24,
   },
-  backButton: {
+  previousButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    justifyContent: 'center',
+    height: 50,
     borderRadius: 8,
     backgroundColor: 'rgba(45, 17, 82, 0.3)',
     borderWidth: 2,
     borderColor: `${Colors.gold.DEFAULT}20`,
   },
-  backButtonText: {
-    fontFamily: 'Poppins-Medium',
+  previousButtonText: {
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: Colors.gold.DEFAULT,
     marginLeft: 8,
   },
-  completeButton: {
+  continueButton: {
     flex: 1,
-    marginLeft: 16,
     height: 50,
     borderRadius: 8,
     overflow: 'hidden',
-    shadowColor: Colors.gold.DEFAULT,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowRadius: 10,
-    elevation: 8,
   },
-  completeButtonDisabled: {
+  continueButtonDisabled: {
     opacity: 0.5,
     shadowOpacity: 0,
   },
-  completeButtonTouchable: {
+  continueButtonGradient: {
     flex: 1,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  gradientContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  completeButtonGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  animatedGradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 100,
-    zIndex: 1,
-  },
-  shimmerGradient: {
-    flex: 1,
-  },
-  buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
-    paddingHorizontal: 24,
-    zIndex: 2,
-    position: 'relative',
   },
-  completeButtonText: {
+  continueButtonText: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: Colors.deepPurple.DEFAULT,
     marginRight: 8,
-    position: 'relative',
-    zIndex: 10,
   },
   quote: {
     fontFamily: 'Poppins-Regular',

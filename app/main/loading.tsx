@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Platform, Pressable, Dimensions, BackHandler } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -58,7 +58,7 @@ function AnimatedFlower({ angle, delay }: { angle: number; delay: number }) {
                 true
             )
         );
-    }, []);
+    }, [delay]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: x }, { translateY: y }],
@@ -133,6 +133,41 @@ export default function LoadingScreen() {
                     return;
                 }
 
+                // Check if registration is in progress from personal-details page
+                const waitForRegistration = async () => {
+                    let registrationComplete = await AsyncStorage.getItem('registrationComplete');
+                    
+                    // If registrationComplete is null, it means we're not coming from registration flow
+                    if (registrationComplete === null) {
+                        return true; // Proceed normally
+                    }
+                    
+                    // Wait for registration to complete (with timeout)
+                    let attempts = 0;
+                    const maxAttempts = 30; // 15 seconds max wait time
+                    
+                    while (registrationComplete !== 'true' && attempts < maxAttempts) {
+                        await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
+                        registrationComplete = await AsyncStorage.getItem('registrationComplete');
+                        attempts++;
+                    }
+                    
+                    // Clear the registration status flag
+                    await AsyncStorage.removeItem('registrationComplete');
+                    
+                    // Return true if registration succeeded, false if failed or timed out
+                    return registrationComplete === 'true';
+                };
+
+                // Wait for registration if needed
+                const registrationSuccess = await waitForRegistration();
+                
+                if (!registrationSuccess) {
+                    // Registration failed or timed out, redirect to registration
+                    router.push('/register/name');
+                    return;
+                }
+
                 const response2 = await axios.get(`${Domain}/get-profile`, {
                     params: {
                         userId: userId
@@ -177,13 +212,16 @@ export default function LoadingScreen() {
                     }
 
                     router.push('/main/home');
-                } else {
+                } else {    
                     router.push('/signup/phone');
                 }
             } catch (error) {
+                console.log('LoadingScreen: Error initializing app:', error);
                 if (!userId) {
+                    console.log('LoadingScreen: No userId after error, redirecting to /signup/phone');
                     router.push('/signup/phone');
                 } else {
+                    console.log('LoadingScreen: UserId exists after error, redirecting to /register/name');
                     router.push('/register/name');
                 }
             }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, BackHandler, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -81,7 +81,6 @@ export default function CompatibilityScreen() {
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
 
                     <View style={styles.headerContainer}>
                         <View style={styles.titleContainer}>
@@ -179,7 +178,7 @@ const styles = StyleSheet.create({
         padding: 30,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 70,
+        marginBottom: Platform.OS === 'ios' ? 100 : 80,
     },
     circlesContainer: {
         flexDirection: 'row',

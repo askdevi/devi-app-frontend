@@ -29,16 +29,12 @@ export default function SupportScreen() {
         'Technical Support',
         'Feedback and Suggestions',
     ];
-    const queryTopicData = [
-        { label: 'General Query', value: 'General Query' },
-        { label: 'Issue With Package', value: 'Issue With Package' },
-        { label: 'Technical Support', value: 'Technical Support' },
-        { label: 'Billing Issue', value: 'Billing Issue' }
-    ];
-
-    const gradientAnimation = useRef(new Animated.Value(0)).current;
-    const scaleAnimation = useRef(new Animated.Value(1)).current;
-    const glowAnimation = useRef(new Animated.Value(0)).current;
+    const queryTopicData=[
+  { label: 'General Query', value: 'General Query' },
+  { label: 'Issue With Package', value: 'Issue With Package' },
+  { label: 'Technical Support', value: 'Technical Support' },
+  { label: 'Billing Issue', value: 'Billing Issue' }
+];
 
     useEffect(() => {
         const backAction = () => {
@@ -54,56 +50,12 @@ export default function SupportScreen() {
         return () => backHandler.remove();
     }, []);
 
-    useEffect(() => {
-        const gradientLoop = Animated.loop(
-            Animated.timing(gradientAnimation, {
-                toValue: 1,
-                duration: 3000,
-                useNativeDriver: false,
-            })
-        );
-        gradientLoop.start();
-
-        const glowLoop = Animated.loop(
-            Animated.sequence([
-                Animated.timing(glowAnimation, {
-                    toValue: 1,
-                    duration: 2000,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(glowAnimation, {
-                    toValue: 0,
-                    duration: 2000,
-                    useNativeDriver: false,
-                }),
-            ])
-        );
-        glowLoop.start();
-
-        return () => {
-            gradientLoop.stop();
-            glowLoop.stop();
-        };
-    }, []);
 
     const handleSend = () => {
         if (!name || !topic || !message) {
             Alert.alert('Please fill all fields');
             return;
         }
-
-        Animated.sequence([
-            Animated.timing(scaleAnimation, {
-                toValue: 0.95,
-                duration: 100,
-                useNativeDriver: false,
-            }),
-            Animated.timing(scaleAnimation, {
-                toValue: 1,
-                duration: 100,
-                useNativeDriver: false,
-            }),
-        ]).start();
 
         const subject = encodeURIComponent(`[${topic}] Support Request from ${name}`);
         const body = encodeURIComponent(`${message}\n\n${name}`);
@@ -117,16 +69,6 @@ export default function SupportScreen() {
     const handleBack = () => {
         router.push('/main/home');
     };
-
-    const gradientTranslateX = gradientAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [-200, 200],
-    });
-
-    const glowOpacity = glowAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0.3, 0.8],
-    });
 
     const isFormValid = name.trim() && topic && message.trim();
 
@@ -154,7 +96,7 @@ export default function SupportScreen() {
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
+            <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left', 'bottom']}>
                 <View style={styles.container}>
 
                     <View style={styles.headerContainer}>
@@ -230,10 +172,6 @@ export default function SupportScreen() {
                             style={[
                                 styles.sendButton,
                                 !isFormValid && styles.sendButtonDisabled,
-                                {
-                                    transform: [{ scale: scaleAnimation }],
-                                    shadowOpacity: glowOpacity,
-                                }
                             ]}
                         >
                             <TouchableOpacity
@@ -249,22 +187,12 @@ export default function SupportScreen() {
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                     />
-
-                                    <Animated.View
-                                        style={[
-                                            styles.animatedGradientOverlay,
-                                            {
-                                                transform: [{ translateX: gradientTranslateX }],
-                                            },
-                                        ]}
-                                    >
-                                        <LinearGradient
-                                            colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                                            style={styles.shimmerGradient}
-                                            start={{ x: 0, y: 0 }}
-                                            end={{ x: 1, y: 0 }}
-                                        />
-                                    </Animated.View>
+                                    <LinearGradient
+                                        colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                                        style={styles.shimmerGradient}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                    />
 
                                     <View style={styles.buttonContent}>
                                         <Text style={styles.sendButtonText}>Send Message</Text>

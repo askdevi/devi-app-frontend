@@ -242,7 +242,10 @@ export default function WalletScreen() {
             <View style={styles.divider} />
             <Text style={styles.packagesTitle}>Time Packages</Text>
             {timePlans.map((pkg, idx) => (
-              <Animated.View key={idx} style={[styles.packageCard]}>
+              <Animated.View key={idx} style={[
+                styles.packageCard,
+                idx === 1 && { borderColor: `${Colors.gold.DEFAULT}80`, borderWidth: 2 }
+              ]}>
                 {idx === 1 ? (
                   <Animated.View style={[styles.glowWrapper, glowStyles]} />
                 ) : null}
@@ -299,7 +302,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    marginBottom: 70,
+    marginBottom: 80,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -335,6 +338,7 @@ const styles = StyleSheet.create({
   },
   balanceContainer: {
     flexDirection: 'row',
+    marginTop: 10,
     justifyContent: 'space-between',
   },
   balanceItem: {

@@ -76,67 +76,34 @@ export default function BirthDetailsScreen() {
     setMinute(val);
   };
 
-  const gradientAnimation = useRef(new Animated.Value(0)).current;
-  const scaleAnimation = useRef(new Animated.Value(1)).current;
-  const glowAnimation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const gradientLoop = Animated.loop(
-      Animated.timing(gradientAnimation, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: false,
-      })
-    );
-    gradientLoop.start();
-
-    const glowLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnimation, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(glowAnimation, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: false,
-        }),
-      ])
-    );
-    glowLoop.start();
-
-    return () => {
-      gradientLoop.stop();
-      glowLoop.stop();
-    };
-  }, []);
-
   const handleContinue = async () => {
-    Animated.sequence([
-      Animated.timing(scaleAnimation, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-      Animated.timing(scaleAnimation, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-    ]).start();
 
     try {
       const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
-      const birthTime = knowsBirthTime
-        ? `${
-            birthTimePeriod === 'AM'
-              ? hour
-              : String(Number(hour) + 12).padStart(2, '0')
-          }:${minute}`
-        : null;
+      
+      let birthTime = null;
+      if (knowsBirthTime) {
+        let hour24 = parseInt(hour);
+        
+        if (birthTimePeriod === 'AM') {
+          // Handle AM times
+          if (hour24 === 12) {
+            hour24 = 0; // 12 AM is midnight (00:xx)
+          }
+          // 1-11 AM remain the same
+        } else {
+          // Handle PM times
+          if (hour24 !== 12) {
+            hour24 += 12; // 1-11 PM become 13-23
+          }
+          // 12 PM remains 12 (noon)
+        }
+        
+        birthTime = `${hour24.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
+      }
+      
       await AsyncStorage.setItem('birthDate', birthDate);
-      await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '00:00');
+      await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '12:00');
       router.push('/register/birth-place');
     } catch (error) {
       console.log('Error saving birth details:', error);
@@ -147,15 +114,6 @@ export default function BirthDetailsScreen() {
     router.back();
   };
 
-  const gradientTranslateX = gradientAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-200, 200],
-  });
-
-  const glowOpacity = glowAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.3, 0.8],
-  });
 
   const GradientText = ({ children, style }: { children: string; style?: any }) => {
     return (
@@ -451,7 +409,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 16,
     marginTop: 24,
-    marginHorizontal: 8,
     marginBottom: 24,
   },
   previousButton: {
