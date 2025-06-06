@@ -170,7 +170,9 @@ export default function LoadingScreen() {
 
                     await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
 
-                    if (response2.data.user.sign) {
+                    const sign1 = await AsyncStorage.getItem('profilePic');
+
+                    if (!sign1 && response2.data.user.sign) {
                         await AsyncStorage.setItem('profilePic', response2.data.user.sign + " " + response2.data.user.gender);
                     }
 
