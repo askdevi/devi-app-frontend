@@ -93,21 +93,27 @@ export default function CompatibilityReportScreen() {
         router.push('/compatibility/compatibility-main');
     };
 
+    const handleDelete = () => {
+        // Add delete functionality here - could show confirmation dialog
+        // For now, navigate back to main screen
+        router.push('/compatibility/compatibility-main');
+    };
+
     const totalPercentage = (reportData.received_points / reportData.total_points) * 100;
 
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    <BackgroundEffects count={30} />
 
+                    {/* Simple Back Button Header */}
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                            <Ionicons name="arrow-back" size={24} color="#ffcc00" />
+                            <Ionicons name="arrow-back" size={28} color={Colors.gold.DEFAULT} />
                         </TouchableOpacity>
-                        <View style={styles.titleContainer}>
-                            <Text style={styles.header}>Check Compatibility</Text>
-                        </View>
+                        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+                            <Ionicons name="trash-outline" size={24} color={Colors.gold.DEFAULT} />
+                        </TouchableOpacity>
                     </View>
 
                     <ScrollView
@@ -115,41 +121,60 @@ export default function CompatibilityReportScreen() {
                         contentContainerStyle={styles.content}
                         showsVerticalScrollIndicator={false}
                     >
-                        <View style={styles.partnerInfo}>
-                            <Text style={styles.partnerName}>{reportData.name}</Text>
-                            <Text style={styles.partnerDetail}>{reportData.birthDate}</Text>
-                            <Text style={styles.partnerDetail}>{reportData.birthTime}</Text>
-                            <Text style={styles.partnerDetail}>{reportData.birthPlace.name}</Text>
-                        </View>
-
-                        <View style={styles.totalScoreContainer}>
-                            <CircularProgress
-                                percentage={totalPercentage}
-                                size={160}
-                                strokeWidth={15}
-                                points={reportData.received_points}
-                                total={reportData.total_points}
-                                label="Total Score"
-                            />
-                        </View>
-
-                        <Text style={styles.reportText}>{reportData.report}</Text>
-
-                        <View style={styles.qualitiesContainer}>
-                            <Text style={styles.sectionTitle}>Qualities Breakdown</Text>
-                            <View style={styles.qualitiesGrid}>
-                                {reportData.qualities.map((quality: Quality, index: number) => (
-                                    <View key={index} style={styles.qualityItem}>
-                                        <CircularProgress
-                                            percentage={(quality.received_points / quality.total_points) * 100}
-                                            size={120}
-                                            strokeWidth={8}
-                                            points={quality.received_points}
-                                            total={quality.total_points}
-                                            label={quality.title}
-                                        />
+                        {/* Combined Partner Info and Total Score Card */}
+                        <View style={styles.combinedCard}>
+                            {/* Partner Information Section */}
+                            <View style={styles.partnerSection}>
+                                <Text style={styles.partnerName}>{reportData.name}</Text>
+                                <View style={styles.partnerDetailsContainer}>
+                                    <View style={styles.partnerDetailRow}>
+                                        <Ionicons name="calendar-outline" size={16} color={Colors.gold.DEFAULT} />
+                                        <Text style={styles.partnerDetail}>{reportData.birthDate}</Text>
                                     </View>
-                                ))}
+                                    <View style={styles.partnerDetailRow}>
+                                        <Ionicons name="time-outline" size={16} color={Colors.gold.DEFAULT} />
+                                        <Text style={styles.partnerDetail}>{reportData.birthTime}</Text>
+                                    </View>
+                                    <View style={styles.partnerDetailRow}>
+                                        <Ionicons name="location-outline" size={16} color={Colors.gold.DEFAULT} />
+                                        <Text style={styles.partnerDetail}>{reportData.birthPlace.name}</Text>
+                                    </View>
+                                </View>
+                            </View>
+
+                            {/* Total Score Section */}
+                            <View style={styles.totalScoreSection}>
+                                <CircularProgress
+                                    percentage={totalPercentage}
+                                    size={120}
+                                    strokeWidth={14}
+                                    points={reportData.received_points}
+                                    total={reportData.total_points}
+                                    label="Total Score"
+                                />
+                            </View>
+
+                            {/* Divider */}
+                            <View style={styles.divider} />
+
+                            {/* Qualities Breakdown */}
+                            <View style={styles.qualitiesSection}>
+                                <Text style={styles.sectionTitle}>Qualities Breakdown</Text>
+                                <View style={styles.qualitiesGrid}>
+                                    {reportData.qualities.map((quality: Quality, index: number) => (
+                                        <View key={index} style={styles.qualityItem}>
+                                            <CircularProgress
+                                                percentage={(quality.received_points / quality.total_points) * 100}
+                                                size={60}
+                                                strokeWidth={6}
+                                            />
+                                            <View style={styles.qualityTextContainer}>
+                                                <Text style={styles.qualityTitle}>{quality.title}</Text>
+                                                <Text style={styles.qualityScore}>{quality.received_points}/{quality.total_points}</Text>
+                                            </View>
+                                        </View>
+                                    ))}
+                                </View>
                             </View>
                         </View>
                     </ScrollView>
@@ -169,7 +194,7 @@ const styles = StyleSheet.create({
         backgroundColor: "hsl(274, 100%, 10%)",
     },
     content: {
-        padding: 20,
+        paddingHorizontal: 20,
         paddingBottom: 40,
     },
     scrollView: {
@@ -177,82 +202,109 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
-        position: 'relative',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
     },
     backButton: {
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'absolute',
-        left: 12,
-        zIndex: 10,
     },
-    titleContainer: {
-        flex: 1,
-        alignItems: 'center',
+    deleteButton: {
+        width: 48,
+        height: 48,
         justifyContent: 'center',
-        marginLeft: 20,
-    },
-    header: {
-        fontFamily: 'Poppins-Bold',
-        fontSize: 30,
-        fontWeight: 'bold',
-        color: Colors.gold.DEFAULT,
-    },
-    partnerInfo: {
         alignItems: 'center',
-        marginBottom: 30,
+    },
+
+    // Combined Partner Info and Total Score Card
+    combinedCard: {
+        paddingHorizontal: 24,
+        paddingTop: 24,
+        marginBottom: 10,
+        borderWidth: 1,
+        backgroundColor: 'rgba(80, 20, 120, 0.5)', // bg-purple-900/20
+        borderRadius: 24, // rounded-lg
+        borderColor: 'rgba(168, 85, 247, 0.3)',
+    },
+    partnerSection: {
+        marginBottom: 24,
     },
     partnerName: {
         fontSize: 24,
         fontFamily: 'Poppins-Bold',
         color: Colors.gold.DEFAULT,
-        marginBottom: 8,
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+    partnerDetailsContainer: {
+        gap: 4,
+    },
+    partnerDetailRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
     },
     partnerDetail: {
         fontSize: 14,
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'Poppins-Medium',
         color: Colors.white,
-        opacity: 0.8,
-        marginBottom: 4,
+        opacity: 0.9,
     },
-    totalScoreContainer: {
+    totalScoreSection: {
         alignItems: 'center',
-        marginBottom: 30,
     },
-    reportText: {
-        fontSize: 16,
-        fontFamily: 'Poppins-Regular',
-        color: Colors.white,
-        lineHeight: 24,
-        textAlign: 'center',
-        marginBottom: 30,
-        paddingHorizontal: 20,
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(168, 85, 247, 0.3)',
+        marginVertical: 24,
+    },
+    qualitiesSection: {
+        marginBottom: 24,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontFamily: 'Poppins-SemiBold',
         color: Colors.gold.DEFAULT,
-        marginBottom: 20,
+        marginBottom: 24,
         textAlign: 'center',
     },
-    qualitiesContainer: {
-        paddingTop: 20,
-    },
     qualitiesGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-around',
-        gap: 20,
+        gap: 16,
     },
     qualityItem: {
-        width: '45%',
+        flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
+        backgroundColor: 'rgba(80, 20, 120, 0.3)',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(168, 85, 247, 0.2)',
     },
+    qualityTextContainer: {
+        flex: 1,
+        marginLeft: 16,
+        justifyContent: 'center',
+    },
+    qualityTitle: {
+        fontSize: 16,
+        fontFamily: 'Poppins-SemiBold',
+        color: Colors.gold.DEFAULT,
+        marginBottom: 4,
+    },
+    qualityScore: {
+        fontSize: 14,
+        fontFamily: 'Poppins-Medium',
+        color: Colors.white,
+        opacity: 0.8,
+    },
+
+    // Progress Components
     progressContainer: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -262,22 +314,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     progressPercentage: {
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: 'Poppins-Bold',
         color: Colors.gold.DEFAULT,
     },
     progressLabel: {
-        fontSize: 12,
-        fontFamily: 'Poppins-Medium',
+        fontSize: 10,
+        fontFamily: 'Poppins-SemiBold',
         color: Colors.white,
         textAlign: 'center',
         marginTop: 4,
-        paddingHorizontal: 8,
+        paddingHorizontal: 4,
+        opacity: 0.9,
     },
     progressPoints: {
-        fontSize: 12,
-        fontFamily: 'Poppins-Regular',
-        color: `${Colors.gold.DEFAULT}80`,
+        fontSize: 10,
+        fontFamily: 'Poppins-Medium',
+        color: `${Colors.gold.DEFAULT}70`,
         marginTop: 2,
     },
 });

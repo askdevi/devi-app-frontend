@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(168, 85, 247, 0.2)', // border-purple-500/20
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 8,
     height: 550,
