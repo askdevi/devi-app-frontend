@@ -19,6 +19,7 @@ import Animated, {
   interpolate,
   Easing,
 } from 'react-native-reanimated';
+import MaskedView from '@react-native-masked-view/masked-view';
 import BackgroundStars from '@/components/BackgroundEffects';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -133,10 +134,10 @@ function BlessingCard({
   const rotate = useSharedValue(flipped ? 180 : 0);
   const translateX = useSharedValue(position * (SCREEN_WIDTH * 0.65));
   const scale = useSharedValue(isActive ? 1 : 0.85);
-  const opacity = useSharedValue(isActive ? 1 : 0.6);
   const tapTextOpacity = useSharedValue(1);
   const pulseScale = useSharedValue(1);
   const gradientPosition = useSharedValue(0);
+  const overlayOpacity = useSharedValue(isActive ? 0 : 0.4);
 
   useEffect(() => {
     tapTextOpacity.value = withRepeat(
@@ -170,7 +171,7 @@ function BlessingCard({
       duration: 500,
     });
     scale.value = withTiming(isActive ? 1 : 0.85, { duration: 500 });
-    opacity.value = withTiming(isActive ? 1 : 0.6, { duration: 500 });
+    overlayOpacity.value = withTiming(isActive ? 0 : 0.4, { duration: 500 });
   }, [flipped, position, isActive]);
 
   const frontStyle = useAnimatedStyle(() => ({
@@ -179,7 +180,7 @@ function BlessingCard({
       { scale: scale.value * pulseScale.value },
       { rotateY: `${interpolate(rotate.value, [0, 180], [0, 180])}deg` },
     ],
-    opacity: opacity.value,
+    opacity: 1,
     backfaceVisibility: 'hidden',
   }));
 
@@ -189,7 +190,7 @@ function BlessingCard({
       { scale: scale.value * pulseScale.value },
       { rotateY: `${interpolate(rotate.value, [0, 180], [180, 360])}deg` },
     ],
-    opacity: opacity.value,
+    opacity: 1,
     backfaceVisibility: 'hidden',
   }));
 
@@ -204,6 +205,10 @@ function BlessingCard({
       },
     ],
     opacity: interpolate(gradientPosition.value, [0, 0.5, 1], [0, 0.3, 0]),
+  }));
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
   }));
 
   return (
@@ -231,15 +236,16 @@ function BlessingCard({
               style={StyleSheet.absoluteFill}
             />
           </Animated.View>
+          <Animated.View style={[styles.cardOverlay, overlayStyle]} />
           <CardPattern />
-          <Text style={styles.starTop}>⊰∙∘❀∘∙⊱</Text>
+          <Text style={styles.starTop}>∙∘∘∙</Text>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{card.title}</Text>
             <Animated.Text style={[styles.tapText, tapTextStyle]}>
               TAP TO REVEAL YOUR DESTINY
             </Animated.Text>
           </View>
-          <Text style={styles.starBottom}>⊰∙∘❀∘∙⊱</Text>
+          <Text style={styles.starBottom}>∙∘∘∙</Text>
         </Pressable>
       </Animated.View>
 
@@ -268,6 +274,9 @@ function BlessingCard({
         style={StyleSheet.absoluteFill}
       />
     </Animated.View>
+
+    {/* Dark overlay for non-active cards */}
+    <Animated.View style={[styles.cardOverlay, overlayStyle]} />
 
     {/* 🌟 Content */}
     <Text style={styles.starTop}> </Text>
@@ -325,65 +334,77 @@ export default function BlessingsScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#360059', '#1D0033', '#0D0019','#360059',]}
-        style={[{height:530,},StyleSheet.absoluteFill]}
-      />
-
-      <BackgroundStars count={30} />
-
-      <View style={styles.header}>
-        <Animated.Text style={[styles.title, titleStyle]}>
-          Your Daily Blessings
-        </Animated.Text>
-        <Text style={styles.subtitle}>Tap to reveal your destiny</Text>
-        <ProgressDots activeIndex={activeIndex} />
-      </View>
-
-      <View style={styles.carouselContainer}>
-        {CARDS.map((card, index) => (
-          <BlessingCard
-            key={card.id}
-            card={card}
-            index={index}
-            activeIndex={activeIndex}
-            flipped={flippedCards[card.id] || false}
-            onFlip={() => toggleFlip(card.id)}
-          />
-        ))}
-
-        <View style={styles.navigationButtons}>
-          <Pressable
-            style={[
-              styles.navButton,
-              activeIndex === 0 && styles.navButtonDisabled,
-            ]}
-            onPress={() => navigateCards('left')}
-            disabled={activeIndex === 0}
+      {/* Background Panel - For entire section */}
+      <View style={styles.backgroundPanel}>
+        <View style={styles.header}>
+          <MaskedView
+            style={styles.titleContainer}
+            maskElement={
+              <Animated.Text style={[styles.titleMask, titleStyle, { backgroundColor: 'transparent' }]}>
+                Your Daily Blessings
+              </Animated.Text>
+            }
           >
             <LinearGradient
-              colors={['#360059', '#581189']}
-              style={styles.navButtonGradient}
+              colors={['#FFD700', '#FF8C00', '#FFD700']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.titleContainer}
             >
-              <ChevronLeft color="#FFD700" size={32} />
+              <Animated.Text style={[styles.titleMask, titleStyle, { opacity: 0 }]}>
+                Your Daily Blessings
+              </Animated.Text>
             </LinearGradient>
-          </Pressable>
+          </MaskedView>
+          <Text style={styles.subtitle}>Tap on the card to reveal your destiny</Text>
+          <ProgressDots activeIndex={activeIndex} />
+        </View>
 
-          <Pressable
-            style={[
-              styles.navButton,
-              activeIndex === CARDS.length - 1 && styles.navButtonDisabled,
-            ]}
-            onPress={() => navigateCards('right')}
-            disabled={activeIndex === CARDS.length - 1}
-          >
-            <LinearGradient
-              colors={['#360059', '#581189']}
-              style={styles.navButtonGradient}
+        <View style={styles.carouselContainer}>
+          {CARDS.map((card, index) => (
+            <BlessingCard
+              key={card.id}
+              card={card}
+              index={index}
+              activeIndex={activeIndex}
+              flipped={flippedCards[card.id] || false}
+              onFlip={() => toggleFlip(card.id)}
+            />
+          ))}
+
+          <View style={styles.navigationButtons}>
+            <Pressable
+              style={[
+                styles.navButton,
+                activeIndex === 0 && styles.navButtonDisabled,
+              ]}
+              onPress={() => navigateCards('left')}
+              disabled={activeIndex === 0}
             >
-              <ChevronRight color="#FFD700" size={32} />
-            </LinearGradient>
-          </Pressable>
+              <LinearGradient
+                colors={['#360059', '#581189']}
+                style={styles.navButtonGradient}
+              >
+                <ChevronLeft color="#FFD700" size={32} />
+              </LinearGradient>
+            </Pressable>
+
+            <Pressable
+              style={[
+                styles.navButton,
+                activeIndex === CARDS.length - 1 && styles.navButtonDisabled,
+              ]}
+              onPress={() => navigateCards('right')}
+              disabled={activeIndex === CARDS.length - 1}
+            >
+              <LinearGradient
+                colors={['#360059', '#581189']}
+                style={styles.navButtonGradient}
+              >
+                <ChevronRight color="#FFD700" size={32} />
+              </LinearGradient>
+            </Pressable>
+          </View>
         </View>
       </View>
     </View>
@@ -392,30 +413,46 @@ export default function BlessingsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop:15,
+    marginTop:10,
+    // backgroundColor: '#360059',
+  },
+  backgroundPanel: {
     flex: 1,
-    backgroundColor: '#360059',
+    marginHorizontal: 16,
+    marginTop: 10,
+    backgroundColor: 'rgba(70, 10, 100, 0.35)', // bg-purple-900/20
+    borderRadius: 24, // rounded-lg
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.2)', // border-purple-500/20
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+    height: 550,
+    zIndex: 1
   },
   header: {
-    paddingTop:20,
+    paddingTop:35,
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
   },
-  title: {
+  titleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleMask: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: 'black',
     textAlign: 'center',
-    textShadowColor: 'rgba(255, 215, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
   },
   subtitle: {
     fontSize: 12,
     color: '#FFD700',
     opacity: 0.8,
-    marginTop: 4,
+    marginTop: 6,
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -446,6 +483,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex:10,
   },
   card: {
     position: 'absolute',
@@ -587,12 +625,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   navigationButtons: {
-    zIndex:2,
-    marginTop:'45%',
+    zIndex:15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: SCREEN_WIDTH,
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
+    marginTop: -25,
   },
   navButton: {
     width: 50,
@@ -614,7 +652,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   navButtonDisabled: {
-    opacity: 0.3,
+    opacity: 0,
   },
   animatedGradient: {
     position: 'absolute',
@@ -643,6 +681,14 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   
+  cardOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
   
   
   

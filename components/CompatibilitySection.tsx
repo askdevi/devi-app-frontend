@@ -4,6 +4,7 @@ import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 const CompatibilitySection = () => {
     const router = useRouter();
@@ -27,10 +28,26 @@ const CompatibilitySection = () => {
                 onPress={() => router.push('/compatibility/compatibility-form')}
             >
                 <View style={styles.header}>
-                    <Animated.Text style={[styles.title]}>
-                        Check Partner Compatibility
-                    </Animated.Text>
-                    <Text style={styles.subtitle}>Discover your celestial connection</Text>
+                    <MaskedView
+                        style={styles.titleContainer}
+                        maskElement={
+                            <Animated.Text style={[styles.titleMask, { backgroundColor: 'transparent' }]}>
+                                Add Your Partner
+                            </Animated.Text>
+                        }
+                    >
+                        <LinearGradient
+                            colors={['#FFD700', '#FF8C00', '#FFD700']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.titleContainer}
+                        >
+                            <Animated.Text style={[styles.titleMask, { opacity: 0 }]}>
+                                Add Your Partner
+                            </Animated.Text>
+                        </LinearGradient>
+                    </MaskedView>
+                    <Text style={styles.subtitle}>Check your compatibility with other profiles</Text>
                 </View>
                 <View style={styles.circlesContainer}>
                     <View style={styles.nameCircle}>
@@ -56,15 +73,21 @@ const CompatibilitySection = () => {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 220,
+        marginTop: 20,
         paddingHorizontal: 20,
         paddingVertical: 20,
     },
     newCompatibilityContainer: {
-        borderWidth: 1,
-        borderColor: "#663399",
-        borderRadius: 20,
         padding: 30,
+        backgroundColor: 'rgba(70, 10, 100, 0.35)',
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: 'rgba(168, 85, 247, 0.2)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 8,
         // backgroundColor: 'rgba(102, 51, 153, 0.2)',
     },
     header: {
@@ -72,21 +95,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    title: {
+    titleContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    titleMask: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#FFD700',
+        color: 'black',
         textAlign: 'center',
-        textShadowColor: 'rgba(255, 215, 0, 0.5)',
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 10,
-        marginBottom: 5,
     },
     subtitle: {
         fontSize: 12,
         color: '#FFD700',
         opacity: 0.8,
-        marginTop: 4,
+        marginTop: 6,
         marginBottom: 20,
         textAlign: 'center',
     },

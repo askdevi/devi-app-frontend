@@ -28,7 +28,7 @@ import Animated, {
 import ShinyButton from './ShinyButton';
 import { router } from 'expo-router';
 
-const GLOW_RADIUS = 180; // Increased from 120 for a larger glow
+const GLOW_RADIUS = 160; // Increased from 120 for a larger glow
 
 const Hero = () => {
   const floatStyle = useFloatAnimation(-5, 3000);
@@ -66,18 +66,6 @@ const Hero = () => {
     };
   }, [gradientAnimation]);
 
-  const shineStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
-      buttonGradient.value,
-      [0, 1],
-      [-100, 200] // same as your original
-    );
-
-    return {
-      transform: [{ translateX }],
-    };
-  });
-
   const glowStyle = useAnimatedStyle(() => ({
     opacity: glowOpacity.value,
   }));
@@ -96,14 +84,14 @@ const Hero = () => {
               fy="50%"
               gradientUnits="userSpaceOnUse"
             >
-              <Stop offset="0" stopColor="#FFA500" stopOpacity="0.8" />
+              <Stop offset="0" stopColor="#FFA500" stopOpacity="0.9" />
               <Stop offset="0.1" stopColor="#FFA500" stopOpacity="0.6" />
-              <Stop offset="0.3" stopColor="#FFA500" stopOpacity="0.25" />
-              <Stop offset="0.5" stopColor="#FFA500" stopOpacity="0.1" />
-              <Stop offset="0.7" stopColor="#FFA500" stopOpacity="0.01" />
-              <Stop offset="0.9" stopColor="#FFA500" stopOpacity="0.005" />
-              <Stop offset="0.95" stopColor="#FFA500" stopOpacity="0.002" />
-              <Stop offset="0.98" stopColor="#FFA500" stopOpacity="0.001" />
+              <Stop offset="0.3" stopColor="#FFA500" stopOpacity="0.2" />
+              <Stop offset="0.5" stopColor="#FFA500" stopOpacity="0.05" />
+              <Stop offset="0.7" stopColor="#FFA500" stopOpacity="0.005" />
+              <Stop offset="0.9" stopColor="#FFA500" stopOpacity="0.001" />
+              <Stop offset="0.95" stopColor="#FFA500" stopOpacity="0.00005" />
+              <Stop offset="0.98" stopColor="#FFA500" stopOpacity="0.000001" />
               <Stop offset="1" stopColor="#FFA500" stopOpacity="0" />
             </RadialGradient>
           </Defs>
@@ -148,7 +136,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     zIndex: 10,
-    marginTop: 30,
   },
   background: {
     position: 'absolute',

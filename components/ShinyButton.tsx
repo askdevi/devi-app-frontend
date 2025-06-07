@@ -23,7 +23,7 @@ const ShinyButton: React.FC<ShinyButtonProps> = ({
   title,
   onPress,
   style,
-  linerColors = ['#FFD700', '#FFAA00'],
+  linerColors = ['#FFD700', '#FDB931', '#FFD700'],
 }) => {
   const buttonGradient = useSharedValue(0);
 
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     color: '#3D2B8E',
     fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
+    fontWeight: '500',
     zIndex: 1,
   },
   shine: {

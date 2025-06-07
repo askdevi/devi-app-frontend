@@ -38,7 +38,7 @@ export default function SupportScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/home")
+            router.push("/main/profile")
             return true;
         };
 
@@ -67,7 +67,7 @@ export default function SupportScreen() {
     };
 
     const handleBack = () => {
-        router.push('/main/home');
+        router.push('/main/profile');
     };
 
     const isFormValid = name.trim() && topic && message.trim();
@@ -117,7 +117,7 @@ export default function SupportScreen() {
                         <CustomInput
                             value={name}
                             onChange={setName}
-                            label="Full name"
+                            label="Full Name"
                             errorMsg=""
                             placeholder="Enter your name"
                         />
@@ -257,8 +257,8 @@ const styles = StyleSheet.create({
     },
     label: {
         fontFamily: 'Poppins-Medium',
-        fontSize: 14,
-        color: Colors.white,
+        fontSize: 16,
+        color: '#d1d5dbe6',
         marginBottom: 8,
     },
     input: {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         fontSize: 16,
         padding: 12,
-        color: `${Colors.gold.DEFAULT}`,
+        color: `${Colors.white}`,
         marginBottom: 15,
     },
     messageInput: {

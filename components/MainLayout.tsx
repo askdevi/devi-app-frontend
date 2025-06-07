@@ -29,7 +29,7 @@ const MainLayout = () => {
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View
           style={styles.container} >
-          <BackgroundEffects count={45} />
+          <BackgroundEffects count={30} />
 
           <Header />
 
