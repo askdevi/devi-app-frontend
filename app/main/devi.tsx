@@ -694,11 +694,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingTop: Platform.OS === 'ios' ? 70 : 50,
+        paddingTop: Platform.OS === 'ios' ? 70 : 25,
         paddingBottom: 16,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(247, 198, 21, 0.3)',
-        height: Platform.OS === 'ios' ? 120 : 100,
+        height: Platform.OS === 'ios' ? 120 : 75,
         overflow: 'hidden',
     },
     content: {
