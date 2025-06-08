@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: "100%",
-        height: Platform.OS === 'ios' ? "115%" : "100%",
+        height: Platform.OS === 'ios' ? "115%" : "110%",
         position: 'absolute',
         zIndex: 10000,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     },
     popup: {
         width: '80%',
-        height: '53%',
+        height: '50%',
         justifyContent: 'center',
         alignItems: 'center',
     },

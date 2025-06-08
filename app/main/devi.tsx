@@ -613,7 +613,7 @@ export default function ChatScreen() {
                     <View style={styles.header}>
                         <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
                             <LinearGradient
-                                colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
+                                colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
                                 style={StyleSheet.absoluteFill}
                                 start={{ x: 0.5, y: 0 }}
                                 end={{ x: 0.5, y: 1 }}
@@ -700,11 +700,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingTop: Platform.OS === 'ios' ? 10 : 50,
+        paddingTop: 10,
         paddingBottom: 16,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(247, 198, 21, 0.3)',
-        height: Platform.OS === 'ios' ? 120 : 100,
+        height: Platform.OS === 'ios' ? 60 : 70,
         overflow: 'hidden',
     },
     content: {
@@ -929,7 +929,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginTop: 8,
         paddingHorizontal: 16,
-        paddingTop: 20,
+        paddingTop: 16,
         paddingBottom: 16,
         borderTopWidth: 0.5,
         borderTopColor: 'rgba(247, 198, 21, 0.3)',
@@ -974,7 +974,7 @@ const styles = StyleSheet.create({
     sendButton: {
         position: 'absolute',
         right: 12,
-        bottom: Platform.OS === 'ios' ? 2 : 8,
+        bottom: Platform.OS === 'ios' ? 2 : 4,
         width: 30,
         height: "100%",
         alignItems: 'center',

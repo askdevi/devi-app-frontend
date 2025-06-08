@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
         height: '60%',
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 40
     },
     closeButton: {
         position: 'absolute',
