@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import MaskedView from '@react-native-masked-view/masked-view';
 import BackgroundStars from '@/components/BackgroundEffects';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -29,6 +30,8 @@ const CARDS = [
     id: 'mantra',
     title: 'LUCKY MANTRA',
     value: 'Om Gam Ganapataye Namaha',
+    sanskrit: 'ओम गं गणपत्ये नमः',
+    colors: ['#4B0082', '#800080'],
     description:
       'This powerful Ganesh mantra removes obstacles and brings success. Chant 108 times for maximum benefit.',
   },
@@ -55,6 +58,30 @@ const CARDS = [
   },
 ];
 
+const timeDescriptions = [
+  "Divine energies will be the strongest at this time.",
+  "This is the best time to meditate, pray, and start important tasks.",
+  "The cosmos aligns in your favor during this sacred window.",
+  "This is a spiritually charged moment — ideal for new beginnings.",
+  "The stars shine brighter for you in this auspicious phase."
+]
+
+const colorDescriptions = [
+  "Wear or surround yourself with this color today. This royal color amplifies your spiritual awareness and intuition.",
+  "Wear or carry this color to align with cosmic harmony and inner strength.",
+  "This color radiates positive vibrations that will uplift your energy today.",
+  "Let this shade guide your emotions and sharpen your inner clarity.",
+  "Let this color be your shield and your spark — it draws luck your way."
+]
+
+const numberDescriptions = [
+  "A sacred number in Vedic tradition. Keep this number in mind for important decisions today.",
+  "This number holds divine resonance — a subtle guide for your choices today.",
+  "A number blessed with cosmic vibration. Let it be your silent compass.",
+  "This sacred digit echoes through your karmic path — notice where it appears.",
+  "Symbol of balance and inner clarity. Keep this number close as you navigate decisions."
+]
+
 function ProgressDots({ activeIndex }: { activeIndex: number }) {
   return (
     <View style={styles.dotsContainer}>
@@ -71,7 +98,7 @@ function ProgressDots({ activeIndex }: { activeIndex: number }) {
 function CardPattern() {
   return (
     <View style={styles.cardPattern}>
-      
+
 
       {/* Border Pattern */}
       {Array.from({ length: 4 }).map((_, side) => (
@@ -250,57 +277,116 @@ function BlessingCard({
       </Animated.View>
 
       <Animated.View style={[styles.card, styles.cardBack, backStyle]}>
-  <Pressable
-    style={styles.cardInner}
-    onPress={isActive ? onFlip : undefined}
-  >
-    {/* ✅ Add this as a floating overlay inside Pressable */}
-    <View style={styles.innerBorder} />
+        <Pressable
+          style={styles.cardInner}
+          onPress={isActive ? onFlip : undefined}
+        >
+          {/* ✅ Add this as a floating overlay inside Pressable */}
+          <View style={styles.innerBorder} />
 
-    {/* ✨ Background Layer */}
-    <LinearGradient
-      colors={['#e6c4ff', '#e6c4ff']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={StyleSheet.absoluteFill}
-    />
+          {/* ✨ Background Layer */}
+          <LinearGradient
+            colors={['#e6c4ff', '#e6c4ff']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
 
-    {/* ✨ Shimmer Effect */}
-    <Animated.View style={[styles.animatedGradient, gradientStyle]}>
-      <LinearGradient
-        colors={['transparent', 'rgba(255, 255, 255, 0.4)', 'transparent']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={StyleSheet.absoluteFill}
-      />
-    </Animated.View>
+          {/* ✨ Shimmer Effect */}
+          <Animated.View style={[styles.animatedGradient, gradientStyle]}>
+            <LinearGradient
+              colors={['transparent', 'rgba(255, 255, 255, 0.4)', 'transparent']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
 
-    {/* Dark overlay for non-active cards */}
-    <Animated.View style={[styles.cardOverlay, overlayStyle]} />
+          {/* Dark overlay for non-active cards */}
+          <Animated.View style={[styles.cardOverlay, overlayStyle]} />
 
-    {/* 🌟 Content */}
-    <Text style={styles.starTop}> </Text>
-    <View style={styles.cardContent}>
-      <Text style={styles.cardValue}>{card.value}</Text>
-      {card.id === 'color' && (
-        <Text style={styles.colorIconLine}>ꕥ</Text>
-      )}
-      <View style={styles.separator} />
-      <Text style={styles.cardDescription}>{card.description}</Text>
-    </View>
-    <Text style={styles.starBottom}> </Text>
-  </Pressable>
-</Animated.View>
+          {/* 🌟 Content */}
+          <Text style={styles.starTop}> </Text>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardValue}>{card.value}</Text>
+            {card.sanskrit && (
+              <Text style={styles.cardValue}>{card.sanskrit}</Text>
+            )}
+            <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'center', alignItems: 'center' }}>
+              {card.id === 'color' && card.colors && (
+                card.colors.map((color: string, index: number) => (
+                  <Text key={index} style={[styles.colorIconLine, { color: color }]}>ꕥ</Text>
+                ))
+              )}
+            </View>
+            <View style={styles.separator} />
+            <Text style={styles.cardDescription}>{card.description}</Text>
+          </View>
+          <Text style={styles.starBottom}> </Text>
+        </Pressable>
+      </Animated.View>
 
-</>
+    </>
   );
 }
 
+function extractColors(colorDescription: string): string[] {
+  if (!colorDescription) return [];
+
+  // Convert to lowercase for uniformity
+  const lowercased = colorDescription.toLowerCase();
+
+  // Match known colors using regex OR split by ',' and filter out adjectives
+  const possibleColors = lowercased
+    .split(',')
+    .map(part => part.trim().split(' ').pop() || '') // get last word
+    .filter(Boolean);
+
+  return possibleColors;
+}
 
 export default function BlessingsScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const titleGlow = useSharedValue(1);
+  const [cards, setCards] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      const response = await AsyncStorage.getItem('dailyBlessings');
+      const data = JSON.parse(response || '{}');
+      const cards1 = [
+        {
+          id: 'mantra',
+          title: 'LUCKY MANTRA',
+          value: data.luckyMantra.latinScript,
+          sanskrit: data.luckyMantra.sanskritScript,
+          description: data.luckyMantra.direction,
+        },
+        {
+          id: 'color',
+          title: 'LUCKY COLOR',
+          value: data.luckyColor,
+          colors: extractColors(data.luckyColor),
+          description: colorDescriptions[Math.floor(Math.random() * colorDescriptions.length)]
+        },
+        {
+          id: 'number',
+          title: 'LUCKY NUMBER',
+          value: data.luckyNumber,
+          description: numberDescriptions[Math.floor(Math.random() * numberDescriptions.length)]
+        },
+        {
+          id: 'time',
+          title: 'AUSPICIOUS TIME',
+          value: data.auspiciousTime,
+          description: timeDescriptions[Math.floor(Math.random() * timeDescriptions.length)]
+        }
+      ]
+      setCards(cards1);
+    };
+    fetchCards();
+  }, []);
 
   useEffect(() => {
     titleGlow.value = withRepeat(
@@ -361,7 +447,7 @@ export default function BlessingsScreen() {
         </View>
 
         <View style={styles.carouselContainer}>
-          {CARDS.map((card, index) => (
+          {cards && cards.map((card: any, index: number) => (
             <BlessingCard
               key={card.id}
               card={card}
@@ -413,7 +499,7 @@ export default function BlessingsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop:10,
+    marginTop: 10,
     // backgroundColor: '#360059',
   },
   backgroundPanel: {
@@ -433,7 +519,7 @@ const styles = StyleSheet.create({
     zIndex: 1
   },
   header: {
-    paddingTop:35,
+    paddingTop: 35,
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
@@ -483,11 +569,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex:10,
+    zIndex: 10,
   },
   card: {
     position: 'absolute',
-    top:10,
+    top: 10,
     width: SCREEN_WIDTH * 0.65,
     height: 380,
     borderRadius: 24,
@@ -605,7 +691,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#360059',
     marginVertical: 15,
-  
+
   },
   cardDescription: {
     fontSize: 14,
@@ -625,7 +711,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   navigationButtons: {
-    zIndex:15,
+    zIndex: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: SCREEN_WIDTH,
@@ -664,7 +750,6 @@ const styles = StyleSheet.create({
 
   colorIconLine: {
     fontSize: 30,
-    color: '#4B0082', // Deep purple
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -680,7 +765,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFD700', // or a soft glow like 'rgba(255,215,0,0.5)'
     zIndex: 1,
   },
-  
+
   cardOverlay: {
     position: 'absolute',
     top: 0,
@@ -689,7 +774,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  
-  
-  
+
+
+
 });

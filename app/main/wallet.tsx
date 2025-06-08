@@ -124,10 +124,6 @@ export default function WalletScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleBack = () => {
-    router.push('/main/home');
-  };
-
   const handlePurchase = async (pkg: any) => {
     if (isProcessing) return;
     setIsProcessing(true);

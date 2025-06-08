@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,10 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import { useLocalSearchParams } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
+import Domain from '@/constants/domain';
+import axios from 'axios';
+import { getUserId } from '@/constants/userId';
+import { ActivityIndicator } from 'react-native';
 
 interface CircularProgressProps {
     percentage: number;
@@ -23,7 +27,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
     strokeWidth = 10,
     label,
     points,
-    total
+    total,
 }) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
@@ -72,8 +76,9 @@ interface Quality {
 
 export default function CompatibilityReportScreen() {
     const router = useRouter();
-    const { report } = useLocalSearchParams();
+    const { report, index } = useLocalSearchParams();
     const reportData = JSON.parse(report as string);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const backAction = () => {
@@ -93,10 +98,24 @@ export default function CompatibilityReportScreen() {
         router.push('/compatibility/compatibility-main');
     };
 
-    const handleDelete = () => {
-        // Add delete functionality here - could show confirmation dialog
-        // For now, navigate back to main screen
-        router.push('/compatibility/compatibility-main');
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        try {
+            const userId = await getUserId();
+            const response = await axios.delete(`${Domain}/delete-compatibility-report`, {
+                params: {
+                    userId,
+                    index
+                }
+            });
+            if (response.status === 200) {
+                router.push('/compatibility/compatibility-main');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const totalPercentage = (reportData.received_points / reportData.total_points) * 100;
@@ -111,9 +130,9 @@ export default function CompatibilityReportScreen() {
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                             <Ionicons name="arrow-back" size={28} color={Colors.gold.DEFAULT} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+                        {isDeleting ? <ActivityIndicator size="small" style={styles.deleteButton} color={Colors.gold.DEFAULT} /> : <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
                             <Ionicons name="trash-outline" size={24} color={Colors.gold.DEFAULT} />
-                        </TouchableOpacity>
+                        </TouchableOpacity>}
                     </View>
 
                     <ScrollView

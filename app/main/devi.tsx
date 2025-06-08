@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(247, 198, 21, 0.3)',
-        height: Platform.OS === 'ios' ? 70 : 100,
+        height: Platform.OS === 'ios' ? 120 : 100,
         overflow: 'hidden',
     },
     content: {
