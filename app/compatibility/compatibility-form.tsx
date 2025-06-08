@@ -31,8 +31,8 @@ export default function CompatibilityFormScreen() {
     const [day, setDay] = useState('');
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
-    const [hour, setHour] = useState('12');
-    const [minute, setMinute] = useState('00');
+    const [hour, setHour] = useState('');
+    const [minute, setMinute] = useState('');
     const [birthTimePeriod, setBirthTimePeriod] = useState<string>('AM');
 
     // Refs for inputs
