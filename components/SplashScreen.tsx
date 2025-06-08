@@ -131,7 +131,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             }
           ]}
         >
-          Namaste
+          Bonjour
         </Animated.Text>
         
         <Animated.Text 

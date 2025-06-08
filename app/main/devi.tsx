@@ -10,6 +10,7 @@ import {
     Platform,
     Dimensions,
     BackHandler,
+    KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, Clock } from 'lucide-react-native';
@@ -84,7 +85,6 @@ const DateHeader = React.memo(({ date }: { date: string }) => {
 export default function ChatScreen() {
     const floatStyle = useFloatAnimation(-5, 3000);
     const [messages, setMessages] = useState<Message[]>([]);
-
     const [newMessage, setNewMessage] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
     const [isThinking, setIsThinking] = useState(false);
@@ -93,6 +93,8 @@ export default function ChatScreen() {
     const logoGlowOpacity = useSharedValue(0);
     const [time, setTime] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isInputFocused, setIsInputFocused] = useState(false);
 
     const [buffer, setBuffer] = useState<Message[]>([]);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -516,7 +518,7 @@ export default function ChatScreen() {
 
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.credits} onPress={() => router.push('/main/wallet')}>
-                        <Clock size={14} color="#f7c615" />
+                        <Clock size={20} color="#f7c615" />
                         <Text style={styles.creditsText}>
                             {time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
                         </Text>
@@ -595,10 +597,9 @@ export default function ChatScreen() {
         <SafeAreaProvider>
             <SafeAreaView style={styles.safeArea}>
                 {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
-                <View
-                    // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
-                    // keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
                 >
                     <LinearGradient
                         colors={['#360059', '#1D0033', '#1a0028']}
@@ -655,9 +656,14 @@ export default function ChatScreen() {
                         </BlurView>
                         <View style={styles.inputWrapper}>
                             <TextInput
-                                style={styles.input}
+                                style={[
+                                    styles.input,
+                                    isInputFocused && styles.inputFocused
+                                ]}
                                 value={newMessage}
                                 onChangeText={setNewMessage}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setIsInputFocused(false)}
                                 placeholder="Type your question..."
                                 placeholderTextColor="rgba(255, 255, 255, 0.6)"
                                 multiline
@@ -678,7 +684,7 @@ export default function ChatScreen() {
                             }
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -741,10 +747,14 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     iconButton: {
-        width: 40,
-        height: 40,
+        width: 35,
+        height: 35,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'rgba(70, 10, 100, 0.35)',
+        borderWidth: 1,
+        borderColor: 'rgba(247, 198, 21, 0.3)',
+        borderRadius: 100,
     },
     menuDots: {
         color: '#f7c615',
@@ -782,18 +792,18 @@ const styles = StyleSheet.create({
     credits: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(88, 17, 137, 0.3)',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 16,
         gap: 6,
+        backgroundColor: 'rgba(70, 10, 100, 0.35)',
         borderWidth: 1,
-        borderColor: '#f7c615',
+        borderColor: 'rgba(247, 198, 21, 0.3)',
     },
     creditsText: {
         color: '#f7c615',
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: '500',
     },
     messagesContainer: {
         flex: 1,
@@ -920,7 +930,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         paddingHorizontal: 16,
         paddingTop: 20,
-        paddingBottom: Platform.OS === 'ios' ? 6 : 16,
+        paddingBottom: 16,
         borderTopWidth: 0.5,
         borderTopColor: 'rgba(247, 198, 21, 0.3)',
     },
@@ -941,7 +951,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: 'rgba(247, 198, 21, 0.3)',
-
+    },
+    inputFocused: {
+        backgroundColor: 'rgba(88, 17, 137, 0.6)',
+        borderColor: 'rgba(247, 198, 21, 0.8)',
+        borderWidth: 1,
     },
     purchaseButton: {
         backgroundColor: Colors.gold.DEFAULT,
@@ -960,7 +974,7 @@ const styles = StyleSheet.create({
     sendButton: {
         position: 'absolute',
         right: 12,
-        bottom: 8,
+        bottom: Platform.OS === 'ios' ? 2 : 8,
         width: 30,
         height: "100%",
         alignItems: 'center',
@@ -968,7 +982,7 @@ const styles = StyleSheet.create({
     },
     sendButtonText: {
         color: '#f7c615',
-        fontSize: 20,
+        fontSize: 32,
     },
     sendButtonDisabled: {
         opacity: 0.5,
