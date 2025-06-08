@@ -613,7 +613,7 @@ export default function ChatScreen() {
                     <View style={styles.header}>
                         <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
                             <LinearGradient
-                                colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                                colors={Platform.OS === 'ios' ? ['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)'] : ['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
                                 style={StyleSheet.absoluteFill}
                                 start={{ x: 0.5, y: 0 }}
                                 end={{ x: 0.5, y: 1 }}
