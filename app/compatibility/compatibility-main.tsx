@@ -19,7 +19,7 @@ export default function CompatibilityScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/home")
+            router.back();
             return true;
         };
 
@@ -105,7 +105,7 @@ export default function CompatibilityScreen() {
                                         }}
                                         onPress={() => router.push({
                                             pathname: '/compatibility/compatibility-report',
-                                            params: { report: JSON.stringify(item) }
+                                            params: { report: JSON.stringify(item), index: key }
                                         })}
                                     />
                                 </View>

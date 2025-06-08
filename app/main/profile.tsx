@@ -50,7 +50,7 @@ export default function SettingsScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/home")
+            router.back();
             return true;
         };
 

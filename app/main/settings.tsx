@@ -16,7 +16,7 @@ export default function SettingsScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/profile")
+            router.back();
             return true;
         };
 
@@ -90,7 +90,7 @@ export default function SettingsScreen() {
     };
 
     const handleBack = () => {
-        router.push('/main/profile');
+        router.back();
     };
 
     const GradientText = ({ children, style }: { children: string; style?: any }) => {

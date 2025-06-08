@@ -161,7 +161,7 @@ export default function CompatibilityFormScreen() {
 
             router.push({
                 pathname: '/compatibility/compatibility-report',
-                params: { report: JSON.stringify(report) }
+                params: { report: JSON.stringify(report), index:JSON.stringify(response.data.index) }
             });
         } catch (error) {
             console.error('Error checking compatibility:', error);
@@ -173,7 +173,7 @@ export default function CompatibilityFormScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/compatibility/compatibility-main")
+            router.back();
             return true;
         };
 
@@ -186,7 +186,7 @@ export default function CompatibilityFormScreen() {
     }, []);
 
     const handleBack = () => {
-        router.push('/compatibility/compatibility-main');
+        router.back();
     };
 
     return (

@@ -47,7 +47,7 @@ export default function EditProfileScreen() {
 
   useEffect(() => {
     const backAction = () => {
-      router.push("/main/profile")
+      router.back();
       return true;
     };
 
@@ -265,7 +265,7 @@ export default function EditProfileScreen() {
   }, [birthPlace]);
 
   const handleBack = () => {
-    router.push('/main/profile');
+    router.back();
   };
 
   const handleUpdate = async () => {

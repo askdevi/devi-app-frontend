@@ -137,8 +137,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                     </Pressable>
                 </View>
                 <TouchableOpacity style={styles.walletContainer} onPress={() => router.push("/main/wallet")}>
-                    <Text style={styles.walletText}>Explore other</Text>
-                    <Text style={styles.walletText}>packages</Text>
+                    <Text style={styles.walletText}>Explore Packages</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -250,6 +249,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
         marginTop: 10,
+        marginBottom: 10,
     },
     button: {
         width: '100%',
@@ -275,8 +275,8 @@ const styles = StyleSheet.create({
         borderRadius: 60,
     },
     walletContainer: {
-        width: 150,
-        height: 56,
+        width: 170,
+        height: 48,
         marginTop: 5,
         borderWidth: 1,
         borderColor: Colors.gold.DEFAULT,
