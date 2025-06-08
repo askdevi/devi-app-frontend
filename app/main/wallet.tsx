@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -20,16 +21,14 @@ import { getUserId } from '@/constants/userId';
 import Footer from '@/components/Footer';
 import MaskedView from '@react-native-masked-view/masked-view';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  Easing,
-  interpolateColor,
+  // useSharedValue,
+  // useAnimatedStyle,
+  // withRepeat,
+  // withSequence,
+  // withTiming,
+  // Easing,
+  // interpolateColor,
 } from 'react-native-reanimated';
-import { ActivityIndicator } from 'react-native';
-
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -62,45 +61,45 @@ const timePlans = [
 export default function WalletScreen() {
   const router = useRouter();
   const [time, setTime] = useState(0);
-  const [processingId, setProcessingId] = useState<number | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
-  const glowOpacity = useSharedValue(0.5);
-  const glowScale = useSharedValue(1);
+    // const glowOpacity = useSharedValue(0.5);
+    // const glowScale = useSharedValue(1);
 
-  useEffect(() => {
-    glowOpacity.value = withRepeat(
-      withSequence(
-        withTiming(0.8, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.5, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      true
-    );
+  // useEffect(() => {
+  //   glowOpacity.value = withRepeat(
+  //     withSequence(
+  //       withTiming(0.8, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+  //       withTiming(0.5, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+  //     ),
+  //     -1,
+  //     true
+  //   );
 
-    glowScale.value = withRepeat(
-      withSequence(
-        withTiming(1.02, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      true
-    );
-  }, []);
+  //   glowScale.value = withRepeat(
+  //     withSequence(
+  //       withTiming(1.02, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+  //       withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+  //     ),
+  //     -1,
+  //     true
+  //   );
+  // }, []);
 
-  const glowStyles = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      glowOpacity.value,
-      [0.5, 0.8],
-      ['rgba(255, 215, 0, 0.1)', 'rgba(253, 185, 49, 0.2)']
-    );
+  // const glowStyles = useAnimatedStyle(() => {
+  //   const backgroundColor = interpolateColor(
+  //     glowOpacity.value,
+  //     [0.5, 0.8],
+  //     ['rgba(255, 215, 0, 0.1)', 'rgba(253, 185, 49, 0.2)']
+  //   );
 
-    return {
-      backgroundColor,
-      transform: [{ scale: glowScale.value }],
-      borderRadius: 16,
-      opacity: glowOpacity.value,
-    };
-  });
+  //   return {
+  //     backgroundColor,
+  //     transform: [{ scale: glowScale.value }],
+  //     borderRadius: 16,
+  //     opacity: glowOpacity.value,
+  //   };
+  // });
 
   useEffect(() => {
     const loadData = async () => {
@@ -125,10 +124,13 @@ export default function WalletScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleBack = () => {
+    router.push('/main/home');
+  };
 
-  const handlePurchase = async (pkg: any, index: number) => {
-    if (processingId !== null) return;
-    setProcessingId(index);
+  const handlePurchase = async (pkg: any) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     try {
       const userId = await getUserId();
       // 1. Create order on server
@@ -154,18 +156,20 @@ export default function WalletScreen() {
           email: '',
           contact: contact,
         },
-        theme: { color: "hsl(274, 100%, 10%)" },
+        theme: { color: Colors.deepPurple.DEFAULT },
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
-        // 3. Verify payment
-        const verifyRes = await axios.post(`${Domain}/verify-payment`, {
-          razorpay_payment_id: payment.razorpay_payment_id,
-          userId,
-          tokensBought: 0,
-          timeDuration: pkg.duration,
-          amountPaid: pkg.price,
-        });
-        if (verifyRes.data.success) {
+          // 3. Verify payment
+          const verifyRes = await axios.post(`${Domain}/verify-payment`, {
+            razorpay_payment_id: payment.razorpay_payment_id,
+            userId,
+            tokensBought: 0,
+            timeDuration: pkg.duration,
+            amountPaid: pkg.price,
+          });
+          if (verifyRes.data.success) {
+          // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
+          // Update local storage or state
           const newTimeEnd = verifyRes.data.timeEnd;
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
@@ -182,7 +186,7 @@ export default function WalletScreen() {
       console.error(e);
       Alert.alert('Error', e.message || 'Something went wrong.');
     } finally {
-      setProcessingId(null);
+      setIsProcessing(false);
     }
   };
 
@@ -242,13 +246,10 @@ export default function WalletScreen() {
             <View style={styles.divider} />
             <Text style={styles.packagesTitle}>Time Packages</Text>
             {timePlans.map((pkg, idx) => (
-              <Animated.View key={idx} style={[
-                styles.packageCard,
-                idx === 1 && { borderColor: `${Colors.gold.DEFAULT}80`, borderWidth: 2 }
-              ]}>
-                {idx === 1 ? (
+              <Animated.View key={idx} style={[styles.packageCard]}>
+                {/* {idx === 1 ? (
                   <Animated.View style={[styles.glowWrapper, glowStyles]} />
-                ) : null}
+                ) : null} */}
                 {pkg.discount && (
                   <Text style={styles.discount}>{pkg.discount}% OFF</Text>
                 )}
@@ -265,17 +266,24 @@ export default function WalletScreen() {
                     <Text style={[styles.packagePrice, { marginRight: 10 }]}>
                       ₹{pkg.price}
                     </Text>
-                    {pkg.discount && (<Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
+                    {pkg.discount && ( <Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
                   </View>
                   <TouchableOpacity
-                    style={[styles.buyButton, processingId === idx && { opacity: 0.5 }]}
-                    onPress={() => handlePurchase(pkg, idx)}
-                    disabled={processingId !== null}
+                    style={[styles.buyButton, isProcessing && { opacity: 0.5 }]}
+                    onPress={() => handlePurchase(pkg)}
+                    disabled={isProcessing}
                   >
-                    {processingId !== idx && <Ionicons name="card-outline" color={Colors.white} size={20} />}
-                    <Text style={styles.buyButtonText}>
-                      {processingId === idx ? <ActivityIndicator size="small" color="white" /> : 'Buy Now'}
-                    </Text>
+                    <LinearGradient
+                      colors={['#a05afc', '#7c3aed', '#5b21b6']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.gradientButton}
+                    >
+                      <Ionicons name="card-outline" color={Colors.white} size={20} />
+                      <Text style={styles.buyButtonText}>
+                        {isProcessing ? 'Processing...' : 'Buy Now'}
+                      </Text>
+                    </LinearGradient>
                   </TouchableOpacity>
                 </View>
               </Animated.View>
@@ -291,18 +299,18 @@ export default function WalletScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "hsl(274, 100%, 10%)",
+    backgroundColor: Colors.deepPurple.DEFAULT,
   },
   container: {
     flex: 1,
-    backgroundColor: "hsl(274, 100%, 10%)",
+    backgroundColor: Colors.deepPurple.DEFAULT,
   },
   content: {
     paddingHorizontal: 20,
   },
   scrollView: {
     flex: 1,
-    marginBottom: 80,
+    marginBottom: 70,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -337,8 +345,8 @@ const styles = StyleSheet.create({
     borderRadius: 1.5,
   },
   balanceContainer: {
-    flexDirection: 'row',
     marginTop: 10,
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   balanceItem: {
@@ -366,21 +374,21 @@ const styles = StyleSheet.create({
   packageCard: {
     height: 170,
     position: 'relative',
-    borderColor: '#3a1a62',
-    borderWidth: 2,
-    backgroundColor: `${Colors.deepPurple.light}`,
-    borderRadius: 16,
+    backgroundColor: 'rgba(80, 20, 120, 0.5)', // bg-purple-900/20
+    borderRadius: 20, // rounded-lg
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
     marginBottom: 16,
   },
-  glowWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: -1,
-    borderRadius: 16, // only works on iOS
-  },
+  // glowWrapper: {
+  //   position: 'absolute',
+  //   top: 0,
+  //   left: 0,
+  //   right: 0,
+  //   bottom: 0,
+  //   zIndex: -1,
+  //   borderRadius: 16, // only works on iOS
+  // },
 
   discount: {
     backgroundColor: `${Colors.gold.DEFAULT}`,
@@ -424,9 +432,8 @@ const styles = StyleSheet.create({
   },
 
   buyButton: {
-    flexDirection: "row",
-    justifyContent: "center",
-    backgroundColor: '#a05afc',
+    flexDirection:"row",
+    justifyContent:"center",
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -436,13 +443,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
-    textAlign: "center",
-    marginLeft: 5
+    textAlign:"center",
+    marginLeft:5
   },
 
   divider: {
     height: 1,
     backgroundColor: '#4e2a7f',
     marginVertical: 20,
+  },
+
+  gradientButton: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: 10,
   },
 });

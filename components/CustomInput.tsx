@@ -40,7 +40,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
         onFocus={() => setIsFocused(true)}
         onChangeText={onChange}
         placeholder={placeholder}
-        placeholderTextColor={`${Colors.gold.DEFAULT}20`}
+        placeholderTextColor={`${Colors.gold.DEFAULT}40`}
         {...rest}
       />
       {!!errorMsg && (
