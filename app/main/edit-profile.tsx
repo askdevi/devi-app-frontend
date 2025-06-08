@@ -281,6 +281,7 @@ export default function EditProfileScreen() {
     setUpdating(true);
 
     try {
+
       const userId = await getUserId();
 
       // Convert 12-hour format to 24-hour format
@@ -554,7 +555,7 @@ export default function EditProfileScreen() {
                     textInputProps={{
                       onFocus: () => setIsFocused(true),
                       onBlur: () => setIsFocused(false),
-                      placeholderTextColor: `${Colors.gold.DEFAULT}20`,
+                      placeholderTextColor: `${Colors.gold.DEFAULT}40`,
                       onChangeText: (text) => {
                         if (text.length === 0) {
                           if (!birthPlace || birthPlace !== text) {

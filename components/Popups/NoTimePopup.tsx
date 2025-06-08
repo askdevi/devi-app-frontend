@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Animated, Alert, Platform } from 'react-native';
 import { X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -102,9 +102,9 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                     end={{ x: 0.5, y: 1 }}
                 />
                 <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                    <X color={Colors.gold.DEFAULT} size={18} />
+                    <X color={Colors.gold.DEFAULT} size={24} />
                 </TouchableOpacity>
-                <Text style={styles.title}>No time left</Text>
+                <Text style={styles.title}>No Time Left!</Text>
                 <View style={styles.packageCard}>
                     <Text style={styles.discount}>{pkg.discount}% OFF</Text>
                     <Text style={styles.packageLabel}>{pkg.duration}</Text>
@@ -146,10 +146,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: "100%",
-        height: "100%",
+        height: Platform.OS === 'ios' ? "115%" : "100%",
         position: 'absolute',
-        top: 0,
-        left: 0,
         zIndex: 10000,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         // paddingTop: 160,
@@ -170,11 +168,8 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         position: 'absolute',
-        top: 15,
-        right: 15,
-        borderRadius: 100,
-        borderColor: Colors.gold.DEFAULT,
-        borderWidth: 2,
+        top: 20,
+        right: 20,
         padding: 5,
     },
     logo: {
@@ -193,6 +188,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#2b0050',
         borderRadius: 16,
         padding: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(247, 198, 21, 0.3)',
         marginBottom: 16,
         width: '80%',
         alignItems: 'center',

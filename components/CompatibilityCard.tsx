@@ -59,9 +59,16 @@ const CompatibilityCard = ({ name, date, time, score, onDelete, onPress }: Props
             <View style={styles.cardContent}>
                 <View style={styles.leftSection}>
                     <Text style={styles.title}>{name}</Text>
-                    <Text style={styles.updatedText}>
-                        Birth Time: {date} at {time}
-                    </Text>
+                    <View style={styles.detailsContainer}>
+                        <View style={styles.detailRow}>
+                            <Ionicons name="calendar-outline" size={16} color={Colors.gold.DEFAULT} />
+                            <Text style={styles.detailText}>{date}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                            <Ionicons name="time-outline" size={16} color={Colors.gold.DEFAULT} />
+                            <Text style={styles.detailText}>{time}</Text>
+                        </View>
+                    </View>
                 </View>
                 <View style={styles.rightSection}>
                     <CircularProgress percentage={percentage} size={50} strokeWidth={5} />
@@ -80,7 +87,8 @@ const styles = StyleSheet.create({
         borderRadius: 24, // rounded-lg
         borderWidth: 1,
         borderColor: 'rgba(168, 85, 247, 0.3)',
-        padding: 16,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
         marginBottom: 20,
     },
     cardContent: {
@@ -104,6 +112,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: Colors.gold.DEFAULT,
         marginBottom: 8,
+    },
+    detailsContainer: {
+        gap: 4,
+    },
+    detailRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    detailText: {
+        fontSize: 13,
+        color: '#aaa',
     },
     updatedText: {
         fontSize: 13,

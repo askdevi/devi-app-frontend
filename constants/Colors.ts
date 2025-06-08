@@ -9,6 +9,7 @@ const Colors = {
     DEFAULT: '#FFD700',
     light: '#FFE55C'
   },
+  labelGrey: '#d1d5dbe6',
   orange: '#FFA500',
   white: '#FFFFFF',
   black: '#000000',
