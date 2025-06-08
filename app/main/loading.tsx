@@ -204,6 +204,7 @@ export default function LoadingScreen() {
                     await AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data));
 
                     await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
+                    await AsyncStorage.setItem('popupShown', 'false');
 
                     const sign1 = await AsyncStorage.getItem('profilePic');
 

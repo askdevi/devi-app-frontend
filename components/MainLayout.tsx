@@ -12,17 +12,27 @@ import FreeTimePopup from './Popups/FreeTimePopup';
 
 const MainLayout = () => {
   const [showPopup, setShowPopup] = useState(false);
+
   useEffect(() => {
     const loadData = async () => {
       const startedFreeMinutes1 = await AsyncStorage.getItem('startedFreeMinutes');
+      const popupShown = await AsyncStorage.getItem('popupShown');
       const startedFreeMinutesInt = parseInt(startedFreeMinutes1 || '1');
       if (startedFreeMinutesInt === 0) {
-        setShowPopup(true);
+        if (popupShown === 'false') {
+          await AsyncStorage.setItem('popupShown', 'true');
+          setShowPopup(true);
+        }
+        else {
+          if (Math.random() < 0.5) {
+            setShowPopup(true);
+          }
+        }
       }
     };
     loadData();
   }, []);
-  
+
   return (
     <SafeAreaProvider>
       {showPopup && <FreeTimePopup onClose={() => setShowPopup(false)} />}
