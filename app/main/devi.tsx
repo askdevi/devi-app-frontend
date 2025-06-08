@@ -377,8 +377,8 @@ export default function ChatScreen() {
         // Reset 5-second inactivity timer
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
-            flushBuffer(); // <-- flush buffer after 10s of inactivity
-        }, 10000);
+            flushBuffer(); // <-- flush buffer after 5s of inactivity
+        }, 5000);
         setTypingTimeout(timeout as unknown as NodeJS.Timeout);
     }, [newMessage, isRequestInFlight, typingTimeout, flushBuffer]);
 
