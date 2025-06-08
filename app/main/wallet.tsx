@@ -46,7 +46,7 @@ const timePlans = [
     name: '1 Hour Access',
     duration: '1 Hour',
     originalPrice: 299,
-    price: 1,
+    price: 199,
     get discount() { return calculateDiscount(this.originalPrice, this.price); }
   },
   {
@@ -63,8 +63,8 @@ export default function WalletScreen() {
   const [time, setTime] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
-    // const glowOpacity = useSharedValue(0.5);
-    // const glowScale = useSharedValue(1);
+  // const glowOpacity = useSharedValue(0.5);
+  // const glowScale = useSharedValue(1);
 
   // useEffect(() => {
   //   glowOpacity.value = withRepeat(
@@ -155,15 +155,15 @@ export default function WalletScreen() {
         theme: { color: Colors.deepPurple.DEFAULT },
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
-          // 3. Verify payment
-          const verifyRes = await axios.post(`${Domain}/verify-payment`, {
-            razorpay_payment_id: payment.razorpay_payment_id,
-            userId,
-            tokensBought: 0,
-            timeDuration: pkg.duration,
-            amountPaid: pkg.price,
-          });
-          if (verifyRes.data.success) {
+        // 3. Verify payment
+        const verifyRes = await axios.post(`${Domain}/verify-payment`, {
+          razorpay_payment_id: payment.razorpay_payment_id,
+          userId,
+          tokensBought: 0,
+          timeDuration: pkg.duration,
+          amountPaid: pkg.price,
+        });
+        if (verifyRes.data.success) {
           // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
           // Update local storage or state
           const newTimeEnd = verifyRes.data.timeEnd;
@@ -262,7 +262,7 @@ export default function WalletScreen() {
                     <Text style={[styles.packagePrice, { marginRight: 10 }]}>
                       ₹{pkg.price}
                     </Text>
-                    {pkg.discount && ( <Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
+                    {pkg.discount && (<Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
                   </View>
                   <TouchableOpacity
                     style={[styles.buyButton, isProcessing && { opacity: 0.5 }]}
@@ -428,8 +428,8 @@ const styles = StyleSheet.create({
   },
 
   buyButton: {
-    flexDirection:"row",
-    justifyContent:"center",
+    flexDirection: "row",
+    justifyContent: "center",
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -439,8 +439,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
-    textAlign:"center",
-    marginLeft:5
+    textAlign: "center",
+    marginLeft: 5
   },
 
   divider: {
