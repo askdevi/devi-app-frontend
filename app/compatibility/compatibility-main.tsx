@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, BackHandler, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, BackHandler, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import Footer from '@/components/Footer';
 import { ActivityIndicator } from 'react-native';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import axios from 'axios';
 import CompatibilityCard from '@/components/CompatibilityCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import ShinyButton from '@/components/ShinyButton';
@@ -21,7 +19,7 @@ export default function CompatibilityScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/home")
+            router.back();
             return true;
         };
 
@@ -107,7 +105,7 @@ export default function CompatibilityScreen() {
                                         }}
                                         onPress={() => router.push({
                                             pathname: '/compatibility/compatibility-report',
-                                            params: { report: JSON.stringify(item) }
+                                            params: { report: JSON.stringify(item), index: key }
                                         })}
                                     />
                                 </View>
@@ -144,7 +142,7 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        paddingTop: 30,
+        paddingTop: 20,
     },
     scrollView: {
         flex: 1,

@@ -116,7 +116,7 @@ export default function ChatHistoryDetailScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/chat-history")
+            router.back();
             return true;
         };
 
@@ -129,7 +129,7 @@ export default function ChatHistoryDetailScreen() {
     }, []);
 
     const handleBack = () => {
-        router.push('/main/chat-history');
+        router.back();
     };
 
     const floatAnimation = useMemo(() => {

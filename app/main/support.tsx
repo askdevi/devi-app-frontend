@@ -38,7 +38,7 @@ export default function SupportScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/profile")
+            router.back();
             return true;
         };
 
@@ -67,7 +67,7 @@ export default function SupportScreen() {
     };
 
     const handleBack = () => {
-        router.push('/main/profile');
+        router.back();
     };
 
     const isFormValid = name.trim() && topic && message.trim();

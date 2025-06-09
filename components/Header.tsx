@@ -78,7 +78,7 @@ const Header = () => {
         <TouchableOpacity
           style={styles.iconButton1}
           onPress={handleTimePress}
-          accessibilityLabel="Account"
+          accessibilityLabel="Time Left"
         >
           {/* <View style={styles.iconButton}> */}
           <Clock color={Colors.gold.DEFAULT} size={20} />

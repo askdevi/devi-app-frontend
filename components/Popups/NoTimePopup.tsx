@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Animated, Alert, Platform } from 'react-native';
 import { X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 interface Props {
     setTime: (time: number) => void;
@@ -102,39 +103,42 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                     end={{ x: 0.5, y: 1 }}
                 />
                 <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                    <X color={Colors.gold.DEFAULT} size={18} />
+                    <X color={Colors.gold.DEFAULT} size={24} />
                 </TouchableOpacity>
-                <Text style={styles.title}>No time left</Text>
+                <Text style={styles.title}>No Time Left!</Text>
                 <View style={styles.packageCard}>
                     <Text style={styles.discount}>{pkg.discount}% OFF</Text>
                     <Text style={styles.packageLabel}>{pkg.duration}</Text>
                     <Text style={styles.packageSub}>Unlimited Questions</Text>
                     <Text style={styles.strikePrice}>₹{pkg.originalPrice}</Text>
                     <Text style={styles.packagePrice}>₹{pkg.price}</Text>
+                    <Pressable style={styles.buttonContainer} onPress={() => handlePurchase()}>
+                        <LinearGradient
+                            colors={Colors.gradients.goldPrimary}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={[styles.button, isProcessing && { opacity: 0.5 }]}
+                        >
+                            <Text style={styles.buttonText}>{isProcessing ? 'Processing...' : 'Buy Now'}</Text>
+                            <Animated.View
+                                style={[
+                                    styles.buttonShine,
+                                    {
+                                        transform: [{
+                                            translateX: buttonGradient.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: [-100, 200]
+                                            })
+                                        }]
+                                    }
+                                ]}
+                            />
+                        </LinearGradient>
+                    </Pressable>
                 </View>
-                <Pressable style={styles.buttonContainer} onPress={() => handlePurchase()}>
-                    <LinearGradient
-                        colors={Colors.gradients.goldPrimary}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={[styles.button, isProcessing && { opacity: 0.5 }]}
-                    >
-                        <Text style={styles.buttonText}>{isProcessing ? 'Processing...' : 'Buy Now'}</Text>
-                        <Animated.View
-                            style={[
-                                styles.buttonShine,
-                                {
-                                    transform: [{
-                                        translateX: buttonGradient.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [-100, 200]
-                                        })
-                                    }]
-                                }
-                            ]}
-                        />
-                    </LinearGradient>
-                </Pressable>
+                <TouchableOpacity style={styles.walletContainer} onPress={() => router.push("/main/wallet")}>
+                    <Text style={styles.walletText}>Explore Packages</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -146,10 +150,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: "100%",
-        height: "100%",
+        height: Platform.OS === 'ios' ? "115%" : "110%",
         position: 'absolute',
-        top: 0,
-        left: 0,
         zIndex: 10000,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         // paddingTop: 160,
@@ -164,17 +166,14 @@ const styles = StyleSheet.create({
     },
     popup: {
         width: '80%',
-        height: '45%',
+        height: '50%',
         justifyContent: 'center',
         alignItems: 'center',
     },
     closeButton: {
         position: 'absolute',
-        top: 15,
-        right: 15,
-        borderRadius: 100,
-        borderColor: Colors.gold.DEFAULT,
-        borderWidth: 2,
+        top: 20,
+        right: 20,
         padding: 5,
     },
     logo: {
@@ -193,6 +192,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#2b0050',
         borderRadius: 16,
         padding: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(247, 198, 21, 0.3)',
         marginBottom: 16,
         width: '80%',
         alignItems: 'center',
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
         marginVertical: 4,
     },
     buttonContainer: {
-        width: 180,
+        width: 170,
         height: 48,
         borderRadius: 24,
         overflow: 'hidden',
@@ -248,6 +249,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
         marginTop: 10,
+        marginBottom: 10,
     },
     button: {
         width: '100%',
@@ -271,6 +273,23 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.15)',
         transform: [{ skewX: '-25deg' }],
         borderRadius: 60,
+    },
+    walletContainer: {
+        width: 170,
+        height: 48,
+        marginTop: 5,
+        borderWidth: 1,
+        borderColor: Colors.gold.DEFAULT,
+        borderRadius: 26,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    walletText: {
+        color: Colors.gold.DEFAULT,
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });
 

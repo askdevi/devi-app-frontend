@@ -22,7 +22,7 @@ const FreeTimePopup = ({ onClose }: Props) => {
                     end={{ x: 0.5, y: 1 }}
                 />
                 <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                    <X color={Colors.gold.DEFAULT} size={18} />
+                    <X color={Colors.gold.DEFAULT} size={24} />
                 </TouchableOpacity>
                 <Image
                     source={require('../../assets/images/welcome.png')}
@@ -86,14 +86,13 @@ const styles = StyleSheet.create({
         height: '60%',
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 40
     },
     closeButton: {
         position: 'absolute',
         top: 15,
         right: 20,
         borderRadius: 100,
-        borderColor: Colors.gold.DEFAULT,
-        borderWidth: 2,
         padding: 5,
     },
     logo: {
