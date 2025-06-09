@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
+import { View, StyleSheet, BackHandler, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MainLayout from '@/components/MainLayout';
 
@@ -21,6 +21,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <LinearGradient
         colors={['#0a0219', '#1a0632', '#0a0219']}
         style={styles.background}

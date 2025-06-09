@@ -129,7 +129,7 @@ export default function Index() {
       const userId = await getUserId();
       try {
         if (!userId) {
-          router.push('/signup/phone');
+          router.replace('/signup/phone');
           return;
         }
 
@@ -164,7 +164,7 @@ export default function Index() {
 
         if (!registrationSuccess) {
           // Registration failed or timed out, redirect to registration
-          router.push('/register/name');
+          router.replace('/register/name');
           return;
         }
 
@@ -204,6 +204,7 @@ export default function Index() {
           await AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data));
 
           await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
+          await AsyncStorage.setItem('popupShown', 'false');
 
           const sign1 = await AsyncStorage.getItem('profilePic');
 
@@ -211,18 +212,18 @@ export default function Index() {
             await AsyncStorage.setItem('profilePic', response2.data.user.sign + " " + response2.data.user.gender);
           }
 
-          router.push('/main/home');
+          router.replace('/main/home');
         } else {
-          router.push('/signup/phone');
+          router.replace('/signup/phone');
         }
       } catch (error) {
         console.log('LoadingScreen: Error initializing app:', error);
         if (!userId) {
           console.log('LoadingScreen: No userId after error, redirecting to /signup/phone');
-          router.push('/signup/phone');
+          router.replace('/signup/phone');
         } else {
           console.log('LoadingScreen: UserId exists after error, redirecting to /register/name');
-          router.push('/register/name');
+          router.replace('/register/name');
         }
       }
     };
