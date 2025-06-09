@@ -55,10 +55,6 @@ const Header = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleTimePress = () => {
-    handlePress(() => router.push('/main/wallet' as any));
-  };
-
   return (
     <>
       {/* <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}> */}
@@ -77,12 +73,9 @@ const Header = () => {
         </View>
         <TouchableOpacity
           style={styles.iconButton1}
-          onPress={handleTimePress}
-          accessibilityLabel="Time Left"
+          onPress={() => handlePress(() => router.push('/main/wallet'))}
         >
-          {/* <View style={styles.iconButton}> */}
           <Clock color={Colors.gold.DEFAULT} size={20} />
-          {/* </View> */}
           <Text style={styles.coinText}>
             {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
           </Text>
@@ -156,6 +149,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    zIndex: 2,
   }
 
 });
