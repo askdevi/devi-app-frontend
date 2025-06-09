@@ -39,7 +39,7 @@ const occupationsData = [
   { label: 'Other', value: 'Other' },
 ];
 export default function PersonalDetailsScreen() {
-  
+
   const router = useRouter();
   const [language, setLanguage] = useState('');
   const [relationshipStatus, setRelationshipStatus] = useState('');
@@ -66,7 +66,7 @@ export default function PersonalDetailsScreen() {
       const userId = await getUserId();
 
       // Push to loading immediately after saving local data
-      router.push('/main/loading' as any);
+      router.push('/');
 
       // Start the registration API call asynchronously (without await)
       // This WILL execute after router.push since router.push is non-blocking
@@ -104,7 +104,7 @@ export default function PersonalDetailsScreen() {
 
       // Execute registration in background - this runs after router.push
       registerUser();
-      
+
     } catch (error: any) {
       console.log('PersonalDetailsScreen: Error in handleComplete:', {
         message: error.message,

@@ -11,9 +11,10 @@ import {
   Animated,
   ScrollView,
   KeyboardAvoidingView,
+  StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import Colors from '@/constants/Colors';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Domain from '@/constants/domain';
 import axios from 'axios';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
@@ -24,7 +25,8 @@ import BackgroundGradient from '@/components/BackgroundGradient';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import PhoneTextInput from '@/components/PhoneTextInput';
-import {ActivityIndicator} from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import Colors from '@/constants/Colors';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
@@ -139,8 +141,8 @@ export default function PhoneScreen() {
   );
 
   const handleSubmit = async () => {
-    if(loading) return;
-    
+    if (loading) return;
+
     if (!phone || phone.length < 10) {
       setError('Please enter a valid phone number');
       return;
@@ -166,57 +168,64 @@ export default function PhoneScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <SafeAreaProvider style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       // keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
       >
-        <BackgroundGradient />
-        <BackgroundEffects count={20}/>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <BackgroundGradient />
+          <BackgroundEffects count={20} />
 
-        <View style={styles.content}>
-          <View style={styles.logoContainer}>
-            <RippleRings />
-            <GlowEffect />
-            <Image
-              source={require('@/assets/images/logo.png')}
-              style={styles.logo}
-              resizeMode="contain"
+          <View style={styles.content}>
+            <View style={styles.logoContainer}>
+              <RippleRings />
+              <GlowEffect />
+              <Image
+                source={require('@/assets/images/logo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <OrbitingStars />
+            </View>
+
+            <GradientTitle />
+            <Text style={styles.subtitle}>Your Personal Vedic Astrologer</Text>
+            <PhoneTextInput
+              placeholder="Enter your phone number"
+              value={phone}
+              editable={true}
+              // label='Phone Number'
+              onChange={setPhone}
             />
-            <OrbitingStars />
+
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <TouchableOpacity style={styles.buttonContainer} onPress={handleSubmit} activeOpacity={0.8} disabled={loading}>
+              <LinearGradient colors={['#FFD700', '#FFA500', '#FFD700']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.button}>
+                <Text style={styles.buttonText}>{loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Send OTP'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TermsText />
           </View>
-
-          <GradientTitle />
-          <Text style={styles.subtitle}>Your Personal Vedic Astrologer</Text>
-   <PhoneTextInput
-                  placeholder="Enter your phone number"
-                  value={phone}
-                  editable={true}
-                  // label='Phone Number'
-                  onChange={setPhone}
-                />
-
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-          <TouchableOpacity style={styles.buttonContainer} onPress={handleSubmit} activeOpacity={0.8} disabled={loading}>
-            <LinearGradient colors={['#FFD700', '#FFA500', '#FFD700']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.button}>
-              <Text style={styles.buttonText}>{loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Send OTP'}</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TermsText />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.deepPurple.DEFAULT, },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.deepPurple.DEFAULT,
+    height: '100%',
+  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
