@@ -15,7 +15,12 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
+    },
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#342661"
     },
     "plugins": [
       "expo-router",
@@ -28,6 +33,16 @@
     },
     "android": {
       "package": "com.hrish17.boltexponativewind"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a9e840f6-017e-440f-872e-b2afa3f42e3e"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/a9e840f6-017e-440f-872e-b2afa3f42e3e"
     }
   }
 }
