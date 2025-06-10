@@ -45,19 +45,19 @@ const genderData = [
 export default function EditProfileScreen() {
   const router = useRouter();
 
-  useEffect(() => {
-    const backAction = () => {
-      router.back();
-      return true;
-    };
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     router.back();
+  //     return true;
+  //   };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction
+  //   );
 
-    return () => backHandler.remove();
-  }, []);
+  //   return () => backHandler.remove();
+  // }, []);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -159,11 +159,11 @@ export default function EditProfileScreen() {
         );
         let storedOccupation = await AsyncStorage.getItem('occupation');
         let storedGender = await AsyncStorage.getItem('gender');
-        
+
         const storedBirthPlace = storedBirthPlace1
           ? JSON.parse(storedBirthPlace1)
           : null;
-          
+
         const storedBirthDate = await AsyncStorage.getItem('birthDate');
         const storedBirthTime = await AsyncStorage.getItem('birthTime');
         const storedDay = storedBirthDate ? storedBirthDate.split('-')[2] : '';
@@ -286,7 +286,7 @@ export default function EditProfileScreen() {
 
       // Convert 12-hour format to 24-hour format
       let hour24 = parseInt(hour);
-      
+
       if (birthTimePeriod === 'AM') {
         // Handle AM times
         if (hour24 === 12) {
@@ -300,7 +300,7 @@ export default function EditProfileScreen() {
         }
         // 12 PM remains 12 (noon)
       }
-      
+
       const birthTime = `${hour24.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
 
       if (!birthPlace) {
@@ -750,9 +750,9 @@ export default function EditProfileScreen() {
                     <View style={styles.buttonContent}>
                       {updating ? (
                         <>
-                          <ActivityIndicator 
-                            size="small" 
-                            color={Colors.deepPurple.DEFAULT} 
+                          <ActivityIndicator
+                            size="small"
+                            color={Colors.deepPurple.DEFAULT}
                             style={{ marginRight: 8 }}
                           />
                           <Text style={styles.continueButtonText}>Updating...</Text>

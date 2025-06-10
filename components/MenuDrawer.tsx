@@ -26,32 +26,26 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
 
   const handleSettings = () => {
     router.push('/main/settings');
-    onClose();
   };
 
   const handleWallet = () => {
     router.push('/main/wallet');
-    onClose();
   };
 
   const handleProfile = () => {
     router.push('/main/edit-profile');
-    onClose();
   };
 
   const handleChat = () => {
     router.push('/main/devi');
-    onClose();
   };
 
   const handleChatHistory = () => {
-    router.push('/main/chat-history');
-    onClose();
+    router.push('/main/chat-history')
   };
 
   const handleSupport = () => {
     router.push('/main/support');
-    onClose();
   };
 
   useEffect(() => {

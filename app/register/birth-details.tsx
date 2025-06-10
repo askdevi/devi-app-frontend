@@ -53,7 +53,7 @@ export default function BirthDetailsScreen() {
     }
   };
 
-  const validateYear = async(text: string) => {
+  const validateYear = async (text: string) => {
     let val = text;
     if (parseInt(val) > currentYear) val = await currentYear.toString();
     const final = val.toString();
@@ -79,12 +79,12 @@ export default function BirthDetailsScreen() {
   const handleContinue = async () => {
 
     try {
-      const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
-      
+      const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
       let birthTime = null;
       if (knowsBirthTime) {
         let hour24 = parseInt(hour);
-        
+
         if (birthTimePeriod === 'AM') {
           // Handle AM times
           if (hour24 === 12) {
@@ -98,10 +98,10 @@ export default function BirthDetailsScreen() {
           }
           // 12 PM remains 12 (noon)
         }
-        
+
         birthTime = `${hour24.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
       }
-      
+
       await AsyncStorage.setItem('birthDate', birthDate);
       await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '12:00');
       router.push('/register/birth-place');

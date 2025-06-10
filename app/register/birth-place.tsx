@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Animated, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, ArrowRight, ArrowLeft} from 'lucide-react-native';
+import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
@@ -17,7 +17,7 @@ export default function BirthPlaceScreen() {
   const [isValidPlaceSelected, setIsValidPlaceSelected] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
-  
+
   const handleContinue = async () => {
 
     if (!isValidPlaceSelected || !birthPlace.trim()) {
@@ -67,171 +67,171 @@ export default function BirthPlaceScreen() {
       </MaskedView>
     );
   };
-  
+
   return (
-  <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} accessible={false} >
-    <View style={styles.container}>
-      <LinearGradient
-        colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
-        style={StyleSheet.absoluteFill}
-      />
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false} >
+      <View style={styles.container}>
+        <LinearGradient
+          colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
+          style={StyleSheet.absoluteFill}
+        />
 
-      <View style={styles.content}>
-        <SetupProgress currentStep={4} totalSteps={5} />
+        <View style={styles.content}>
+          <SetupProgress currentStep={4} totalSteps={5} />
 
-        <View style={styles.header}>
-          <GradientText style={styles.title}>Birth Place</GradientText>
-          <Text style={styles.subtitle}>Where were you born?</Text>
-        </View>
+          <View style={styles.header}>
+            <GradientText style={styles.title}>Birth Place</GradientText>
+            <Text style={styles.subtitle}>Where were you born?</Text>
+          </View>
 
-        <View style={[styles.form, { zIndex: 2 }]}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Birth Location</Text>
-            <GooglePlacesAutocomplete
-              placeholder="Enter your birth location"
-              fetchDetails={true}
-              onPress={(data, details = null) => {
-                if (details) {
-                  setBirthPlace(data.description);
-                  setBirthPlaceCoords({
-                    latitude: details.geometry.location.lat,
-                    longitude: details.geometry.location.lng
-                  });
-                  setIsValidPlaceSelected(true);
+          <View style={[styles.form, { zIndex: 2 }]}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Birth Location</Text>
+              <GooglePlacesAutocomplete
+                placeholder="Enter your birth location"
+                fetchDetails={true}
+                onPress={(data, details = null) => {
+                  if (details) {
+                    setBirthPlace(data.description);
+                    setBirthPlaceCoords({
+                      latitude: details.geometry.location.lat,
+                      longitude: details.geometry.location.lng
+                    });
+                    setIsValidPlaceSelected(true);
+                  }
+                }}
+                query={{
+                  key: 'AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw',
+                  language: 'en',
+                  types: '(cities)',
+                }}
+                styles={{
+                  container: {
+                    flex: 0,
+                  },
+                  textInput: {
+                    backgroundColor: 'rgba(45, 17, 82, 0.3)',
+                    borderWidth: 2,
+                    borderColor: (birthPlace.length > 0 || isFocused)
+                      ? `${Colors.gold.DEFAULT}90`
+                      : `${Colors.gold.DEFAULT}20`,
+                    borderRadius: 12,
+                    padding: 16,
+                    color: Colors.white,
+                    fontFamily: 'Poppins-Regular',
+                    fontSize: 16,
+                    placeholderTextColor: `${Colors.gold.DEFAULT}20`,
+                    // placeholderTextColor: `${Colors.gold.DEFAULT}40`,
+                  },
+                  listView: {
+                    backgroundColor: 'rgba(45, 17, 82, 1)',
+                    borderWidth: 2,
+                    borderColor: `${Colors.gold.DEFAULT}20`,
+                    borderRadius: 12,
+                    marginTop: 8,
+                    position: 'absolute',
+                    top: 50,
+                    left: 0,
+                    right: 0,
+                    zIndex: 1000,
+                  },
+                  row: {
+                    backgroundColor: 'transparent',
+                    padding: 13,
+                    height: 'auto',
+                    minHeight: 44,
+                  },
+                  description: {
+                    color: Colors.white,
+                    fontFamily: 'Poppins-Regular',
+                  },
+                  separator: {
+                    height: 1,
+                    backgroundColor: `${Colors.gold.DEFAULT}20`,
+                  },
+                }}
+                enablePoweredByContainer={false}
+                minLength={2}
+                debounce={200}
+                // All defaults explicitly mentioned
+                autoFillOnNotFound={false}
+                currentLocation={false}
+                currentLocationLabel="Current location"
+                disableScroll={false}
+                enableHighAccuracyLocation={false}
+                filterReverseGeocodingByTypes={[]}
+                GooglePlacesDetailsQuery={{}}
+                GooglePlacesSearchQuery={{
+                  rankby: 'distance',
+                  type: 'restaurant',
+                }}
+                GoogleReverseGeocodingQuery={{}}
+                isRowScrollable={true}
+                keyboardShouldPersistTaps="always"
+                listUnderlayColor="#c8c7cc"
+                listViewDisplayed="auto"
+                keepResultsAfterBlur={false}
+                nearbyPlacesAPI="GooglePlacesSearch"
+                numberOfLines={1}
+                onFail={() => { }}
+                onNotFound={() => { }}
+                onTimeout={() =>
+                  console.warn('google places autocomplete: request timeout')
                 }
-              }}
-              query={{
-                key: 'AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw',
-                language: 'en',
-                types: '(cities)',
-              }}
-              styles={{
-                container: {
-                  flex: 0,
-                },
-                textInput: {
-                  backgroundColor: 'rgba(45, 17, 82, 0.3)',
-                  borderWidth: 2,
-                  borderColor: (birthPlace.length>0 || isFocused)
-                            ? `${Colors.gold.DEFAULT}90`
-                            : `${Colors.gold.DEFAULT}20`,
-                  borderRadius: 12,
-                  padding: 16,
-                  color: Colors.white,
-                  fontFamily: 'Poppins-Regular',
-                  fontSize: 16,
+                predefinedPlaces={[]}
+                predefinedPlacesAlwaysVisible={false}
+                suppressDefaultStyles={false}
+                textInputHide={false}
+                textInputProps={{
+                  onFocus: () => setIsFocused(true),
+                  onBlur: () => setIsFocused(false),
                   placeholderTextColor: `${Colors.gold.DEFAULT}20`,
                   // placeholderTextColor: `${Colors.gold.DEFAULT}40`,
-                },
-                listView: {
-                  backgroundColor: 'rgba(45, 17, 82, 1)',
-                  borderWidth: 2,
-                  borderColor: `${Colors.gold.DEFAULT}20`,
-                  borderRadius: 12,
-                  marginTop: 8,
-                  position: 'absolute',
-                  top: 50,
-                  left: 0,
-                  right: 0,
-                  zIndex: 1000,
-                },
-                row: {
-                  backgroundColor: 'transparent',
-                  padding: 13,
-                  height: 'auto',
-                  minHeight: 44,
-                },
-                description: {
-                  color: Colors.white,
-                  fontFamily: 'Poppins-Regular',
-                },
-                separator: {
-                  height: 1,
-                  backgroundColor: `${Colors.gold.DEFAULT}20`,
-                },
-              }}
-              enablePoweredByContainer={false}
-              minLength={2}
-              debounce={200}
-              // All defaults explicitly mentioned
-              autoFillOnNotFound={false}
-              currentLocation={false}
-              currentLocationLabel="Current location"
-              disableScroll={false}
-              enableHighAccuracyLocation={false}
-              filterReverseGeocodingByTypes={[]}
-              GooglePlacesDetailsQuery={{}}
-              GooglePlacesSearchQuery={{
-                rankby: 'distance',
-                type: 'restaurant',
-              }}
-              GoogleReverseGeocodingQuery={{}}
-              isRowScrollable={true}
-              keyboardShouldPersistTaps="always"
-              listUnderlayColor="#c8c7cc"
-              listViewDisplayed="auto"
-              keepResultsAfterBlur={false}
-              nearbyPlacesAPI="GooglePlacesSearch"
-              numberOfLines={1}
-              onFail={() => {}}
-              onNotFound={() => {}}
-              onTimeout={() =>
-                console.warn('google places autocomplete: request timeout')
-              }
-              predefinedPlaces={[]}
-              predefinedPlacesAlwaysVisible={false}
-              suppressDefaultStyles={false}
-              textInputHide={false}
-              textInputProps={{
-                onFocus: () => setIsFocused(true),
-                onBlur: () => setIsFocused(false),
-                placeholderTextColor: `${Colors.gold.DEFAULT}20`,
-                // placeholderTextColor: `${Colors.gold.DEFAULT}40`,
-                onChangeText: (text) => {
-                  if (text.length === 0) {
-                    setIsValidPlaceSelected(false);
-                    setBirthPlace('');
+                  onChangeText: (text) => {
+                    if (text.length === 0) {
+                      setIsValidPlaceSelected(false);
+                      setBirthPlace('');
+                    }
                   }
-                }
-              }}
-              timeout={20000}
-            />
+                }}
+                timeout={20000}
+              />
+            </View>
           </View>
-        </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.previousButton}
-            onPress={handleBack}
-          >
-            <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
-            <Text style={styles.previousButtonText}>Previous</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.continueButton, !isValidPlaceSelected && styles.continueButtonDisabled]}
-            onPress={handleContinue}
-            disabled={!isValidPlaceSelected}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={Colors.gradients.goldPrimary}
-              style={styles.continueButtonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.previousButton}
+              onPress={handleBack}
             >
-              <Text style={styles.continueButtonText}>Continue</Text>
-              <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.quote}>
-          The cosmos whispers your truth through time and space
-        </Text>
+              <ArrowLeft color={Colors.gold.DEFAULT} size={20} />
+              <Text style={styles.previousButtonText}>Previous</Text>
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              style={[styles.continueButton, !isValidPlaceSelected && styles.continueButtonDisabled]}
+              onPress={handleContinue}
+              disabled={!isValidPlaceSelected}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={Colors.gradients.goldPrimary}
+                style={styles.continueButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.continueButtonText}>Continue</Text>
+                <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.quote}>
+            The cosmos whispers your truth through time and space
+          </Text>
+
+        </View>
       </View>
-    </View>
-  </TouchableWithoutFeedback>
+    </TouchableWithoutFeedback>
   );
 }
 

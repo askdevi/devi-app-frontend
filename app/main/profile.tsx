@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image, BackHandler, ImageSourcePropType } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Image, BackHandler, ImageSourcePropType, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -48,23 +48,10 @@ export default function SettingsScreen() {
     const [profilePic, setProfilePic] = useState('');
     const [showPopup, setShowPopup] = useState(false);
 
-    useEffect(() => {
-        const backAction = () => {
-            router.replace("/main/home");
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
-
-        return () => backHandler.remove();
-    }, []);
 
     const handleLogout = async () => {
         await SecureStore.deleteItemAsync('userToken');
-        router.replace('/signup/phone');
+        router.navigate('/signup/phone');
     };
 
     const handleSupport = () => {
@@ -132,6 +119,7 @@ export default function SettingsScreen() {
 
     return (
         <SafeAreaProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             {showPopup && <ProfilePics onClose={() => handleProfilePic()} />}
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
@@ -179,7 +167,7 @@ export default function SettingsScreen() {
                                     </View>
                                     <TouchableOpacity
                                         style={styles.addTimeButton}
-                                        onPress={() => router.push('/main/wallet')}
+                                        onPress={() => router.navigate('/main/wallet')}
                                     >
                                         <Text style={styles.addTimeButtonText}>Add More Minutes</Text>
                                     </TouchableOpacity>

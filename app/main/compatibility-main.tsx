@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, BackHandler, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, BackHandler, Platform, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -17,19 +17,19 @@ import ShinyButton from '@/components/ShinyButton';
 export default function CompatibilityScreen() {
     const router = useRouter();
 
-    useEffect(() => {
-        const backAction = () => {
-            router.replace("/main/home");
-            return true;
-        };
+    // useEffect(() => {
+    //     const backAction = () => {
+    //         router.back();
+    //         return true;
+    //     };
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
+    //     const backHandler = BackHandler.addEventListener(
+    //         'hardwareBackPress',
+    //         backAction
+    //     );
 
-        return () => backHandler.remove();
-    }, []);
+    //     return () => backHandler.remove();
+    // }, []);
 
     const [loading, setLoading] = useState(true);
     const [compatibility, setCompatibility] = useState([]);
@@ -77,6 +77,7 @@ export default function CompatibilityScreen() {
 
     return (
         <SafeAreaProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
 
@@ -104,7 +105,7 @@ export default function CompatibilityScreen() {
                                             total: item.total_points
                                         }}
                                         onPress={() => router.push({
-                                            pathname: '/compatibility/compatibility-report',
+                                            pathname: '/main/compatibility-report',
                                             params: { report: JSON.stringify(item), index: key }
                                         })}
                                     />
@@ -121,7 +122,7 @@ export default function CompatibilityScreen() {
                     <View style={styles.newCompatibilityContainer}>
                         <ShinyButton
                             title="Add New Partner"
-                            onPress={() => router.push('/compatibility/compatibility-form')}
+                            onPress={() => router.push('/main/compatibility-form')}
                         />
                     </View>
                     <Footer />

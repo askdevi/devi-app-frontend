@@ -109,20 +109,6 @@ export default function ChatScreen() {
     }, [buffer]);
 
     useEffect(() => {
-        const backAction = () => {
-            router.replace("/main/home")
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
-
-        return () => backHandler.remove();
-    }, []);
-
-    useEffect(() => {
         if (!isThinking && time <= 0) {
             setShowPopup(true);
         }
@@ -194,7 +180,7 @@ export default function ChatScreen() {
     }, []);
 
     const handleBack = () => {
-        router.replace('/main/home');
+        router.back();
     };
 
     React.useEffect(() => {
@@ -517,7 +503,7 @@ export default function ChatScreen() {
                 </View>
 
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.credits} onPress={() => router.push('/main/wallet')}>
+                    <TouchableOpacity style={styles.credits} onPress={() => router.navigate('/main/wallet')}>
                         <Clock size={20} color="#f7c615" />
                         <Text style={styles.creditsText}>
                             {time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
@@ -622,28 +608,28 @@ export default function ChatScreen() {
                         <HeaderContent />
                     </View>
 
-                <ScrollView
-                    ref={scrollViewRef}
-                    style={styles.messagesContainer}
-                    contentContainerStyle={styles.messagesContent}
-                    onContentSizeChange={() => {
-                        scrollViewRef.current?.scrollToEnd({ animated: true });
-                    }}
-                >
-                    {groupedMessages.map(([date, msgs]) => (
-                        <View key={date}>
-                            <DateHeader date={date} />
-                            {msgs.map((message) => (
-                                <MessageBubble key={message.id} message={message} />
-                            ))}
-                        </View>
-                    ))}
-                    {isThinking && (
-                        <View style={{marginTop: 10}}>
-                            <TypingDots />
-                        </View>
-                    )}
-                </ScrollView>
+                    <ScrollView
+                        ref={scrollViewRef}
+                        style={styles.messagesContainer}
+                        contentContainerStyle={styles.messagesContent}
+                        onContentSizeChange={() => {
+                            scrollViewRef.current?.scrollToEnd({ animated: true });
+                        }}
+                    >
+                        {groupedMessages.map(([date, msgs]) => (
+                            <View key={date}>
+                                <DateHeader date={date} />
+                                {msgs.map((message) => (
+                                    <MessageBubble key={message.id} message={message} />
+                                ))}
+                            </View>
+                        ))}
+                        {isThinking && (
+                            <View style={{ marginTop: 10 }}>
+                                <TypingDots />
+                            </View>
+                        )}
+                    </ScrollView>
 
                     <View style={styles.inputContainer}>
                         <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
@@ -668,7 +654,7 @@ export default function ChatScreen() {
                                 placeholderTextColor="rgba(255, 255, 255, 0.6)"
                                 multiline
                             />
-                            {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.push("/main/wallet")}>
+                            {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
                                 <Text style={styles.purchaseButtonText}>Ask More</Text>
                             </TouchableOpacity> :
                                 <TouchableOpacity

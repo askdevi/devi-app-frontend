@@ -12,6 +12,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   StatusBar,
+  BackHandler,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -37,6 +38,20 @@ export default function PhoneScreen() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const glowAnimation = new Animated.Value(0);
+
+  useEffect(() => {
+    const backAction = () => {
+      BackHandler.exitApp();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     const startGlowAnimation = () => {

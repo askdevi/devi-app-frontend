@@ -136,7 +136,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                         </LinearGradient>
                     </Pressable>
                 </View>
-                <TouchableOpacity style={styles.walletContainer} onPress={() => router.push("/main/wallet")}>
+                <TouchableOpacity style={styles.walletContainer} onPress={() => router.navigate("/main/wallet")}>
                     <Text style={styles.walletText}>Explore Packages</Text>
                 </TouchableOpacity>
             </View>

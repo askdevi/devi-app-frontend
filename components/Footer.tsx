@@ -10,7 +10,7 @@ const Footer = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-   const isActive = (path: string) => {
+  const isActive = (path: string) => {
     return pathname.includes(path);
   };
 
@@ -38,10 +38,10 @@ const Footer = () => {
   }, []);
 
   const tabHandler = (tab: string) => {
-  if (pathname !== tab) {
-    router.push(tab as any);
-  }
-};
+    if (pathname !== tab) {
+      router.navigate(tab as any);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -49,10 +49,10 @@ const Footer = () => {
         colors={['transparent', `${Colors.gold.DEFAULT}20`]}
         style={styles.gradientBg}
       />
-     
+
       <View style={styles.nav}>
-        <Pressable style={styles.navButton} onPress={()=>router.replace("/main/home")}>
-           <Home
+        <Pressable style={styles.navButton} onPress={() => tabHandler("/main/home")}>
+          <Home
             size={22}
             color={isActive('/home') ? Colors.gold.DEFAULT : Colors.white}
             strokeWidth={1.5}
@@ -63,8 +63,8 @@ const Footer = () => {
           ]}>Home</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={()=>tabHandler("/compatibility/compatibility-main")}>
-           <Heart
+        <Pressable style={styles.navButton} onPress={() => tabHandler("/main/compatibility-main")}>
+          <Heart
             size={22}
             color={isActive('/compatibility') ? Colors.gold.DEFAULT : Colors.white}
             strokeWidth={1.5}
@@ -75,9 +75,9 @@ const Footer = () => {
           ]}>Partner</Text>
         </Pressable>
 
-        <Pressable style={styles.askButtonContainer} onPress={() =>tabHandler('/main/devi')}>
+        <Pressable style={styles.askButtonContainer} onPress={() => tabHandler('/main/devi')}>
           <LinearGradient
-            colors={Colors.gradients.goldPrimary as [string, string,string]}
+            colors={Colors.gradients.goldPrimary as [string, string, string]}
             style={styles.askButton}
           >
             <Text style={styles.omText}>ॐ</Text>
@@ -98,8 +98,8 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={()=>tabHandler('/main/wallet')}>
-           <Wallet
+        <Pressable style={styles.navButton} onPress={() => tabHandler('/main/wallet')}>
+          <Wallet
             size={22}
             color={isActive('/wallet') ? Colors.gold.DEFAULT : Colors.white}
             strokeWidth={1.5}
@@ -110,7 +110,7 @@ const Footer = () => {
           ]}>Wallet</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton1} onPress={()=>tabHandler('/main/profile')}>
+        <Pressable style={styles.navButton1} onPress={() => tabHandler('/main/profile')}>
           <User
             size={22}
             color={isActive('/profile') ? Colors.gold.DEFAULT : Colors.white}
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   askButtonContainer: {
     alignItems: 'center',
     marginTop: -30,
-    marginRight:5,
+    marginRight: 5,
     width: '20%',
   },
   askButton: {

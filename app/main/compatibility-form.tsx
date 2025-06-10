@@ -160,7 +160,7 @@ export default function CompatibilityFormScreen() {
             const report = response.data;
 
             router.push({
-                pathname: '/compatibility/compatibility-report',
+                pathname: '/main/compatibility-report',
                 params: { report: JSON.stringify(report), index:JSON.stringify(response.data.index) }
             });
         } catch (error) {
@@ -171,19 +171,19 @@ export default function CompatibilityFormScreen() {
         }
     };
 
-    useEffect(() => {
-        const backAction = () => {
-            router.back();
-            return true;
-        };
+    // useEffect(() => {
+    //     const backAction = () => {
+    //         router.back();
+    //         return true;
+    //     };
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
+    //     const backHandler = BackHandler.addEventListener(
+    //         'hardwareBackPress',
+    //         backAction
+    //     );
 
-        return () => backHandler.remove();
-    }, []);
+    //     return () => backHandler.remove();
+    // }, []);
 
     const handleBack = () => {
         router.back();

@@ -36,19 +36,19 @@ export default function SupportScreen() {
   { label: 'Billing Issue', value: 'Billing Issue' }
 ];
 
-    useEffect(() => {
-        const backAction = () => {
-            router.back();
-            return true;
-        };
+    // useEffect(() => {
+    //     const backAction = () => {
+    //         router.back();
+    //         return true;
+    //     };
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
+    //     const backHandler = BackHandler.addEventListener(
+    //         'hardwareBackPress',
+    //         backAction
+    //     );
 
-        return () => backHandler.remove();
-    }, []);
+    //     return () => backHandler.remove();
+    // }, []);
 
 
     const handleSend = () => {

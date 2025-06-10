@@ -14,19 +14,19 @@ import MaskedView from '@react-native-masked-view/masked-view';
 export default function SettingsScreen() {
     const router = useRouter();
 
-    useEffect(() => {
-        const backAction = () => {
-            router.back();
-            return true;
-        };
+    // useEffect(() => {
+    //     const backAction = () => {
+    //         router.back();
+    //         return true;
+    //     };
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
+    //     const backHandler = BackHandler.addEventListener(
+    //         'hardwareBackPress',
+    //         backAction
+    //     );
 
-        return () => backHandler.remove();
-    }, []);
+    //     return () => backHandler.remove();
+    // }, []);
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [soundEnabled, setSoundEnabled] = useState(true);
@@ -74,7 +74,7 @@ export default function SettingsScreen() {
                             text: "OK",
                             onPress: () => {
                                 SecureStore.deleteItemAsync('userId');
-                                router.push('/signup/phone');
+                                router.navigate('/signup/phone');
                             }
                         }
                     ]

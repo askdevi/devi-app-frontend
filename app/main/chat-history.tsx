@@ -27,7 +27,7 @@ const EmptyState = () => {
             </Text>
             <TouchableOpacity
                 style={styles.startChatButton}
-                onPress={() => router.push('/main/devi')}
+                onPress={() => router.back()}
             >
                 <LinearGradient
                     colors={['#FFD700', '#FFA500', '#FFD700']}
@@ -47,22 +47,22 @@ export default function ChatHistoryScreen() {
     const [chatHistory, setChatHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const backAction = () => {
-            router.replace("/main/home")
-            return true;
-        };
+    // useEffect(() => {
+    //     const backAction = () => {
+    //         router.back();
+    //         return true;
+    //     };
 
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
+    //     const backHandler = BackHandler.addEventListener(
+    //         'hardwareBackPress',
+    //         backAction
+    //     );
 
-        return () => backHandler.remove();
-    }, []);
+    //     return () => backHandler.remove();
+    // }, []);
 
     const handleBack = () => {
-        router.replace('/main/home');
+        router.back();
     };
 
     useEffect(() => {

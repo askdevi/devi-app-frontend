@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   BackHandler,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -171,7 +172,7 @@ export default function WalletScreen() {
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
           await AsyncStorage.setItem('timeEnd', newTimeEnd);
-          router.push('/main/devi');
+          router.navigate('/main/devi');
         } else {
           throw new Error('Verification failed');
         }
@@ -187,19 +188,19 @@ export default function WalletScreen() {
     }
   };
 
-  useEffect(() => {
-    const backAction = () => {
-      router.replace("/main/home");
-      return true;
-    };
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     router.navigate("/main/home");
+  //     return true;
+  //   };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction
+  //   );
 
-    return () => backHandler.remove();
-  }, []);
+  //   return () => backHandler.remove();
+  // }, []);
 
   const GradientText = ({ children, style }: { children: string; style?: any }) => {
     return (
@@ -225,6 +226,7 @@ export default function WalletScreen() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View style={styles.container}>
           <View style={styles.headerContainer}>

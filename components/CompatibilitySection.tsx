@@ -25,7 +25,7 @@ const CompatibilitySection = () => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.newCompatibilityContainer}
-                onPress={() => router.push('/compatibility/compatibility-form')}
+                onPress={() => router.push('/main/compatibility-form')}
             >
                 <View style={styles.header}>
                     <MaskedView

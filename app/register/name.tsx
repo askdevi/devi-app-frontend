@@ -80,20 +80,20 @@ export default function NameScreen() {
           {/* <View style={styles.header}> */}
           <GradientText style={styles.title}>Namaste</GradientText>
           {/* </View> */}
-            <CustomInput
-              value={firstName}
-              onChange={setFirstName}
-              label="First Name"
-              errorMsg=""
-              placeholder="Enter your first name"
-            />
-            <CustomInput
-              value={lastName}
-              onChange={setLastName}
-              label="Last name"
-              errorMsg=""
-              placeholder="Enter your last name"
-            />
+          <CustomInput
+            value={firstName}
+            onChange={setFirstName}
+            label="First Name"
+            errorMsg=""
+            placeholder="Enter your first name"
+          />
+          <CustomInput
+            value={lastName}
+            onChange={setLastName}
+            label="Last name"
+            errorMsg=""
+            placeholder="Enter your last name"
+          />
 
           <View
             style={[

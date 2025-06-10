@@ -82,7 +82,7 @@ export default function CompatibilityReportScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/compatibility/compatibility-main")
+            router.navigate("/main/compatibility-main")
             return true;
         };
 
@@ -95,7 +95,7 @@ export default function CompatibilityReportScreen() {
     }, []);
 
     const handleBack = () => {
-        router.push('/compatibility/compatibility-main');
+        router.navigate('/main/compatibility-main');
     };
 
     const handleDelete = async () => {
@@ -109,7 +109,7 @@ export default function CompatibilityReportScreen() {
                 }
             });
             if (response.status === 200) {
-                router.push('/compatibility/compatibility-main');
+                router.navigate('/main/compatibility-main');
             }
         } catch (error) {
             console.error(error);

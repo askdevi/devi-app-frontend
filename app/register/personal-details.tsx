@@ -65,11 +65,8 @@ export default function PersonalDetailsScreen() {
       const birthPlace = birthPlaceData ? JSON.parse(birthPlaceData) : null;
       const userId = await getUserId();
 
-      // Push to loading immediately after saving local data
-      router.push('/');
+      router.navigate('/');
 
-      // Start the registration API call asynchronously (without await)
-      // This WILL execute after router.push since router.push is non-blocking
       const registerUser = async () => {
         try {
           console.log('Starting background registration...');
@@ -102,7 +99,6 @@ export default function PersonalDetailsScreen() {
         }
       };
 
-      // Execute registration in background - this runs after router.push
       registerUser();
 
     } catch (error: any) {
