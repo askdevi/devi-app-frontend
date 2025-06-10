@@ -51,7 +51,7 @@ const Footer = () => {
       />
      
       <View style={styles.nav}>
-        <Pressable style={styles.navButton} onPress={()=>tabHandler("/main/home")}>
+        <Pressable style={styles.navButton} onPress={()=>router.replace("/main/home")}>
            <Home
             size={22}
             color={isActive('/home') ? Colors.gold.DEFAULT : Colors.white}
@@ -75,7 +75,7 @@ const Footer = () => {
           ]}>Partner</Text>
         </Pressable>
 
-        <Pressable style={styles.askButtonContainer} onPress={() => router.push('/main/devi')}>
+        <Pressable style={styles.askButtonContainer} onPress={() =>tabHandler('/main/devi')}>
           <LinearGradient
             colors={Colors.gradients.goldPrimary as [string, string,string]}
             style={styles.askButton}

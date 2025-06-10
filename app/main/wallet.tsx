@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   Platform,
+  BackHandler,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -186,18 +187,19 @@ export default function WalletScreen() {
     }
   };
 
-  const parseDuration = (duration: any) => {
-    const [value, unit] = duration.split(' ');
-    const num = parseInt(value, 10);
-    switch (unit) {
-      case 'Minutes': return num * 60 * 1000;
-      case 'Hour':
-      case 'Hours': return num * 60 * 60 * 1000;
-      case 'Day':
-      case 'Days': return num * 24 * 60 * 60 * 1000;
-      default: return 0;
-    }
-  };
+  useEffect(() => {
+    const backAction = () => {
+      router.replace("/main/home");
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   const GradientText = ({ children, style }: { children: string; style?: any }) => {
     return (

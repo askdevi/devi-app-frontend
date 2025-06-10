@@ -49,7 +49,7 @@ export default function ChatHistoryScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/home")
+            router.replace("/main/home")
             return true;
         };
 
@@ -62,7 +62,7 @@ export default function ChatHistoryScreen() {
     }, []);
 
     const handleBack = () => {
-        router.push('/main/home');
+        router.replace('/main/home');
     };
 
     useEffect(() => {

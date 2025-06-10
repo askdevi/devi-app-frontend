@@ -110,7 +110,7 @@ export default function ChatScreen() {
 
     useEffect(() => {
         const backAction = () => {
-            router.push("/main/home")
+            router.replace("/main/home")
             return true;
         };
 
@@ -194,7 +194,7 @@ export default function ChatScreen() {
     }, []);
 
     const handleBack = () => {
-        router.push('/main/home');
+        router.replace('/main/home');
     };
 
     React.useEffect(() => {

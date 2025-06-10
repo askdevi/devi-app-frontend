@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableNativeFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableNativeFeedback, Keyboard, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -142,7 +142,7 @@ export default function OtpScreen() {
     }
   }, [otp])
   const handleSubmit = async () => {
-    if(loading) return;
+    if (loading) return;
 
     const otpString = otp.join('');
     const allDigitsFilled = otp.every(digit => digit !== '');
@@ -190,6 +190,7 @@ export default function OtpScreen() {
 
   return (
     <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <BackgroundGradient />
       <BackgroundEffects count={20} />
       <SafeAreaView style={{ flex: 1 }}>
