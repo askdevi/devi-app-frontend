@@ -274,7 +274,7 @@ function BlessingCard({
           </Animated.View>
           <Animated.View style={[styles.cardOverlay, overlayStyle]} />
           <CardPattern />
-          <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity>
+          {/* <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity> */}
           <Text style={styles.starTop}>∙∘∘∙</Text>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{card.title}</Text>
@@ -315,7 +315,7 @@ function BlessingCard({
           {/* Dark overlay for non-active cards */}
           <Animated.View style={[styles.cardOverlay, overlayStyle]} />
 
-          <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity>
+          {/* <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity> */}
 
           {/* 🌟 Content */}
           <Text style={styles.starTop}> </Text>
