@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X, MessageCircle, Wallet, User, History, Headphones, Settings, Clock, Phone, CircleUser } from 'lucide-react-native';
+import { X, MessageCircle, Wallet, History, Headphones, Settings, Clock, Phone, CircleUser } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';

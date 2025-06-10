@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, BackHandler, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,7 +27,7 @@ const EmptyState = () => {
             </Text>
             <TouchableOpacity
                 style={styles.startChatButton}
-                onPress={() => router.back()}
+                onPress={() => router.navigate("/main/devi")}
             >
                 <LinearGradient
                     colors={['#FFD700', '#FFA500', '#FFD700']}
@@ -116,6 +116,7 @@ export default function ChatHistoryScreen() {
 
     return (
         <SafeAreaProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
                     <View style={styles.headerContainer}>

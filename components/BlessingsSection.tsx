@@ -6,6 +6,7 @@ import {
   Pressable,
   Dimensions,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
@@ -238,12 +239,20 @@ function BlessingCard({
     opacity: overlayOpacity.value,
   }));
 
+  const handleFlip = () => {
+    console.log("Pressed");
+    if (isActive) {
+      console.log("Flipping");
+      onFlip();
+    }
+  };
+
   return (
     <>
       <Animated.View style={[styles.card, frontStyle]}>
         <Pressable
           style={styles.cardInner}
-          onPress={isActive ? onFlip : undefined}
+          onPress={() => handleFlip()}
         >
           <LinearGradient
             colors={['#FFD700', '#FDB931', '#FFA500']}
@@ -265,6 +274,7 @@ function BlessingCard({
           </Animated.View>
           <Animated.View style={[styles.cardOverlay, overlayStyle]} />
           <CardPattern />
+          <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity>
           <Text style={styles.starTop}>∙∘∘∙</Text>
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{card.title}</Text>
@@ -279,7 +289,7 @@ function BlessingCard({
       <Animated.View style={[styles.card, styles.cardBack, backStyle]}>
         <Pressable
           style={styles.cardInner}
-          onPress={isActive ? onFlip : undefined}
+          onPress={() => handleFlip()}
         >
           {/* ✅ Add this as a floating overlay inside Pressable */}
           <View style={styles.innerBorder} />
@@ -304,6 +314,8 @@ function BlessingCard({
 
           {/* Dark overlay for non-active cards */}
           <Animated.View style={[styles.cardOverlay, overlayStyle]} />
+
+          <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity>
 
           {/* 🌟 Content */}
           <Text style={styles.starTop}> </Text>
@@ -643,6 +655,14 @@ const styles = StyleSheet.create({
     top: '50%',
     left: '-50%',
   },
+  centerStrip: {
+    position: 'absolute',
+    top: "45%",
+    left: 10,
+    width: "110%",
+    height: 50,
+    zIndex: 500,
+  },
   starTop: {
     position: 'absolute',
     top: 20,
@@ -774,7 +794,4 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-
-
-
 });

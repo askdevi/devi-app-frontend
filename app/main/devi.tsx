@@ -11,6 +11,7 @@ import {
     Dimensions,
     BackHandler,
     KeyboardAvoidingView,
+    StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, Clock } from 'lucide-react-native';
@@ -581,6 +582,7 @@ export default function ChatScreen() {
 
     return (
         <SafeAreaProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
                 {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
                 <KeyboardAvoidingView

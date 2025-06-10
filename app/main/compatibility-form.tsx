@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform, BackHandler, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -33,7 +33,7 @@ export default function CompatibilityFormScreen() {
     const [year, setYear] = useState('');
     const [hour, setHour] = useState('');
     const [minute, setMinute] = useState('');
-    const [birthTimePeriod, setBirthTimePeriod] = useState<string>('AM');
+    const [birthTimePeriod, setBirthTimePeriod] = useState<string>('');
 
     // Refs for inputs
     const monthRef = useRef<TextInput>(null);
@@ -112,19 +112,14 @@ export default function CompatibilityFormScreen() {
     };
 
     const handleCheck = async () => {
-        if (!firstName || !lastName) {
-            alert('Please enter partner\'s name');
-            return;
-        }
-
         if (loading) return;
         setLoading(true);
         try {
             const userId = await getUserId();
-            
+
             // Convert the new date format
             const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-            
+
             // Convert 12-hour format to 24-hour format
             let hour24 = parseInt(hour);
             
@@ -141,7 +136,7 @@ export default function CompatibilityFormScreen() {
                 }
                 // 12 PM remains 12 (noon)
             }
-            
+
             const formattedTime = `${hour24.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
 
             const response = await axios.post(`${Domain}/get-compatibility-report`, {
@@ -161,7 +156,7 @@ export default function CompatibilityFormScreen() {
 
             router.push({
                 pathname: '/main/compatibility-report',
-                params: { report: JSON.stringify(report), index:JSON.stringify(response.data.index) }
+                params: { report: JSON.stringify(report), index: JSON.stringify(response.data.index) }
             });
         } catch (error) {
             console.error('Error checking compatibility:', error);
@@ -191,6 +186,7 @@ export default function CompatibilityFormScreen() {
 
     return (
         <SafeAreaProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
 
@@ -327,13 +323,13 @@ export default function CompatibilityFormScreen() {
                                         onBlur: () => setIsFocused(false),
                                         placeholderTextColor: `${Colors.gold.DEFAULT}40`,
                                         onChangeText: (text) => {
-                                          if (text.length === 0) {
-                                            if (!birthPlace || birthPlace !== text) {
-                                              setBirthPlace('');
+                                            if (text.length === 0) {
+                                                if (!birthPlace || birthPlace !== text) {
+                                                    setBirthPlace('');
+                                                }
                                             }
-                                          }
                                         },
-                                      }}
+                                    }}
                                     timeout={20000}
                                 />
                             </View>
@@ -407,7 +403,11 @@ export default function CompatibilityFormScreen() {
                                 <View style={styles.slashBox}>
                                     <Text style={styles.inputSlash}>{''}</Text>
                                 </View>
-                                <View style={styles.amPmContainer}>
+                                <View style={[
+                                    styles.amPmContainer,
+                                    {borderColor: birthTimePeriod != '' ? `${Colors.gold.DEFAULT}90`
+                                    : `${Colors.gold.DEFAULT}20`}
+                                 ]}>
                                     <TouchableOpacity
                                         style={[
                                             birthTimePeriod === 'AM'
@@ -451,7 +451,7 @@ export default function CompatibilityFormScreen() {
                             <View
                                 style={[
                                     styles.checkButton,
-                                    !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && birthPlace?.trim()) && styles.checkButtonDisabled,
+                                    !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && birthPlace?.trim() && birthTimePeriod?.trim()) && styles.checkButtonDisabled,
                                 ]}
                             >
                                 <TouchableOpacity
@@ -475,9 +475,9 @@ export default function CompatibilityFormScreen() {
                                     <View style={styles.buttonContent}>
                                         {loading ? (
                                             <>
-                                                <ActivityIndicator 
-                                                    size="small" 
-                                                    color={Colors.deepPurple.DEFAULT} 
+                                                <ActivityIndicator
+                                                    size="small"
+                                                    color={Colors.deepPurple.DEFAULT}
                                                     style={{ marginRight: 8 }}
                                                 />
                                                 <Text style={styles.checkButtonText}>Checking...</Text>
