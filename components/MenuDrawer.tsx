@@ -18,6 +18,7 @@ const DRAWER_WIDTH = Math.min(width * 0.7, 280);
 export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const router = useRouter();
   const [animation] = React.useState(new Animated.Value(0));
+  const [shouldRender, setShouldRender] = useState(false);
   const [phone, setPhone] = useState('+91 1234567890');
   const [firstName, setFirstName] = useState('User');
   const [time, setTime] = useState(0);
@@ -82,11 +83,22 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   }, []);
 
   React.useEffect(() => {
-    Animated.timing(animation, {
-      toValue: isVisible ? 1 : 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    if (isVisible) {
+      setShouldRender(true);
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(animation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShouldRender(false);
+      });
+    }
   }, [isVisible]);
 
   const translateX = animation.interpolate({
@@ -101,7 +113,7 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
     </TouchableOpacity>
   );
 
-  if (!isVisible) return null;
+  if (!shouldRender && !isVisible) return null;
 
   return (
     <View style={styles.container}>

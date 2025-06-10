@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hrish17.boltexponativewind"
+      "bundleIdentifier": "com.hrish17.boltexponativewind",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to allow you to select and share images in your chat."
+      }
     },
     "web": {
       "bundler": "metro",
