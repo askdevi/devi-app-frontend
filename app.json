@@ -11,6 +11,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hrish17.boltexponativewind",
+
+      "buildNumber": "3",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Ask Devi needs access to your photo library to allow you to select and share images in your conversations with the AI assistant.",
         "NSCameraUsageDescription": "Ask Devi needs access to your camera to allow you to take photos and share them in your conversations with the AI assistant.",
