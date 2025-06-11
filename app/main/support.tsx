@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Alert, Platform, Animated,
-    BackHandler
+    BackHandler,
+    StatusBar
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -29,12 +30,12 @@ export default function SupportScreen() {
         'Technical Support',
         'Feedback and Suggestions',
     ];
-    const queryTopicData=[
-  { label: 'General Query', value: 'General Query' },
-  { label: 'Issue With Package', value: 'Issue With Package' },
-  { label: 'Technical Support', value: 'Technical Support' },
-  { label: 'Billing Issue', value: 'Billing Issue' }
-];
+    const queryTopicData = [
+        { label: 'General Query', value: 'General Query' },
+        { label: 'Issue With Package', value: 'Issue With Package' },
+        { label: 'Technical Support', value: 'Technical Support' },
+        { label: 'Billing Issue', value: 'Billing Issue' }
+    ];
 
     // useEffect(() => {
     //     const backAction = () => {
@@ -96,6 +97,7 @@ export default function SupportScreen() {
 
     return (
         <SafeAreaProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left', 'bottom']}>
                 <View style={styles.container}>
 
