@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableNativeFeedback, Keyboard, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, Keyboard, StatusBar, Platform, TouchableNativeFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -13,6 +13,7 @@ import BackgroundGradient from '@/components/BackgroundGradient';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator } from 'react-native';
+// import { getHash, startOtpListener, removeListener } from 'react-native-otp-verify';
 
 export async function storeUserId(userId: string) {
   await SecureStore.setItemAsync('userId', userId);
@@ -28,6 +29,32 @@ export default function OtpScreen() {
 
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const glowAnimation = new Animated.Value(0);
+
+  // useEffect(() => {
+  //   let listener: any;
+
+  //   // Step 1: get hash for SMS formatting
+  //   getHash()
+  //     .then(hashes => console.log('App hash:', hashes[0]))
+  //     .catch(console.error);
+
+  //   // Step 2: start listening for SMS containing OTP
+  //   startOtpListener((message: string) => {
+  //     console.log('Received SMS:', message);
+  //     const match = message.match(/(\d{4})/);
+  //     if (match) {
+  //       const digits = match[1].split('');
+  //       setOtp(digits);
+  //       removeListener();  // stop listening after capture
+  //     }
+  //   })
+  //     .catch(console.error);
+
+  //   // Step 3: cleanup on unmount
+  //   return () => {
+  //     removeListener();
+  //   };
+  // }, []);
 
   useEffect(() => {
     const startGlowAnimation = () => {

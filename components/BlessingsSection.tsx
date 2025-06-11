@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,19 +7,11 @@ import {
   Dimensions,
   Platform,
   TouchableOpacity,
+  ScrollView,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withRepeat,
-  withSequence,
-  withSpring,
-  interpolate,
-  Easing,
-} from 'react-native-reanimated';
 import MaskedView from '@react-native-masked-view/masked-view';
 import BackgroundStars from '@/components/BackgroundEffects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -99,9 +91,6 @@ function ProgressDots({ activeIndex }: { activeIndex: number }) {
 function CardPattern() {
   return (
     <View style={styles.cardPattern}>
-
-
-      {/* Border Pattern */}
       {Array.from({ length: 4 }).map((_, side) => (
         <View
           key={`border-${side}`}
@@ -125,8 +114,6 @@ function CardPattern() {
           ))}
         </View>
       ))}
-
-      {/* Diagonal Lines */}
       {Array.from({ length: 8 }).map((_, i) => (
         <View
           key={`diagonal-${i}`}
@@ -145,200 +132,115 @@ function CardPattern() {
 
 function BlessingCard({
   card,
-  index,
-  activeIndex,
-  flipped,
+  isFlipped,
   onFlip,
 }: {
   card: (typeof CARDS)[0];
-  index: number;
-  activeIndex: number;
-  flipped: boolean;
+  isFlipped: boolean;
   onFlip: () => void;
 }) {
-  const position = index - activeIndex;
-  const isActive = position === 0;
-
-  const rotate = useSharedValue(flipped ? 180 : 0);
-  const translateX = useSharedValue(position * (SCREEN_WIDTH * 0.65));
-  const scale = useSharedValue(isActive ? 1 : 0.85);
-  const tapTextOpacity = useSharedValue(1);
-  const pulseScale = useSharedValue(1);
-  const gradientPosition = useSharedValue(0);
-  const overlayOpacity = useSharedValue(isActive ? 0 : 0.4);
+  const flipAnimation = useRef(new Animated.Value(0)).current;
+  const pulseAnimation = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    tapTextOpacity.value = withRepeat(
-      withSequence(
-        withTiming(0.5, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
-      ),
-      -1,
-      true
-    );
-
-    gradientPosition.value = withRepeat(
-      withTiming(1, {
-        duration: 3000,
-        easing: Easing.linear,
+    Animated.sequence([
+      Animated.timing(flipAnimation, {
+        toValue: isFlipped ? 180 : 0,
+        duration: 800,
+        useNativeDriver: true,
       }),
-      -1,
-      true
-    );
-  }, []);
+    ]).start();
 
-  useEffect(() => {
-    if (flipped) {
-      pulseScale.value = withSequence(withSpring(1.1), withSpring(1));
+    if (isFlipped) {
+      Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1.1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }, [flipped]);
+  }, [isFlipped]);
 
-  React.useEffect(() => {
-    rotate.value = withTiming(flipped ? 180 : 0, { duration: 800 });
-    translateX.value = withTiming(position * (SCREEN_WIDTH * 0.65), {
-      duration: 500,
-    });
-    scale.value = withTiming(isActive ? 1 : 0.85, { duration: 500 });
-    overlayOpacity.value = withTiming(isActive ? 0 : 0.4, { duration: 500 });
-  }, [flipped, position, isActive]);
-
-  const frontStyle = useAnimatedStyle(() => ({
+  const frontAnimatedStyle = {
     transform: [
-      { translateX: translateX.value },
-      { scale: scale.value * pulseScale.value },
-      { rotateY: `${interpolate(rotate.value, [0, 180], [0, 180])}deg` },
-    ],
-    opacity: 1,
-    backfaceVisibility: 'hidden',
-  }));
-
-  const backStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { scale: scale.value * pulseScale.value },
-      { rotateY: `${interpolate(rotate.value, [0, 180], [180, 360])}deg` },
-    ],
-    opacity: 1,
-    backfaceVisibility: 'hidden',
-  }));
-
-  const tapTextStyle = useAnimatedStyle(() => ({
-    opacity: tapTextOpacity.value,
-  }));
-
-  const gradientStyle = useAnimatedStyle(() => ({
-    transform: [
+      { scale: pulseAnimation },
       {
-        translateX: interpolate(gradientPosition.value, [0, 1], [-200, 200]),
+        rotateY: flipAnimation.interpolate({
+          inputRange: [0, 180],
+          outputRange: ['0deg', '180deg'],
+        }),
       },
     ],
-    opacity: interpolate(gradientPosition.value, [0, 0.5, 1], [0, 0.3, 0]),
-  }));
+  };
 
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-  }));
-
-  const handleFlip = () => {
-    console.log("Pressed");
-    if (isActive) {
-      console.log("Flipping");
-      onFlip();
-    }
+  const backAnimatedStyle = {
+    transform: [
+      { scale: pulseAnimation },
+      {
+        rotateY: flipAnimation.interpolate({
+          inputRange: [0, 180],
+          outputRange: ['180deg', '360deg'],
+        }),
+      },
+    ],
   };
 
   return (
-    <>
-      <Animated.View style={[styles.card, frontStyle]}>
-        <Pressable
-          style={styles.cardInner}
-          onPress={() => handleFlip()}
-        >
-          <LinearGradient
-            colors={['#FFD700', '#FDB931', '#FFA500']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <Animated.View style={[styles.animatedGradient, gradientStyle]}>
-            <LinearGradient
-              colors={[
-                'transparent',
-                'rgba(255, 255, 255, 0.4)',
-                'transparent',
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-          </Animated.View>
-          <Animated.View style={[styles.cardOverlay, overlayStyle]} />
-          <CardPattern />
-          {/* <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity> */}
-          <Text style={styles.starTop}>∙∘∘∙</Text>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{card.title}</Text>
-            <Animated.Text style={[styles.tapText, tapTextStyle]}>
-              TAP TO REVEAL YOUR DESTINY
-            </Animated.Text>
-          </View>
-          <Text style={styles.starBottom}>∙∘∘∙</Text>
-        </Pressable>
+    <View style={styles.card}>
+      <Animated.View style={[styles.cardInner, frontAnimatedStyle, { backfaceVisibility: 'hidden' }]}>
+        <LinearGradient
+          colors={['#FFD700', '#FDB931', '#FFA500']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <CardPattern />
+        <Text style={styles.starTop}>∙∘∘∙</Text>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>{card.title}</Text>
+          <Text style={styles.tapText}>TAP TO REVEAL YOUR DESTINY</Text>
+        </View>
+        <Text style={styles.starBottom}>∙∘∘∙</Text>
       </Animated.View>
 
-      <Animated.View style={[styles.card, styles.cardBack, backStyle]}>
-        <Pressable
-          style={styles.cardInner}
-          onPress={() => handleFlip()}
-        >
-          {/* ✅ Add this as a floating overlay inside Pressable */}
-          <View style={styles.innerBorder} />
-
-          {/* ✨ Background Layer */}
-          <LinearGradient
-            colors={['#e6c4ff', '#e6c4ff']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-
-          {/* ✨ Shimmer Effect */}
-          <Animated.View style={[styles.animatedGradient, gradientStyle]}>
-            <LinearGradient
-              colors={['transparent', 'rgba(255, 255, 255, 0.4)', 'transparent']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-          </Animated.View>
-
-          {/* Dark overlay for non-active cards */}
-          <Animated.View style={[styles.cardOverlay, overlayStyle]} />
-
-          {/* <TouchableOpacity style={styles.centerStrip} onPress={() => handleFlip()} ></TouchableOpacity> */}
-
-          {/* 🌟 Content */}
-          <Text style={styles.starTop}> </Text>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardValue}>{card.value}</Text>
-            {card.sanskrit && (
-              <Text style={styles.cardValue}>{card.sanskrit}</Text>
+      <Animated.View style={[styles.cardInner, backAnimatedStyle, { backfaceVisibility: 'hidden' }]}>
+        <View style={styles.innerBorder} />
+        <LinearGradient
+          colors={['#e6c4ff', '#e6c4ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <Text style={styles.starTop}> </Text>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardValue}>{card.value}</Text>
+          {card.sanskrit && (
+            <Text style={styles.cardValue}>{card.sanskrit}</Text>
+          )}
+          <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'center', alignItems: 'center' }}>
+            {card.id === 'color' && card.colors && (
+              card.colors.map((color: string, index: number) => (
+                <Text key={index} style={[styles.colorIconLine, { color: color }]}>ꕥ</Text>
+              ))
             )}
-            <View style={{ flexDirection: 'row', gap: 15, justifyContent: 'center', alignItems: 'center' }}>
-              {card.id === 'color' && card.colors && (
-                card.colors.map((color: string, index: number) => (
-                  <Text key={index} style={[styles.colorIconLine, { color: color }]}>ꕥ</Text>
-                ))
-              )}
-            </View>
-            <View style={styles.separator} />
-            <Text style={styles.cardDescription}>{card.description}</Text>
           </View>
-          <Text style={styles.starBottom}> </Text>
-        </Pressable>
+          <View style={styles.separator} />
+          <Text style={styles.cardDescription}>{card.description}</Text>
+        </View>
+        <Text style={styles.starBottom}> </Text>
       </Animated.View>
 
-    </>
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={onFlip}
+      />
+    </View>
   );
 }
 
@@ -358,10 +260,22 @@ function extractColors(colorDescription: string): string[] {
 }
 
 export default function BlessingsScreen() {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
-  const titleGlow = useSharedValue(1);
   const [cards, setCards] = useState<any[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const navigateCards = (direction: 'left' | 'right') => {
+    if (!scrollViewRef.current) return;
+
+    const newIndex = direction === 'right'
+      ? Math.min(activeIndex + 1, cards.length - 1)
+      : Math.max(activeIndex - 1, 0);
+
+    const offset = newIndex * (SCREEN_WIDTH * 0.65 + 20);
+    scrollViewRef.current.scrollTo({ x: offset, animated: true });
+    setActiveIndex(newIndex);
+  };
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -400,29 +314,6 @@ export default function BlessingsScreen() {
     fetchCards();
   }, []);
 
-  useEffect(() => {
-    titleGlow.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 2000 }),
-        withTiming(1, { duration: 2000 })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const titleStyle = useAnimatedStyle(() => ({
-    textShadowRadius: interpolate(titleGlow.value, [1, 1.2], [10, 20]),
-  }));
-
-  const navigateCards = (direction: 'left' | 'right') => {
-    const newIndex =
-      direction === 'left'
-        ? Math.max(0, activeIndex - 1)
-        : Math.min(CARDS.length - 1, activeIndex + 1);
-    setActiveIndex(newIndex);
-  };
-
   const toggleFlip = (cardId: string) => {
     setFlippedCards((prev) => ({
       ...prev,
@@ -432,15 +323,14 @@ export default function BlessingsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Background Panel - For entire section */}
       <View style={styles.backgroundPanel}>
         <View style={styles.header}>
           <MaskedView
             style={styles.titleContainer}
             maskElement={
-              <Animated.Text style={[styles.titleMask, titleStyle, { backgroundColor: 'transparent' }]}>
+              <Text style={styles.titleMask}>
                 Your Daily Blessings
-              </Animated.Text>
+              </Text>
             }
           >
             <LinearGradient
@@ -449,61 +339,74 @@ export default function BlessingsScreen() {
               end={{ x: 1, y: 0 }}
               style={styles.titleContainer}
             >
-              <Animated.Text style={[styles.titleMask, titleStyle, { opacity: 0 }]}>
+              <Text style={[styles.titleMask, { opacity: 0 }]}>
                 Your Daily Blessings
-              </Animated.Text>
+              </Text>
             </LinearGradient>
           </MaskedView>
           <Text style={styles.subtitle}>Tap on the card to reveal your destiny</Text>
           <ProgressDots activeIndex={activeIndex} />
         </View>
 
-        <View style={styles.carouselContainer}>
-          {cards && cards.map((card: any, index: number) => (
-            <BlessingCard
-              key={card.id}
-              card={card}
-              index={index}
-              activeIndex={activeIndex}
-              flipped={flippedCards[card.id] || false}
-              onFlip={() => toggleFlip(card.id)}
-            />
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          style={styles.cardsContainer}
+          contentContainerStyle={styles.cardsContent}
+          decelerationRate={0}
+          snapToAlignment="center"
+          onMomentumScrollEnd={(event) => {
+            const offset = event.nativeEvent.contentOffset.x;
+            const cardWidth = SCREEN_WIDTH * 0.65 + 20;
+            const newIndex = Math.round(offset / cardWidth);
+            setActiveIndex(newIndex);
+          }}
+        >
+          {cards && cards.map((card: any) => (
+            <View key={card.id} style={styles.cardWrapper}>
+              <BlessingCard
+                card={card}
+                isFlipped={flippedCards[card.id] || false}
+                onFlip={() => toggleFlip(card.id)}
+              />
+            </View>
           ))}
+        </ScrollView>
+        {/* <View style={styles.navigationButtons}> */}
+        <Pressable
+          style={[
+            styles.navButtonLeft,
+            activeIndex === 0 && styles.navButtonDisabled,
+          ]}
+          onPress={() => navigateCards('left')}
+          disabled={activeIndex === 0}
+        >
+          <LinearGradient
+            colors={['#360059', '#581189']}
+            style={styles.navButtonGradient}
+          >
+            <ChevronLeft color="#FFD700" size={32} />
+          </LinearGradient>
+        </Pressable>
 
-          <View style={styles.navigationButtons}>
-            <Pressable
-              style={[
-                styles.navButton,
-                activeIndex === 0 && styles.navButtonDisabled,
-              ]}
-              onPress={() => navigateCards('left')}
-              disabled={activeIndex === 0}
-            >
-              <LinearGradient
-                colors={['#360059', '#581189']}
-                style={styles.navButtonGradient}
-              >
-                <ChevronLeft color="#FFD700" size={32} />
-              </LinearGradient>
-            </Pressable>
-
-            <Pressable
-              style={[
-                styles.navButton,
-                activeIndex === CARDS.length - 1 && styles.navButtonDisabled,
-              ]}
-              onPress={() => navigateCards('right')}
-              disabled={activeIndex === CARDS.length - 1}
-            >
-              <LinearGradient
-                colors={['#360059', '#581189']}
-                style={styles.navButtonGradient}
-              >
-                <ChevronRight color="#FFD700" size={32} />
-              </LinearGradient>
-            </Pressable>
-          </View>
-        </View>
+        <Pressable
+          style={[
+            styles.navButtonRight,
+            activeIndex === cards.length - 1 && styles.navButtonDisabled,
+          ]}
+          onPress={() => navigateCards('right')}
+          disabled={activeIndex === cards.length - 1}
+        >
+          <LinearGradient
+            colors={['#360059', '#581189']}
+            style={styles.navButtonGradient}
+          >
+            <ChevronRight color="#FFD700" size={32} />
+          </LinearGradient>
+        </Pressable>
+        {/* </View> */}
       </View>
     </View>
   );
@@ -512,23 +415,21 @@ export default function BlessingsScreen() {
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
-    // backgroundColor: '#360059',
   },
   backgroundPanel: {
     flex: 1,
     marginHorizontal: 16,
     marginTop: 10,
-    backgroundColor: 'rgba(70, 10, 100, 0.35)', // bg-purple-900/20
-    borderRadius: 24, // rounded-lg
+    backgroundColor: 'rgba(70, 10, 100, 0.35)',
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.2)', // border-purple-500/20
+    borderColor: 'rgba(168, 85, 247, 0.2)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 8,
     height: 550,
-    zIndex: 1
   },
   header: {
     paddingTop: 35,
@@ -554,49 +455,32 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textAlign: 'center',
   },
-  dotsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 10,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
-  },
-  activeDot: {
-    backgroundColor: '#FFD700',
-    borderColor: '#FFD700',
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-  },
-  carouselContainer: {
+  cardsContainer: {
     flex: 1,
+    width: '100%',
+  },
+  cardsContent: {
+    paddingLeft: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65)) / 2,
+    paddingRight: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65)) / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
   },
-  card: {
-    position: 'absolute',
-    top: 10,
+  cardWrapper: {
     width: SCREEN_WIDTH * 0.65,
     height: 380,
-    borderRadius: 24,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  cardBack: {
-    position: 'absolute',
+  card: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 24,
+    elevation: 0,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
   cardInner: {
     flex: 1,
@@ -605,6 +489,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.3)',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'transparent',
   },
   cardPattern: {
     position: 'absolute',
@@ -661,7 +549,8 @@ const styles = StyleSheet.create({
     left: 10,
     width: "110%",
     height: 50,
-    zIndex: 500,
+    zIndex: 5000,
+    backgroundColor: 'red',
   },
   starTop: {
     position: 'absolute',
@@ -711,7 +600,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#360059',
     marginVertical: 15,
-
   },
   cardDescription: {
     fontSize: 14,
@@ -730,15 +618,67 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  activeDot: {
+    backgroundColor: '#FFD700',
+    borderColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+  },
+  innerBorder: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    right: 8,
+    bottom: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+    zIndex: 1,
+  },
+  colorIconLine: {
+    fontSize: 30,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   navigationButtons: {
-    zIndex: 15,
+
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: SCREEN_WIDTH,
-    paddingHorizontal: 40,
-    marginTop: -25,
+    width: "100%",
+    paddingHorizontal: 5,
   },
-  navButton: {
+  navButtonLeft: {
+    zIndex: 15,
+    position: 'absolute',
+    left: 5,
+    bottom: "33%",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  navButtonRight: {
+    zIndex: 15,
+    position: 'absolute',
+    right: 5,
+    bottom: "33%",
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -759,39 +699,5 @@ const styles = StyleSheet.create({
   },
   navButtonDisabled: {
     opacity: 0,
-  },
-  animatedGradient: {
-    position: 'absolute',
-    width: '200%',
-    height: '140%',
-    left: '-50%',
-    top: '-20%',
-  },
-
-  colorIconLine: {
-    fontSize: 30,
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-
-  innerBorder: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    right: 8,
-    bottom: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFD700', // or a soft glow like 'rgba(255,215,0,0.5)'
-    zIndex: 1,
-  },
-
-  cardOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
