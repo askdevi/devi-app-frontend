@@ -31,6 +31,8 @@ import Animated, {
   // Easing,
   // interpolateColor,
 } from 'react-native-reanimated';
+import { ActivityIndicator } from 'react-native';
+
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
   return discount > 0 ? discount : null;
@@ -63,7 +65,7 @@ const timePlans = [
 export default function WalletScreen() {
   const router = useRouter();
   const [time, setTime] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingPackageIndex, setProcessingPackageIndex] = useState<number | null>(null);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
   // const glowOpacity = useSharedValue(0.5);
   // const glowScale = useSharedValue(1);
@@ -126,9 +128,9 @@ export default function WalletScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const handlePurchase = async (pkg: any) => {
-    if (isProcessing) return;
-    setIsProcessing(true);
+  const handlePurchase = async (pkg: any, index: number) => {
+    if (processingPackageIndex !== null) return;
+    setProcessingPackageIndex(index);
     try {
       const userId = await getUserId();
       // 1. Create order on server
@@ -184,7 +186,7 @@ export default function WalletScreen() {
       console.error(e);
       Alert.alert('Error', e.message || 'Something went wrong.');
     } finally {
-      setIsProcessing(false);
+      setProcessingPackageIndex(null);
     }
   };
 
@@ -269,9 +271,9 @@ export default function WalletScreen() {
                     {pkg.discount && (<Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
                   </View>
                   <TouchableOpacity
-                    style={[styles.buyButton, isProcessing && { opacity: 0.5 }]}
-                    onPress={() => handlePurchase(pkg)}
-                    disabled={isProcessing}
+                    style={[styles.buyButton, processingPackageIndex !== null && processingPackageIndex !== idx && { opacity: 0.5 }]}
+                    onPress={() => handlePurchase(pkg, idx)}
+                    disabled={processingPackageIndex !== null}
                   >
                     <LinearGradient
                       colors={['#a05afc', '#7c3aed', '#5b21b6']}
@@ -281,7 +283,11 @@ export default function WalletScreen() {
                     >
                       <Ionicons name="card-outline" color={Colors.white} size={20} />
                       <Text style={styles.buyButtonText}>
-                        {isProcessing ? 'Processing...' : 'Buy Now'}
+                        {processingPackageIndex === idx ? (
+                          <ActivityIndicator size="small" color={Colors.white} />
+                        ) : (
+                          'Buy Now'
+                        )}
                       </Text>
                     </LinearGradient>
                   </TouchableOpacity>
