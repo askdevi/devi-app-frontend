@@ -98,7 +98,7 @@ const Footer = () => {
           <Text style={styles.askText}>Ask</Text>
         </Pressable>
 
-        <Pressable style={styles.navButton} onPress={() => tabHandler('/main/wallet')}>
+        <Pressable style={styles.navButton1} onPress={() => tabHandler('/main/wallet')}>
           <Wallet
             size={22}
             color={isActive('/wallet') ? Colors.gold.DEFAULT : Colors.white}

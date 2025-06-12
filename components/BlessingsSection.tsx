@@ -472,8 +472,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   cardsContent: {
-    paddingLeft: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65)) / 2,
-    paddingRight: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65)) / 2,
+    paddingLeft: (SCREEN_WIDTH - 40 - (SCREEN_WIDTH * 0.65 + 20)) / 2,
+    paddingRight: (SCREEN_WIDTH - 40 - (SCREEN_WIDTH * 0.65 + 20)) / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
