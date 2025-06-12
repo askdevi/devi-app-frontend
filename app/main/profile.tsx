@@ -50,7 +50,7 @@ export default function SettingsScreen() {
 
 
     const handleLogout = async () => {
-        await SecureStore.deleteItemAsync('userToken');
+        await SecureStore.deleteItemAsync('userId');
         router.navigate('/signup/phone');
     };
 

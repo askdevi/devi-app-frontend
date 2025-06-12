@@ -13,7 +13,7 @@ import BackgroundGradient from '@/components/BackgroundGradient';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator } from 'react-native';
-// import { getHash, startOtpListener, removeListener } from 'react-native-otp-verify';
+import { getHash, startOtpListener, removeListener } from 'react-native-otp-verify';
 
 export async function storeUserId(userId: string) {
   await SecureStore.setItemAsync('userId', userId);
@@ -139,7 +139,21 @@ export default function OtpScreen() {
   };
 
   const handleOtpChange = (value: string, index: number) => {
-    if (value.length > 1) return;
+    if (value.length == 4) {
+      const newOtp = value.split('');
+      setOtp(newOtp);
+      setError('');
+      return;
+    }
+    else if (value.length == 1) {
+      if (value < '0' || value > '9') {
+        setError('Please enter a valid digit');
+        return;
+      }
+    }
+    else {
+      return;
+    }
 
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -162,6 +176,7 @@ export default function OtpScreen() {
   const handleFocus = (index: number) => {
     setFocusedIndex(index);
   };
+
   useEffect(() => {
     const allDigitsFilled = otp.every(digit => digit !== '');
     if (otp && allDigitsFilled) {
@@ -219,76 +234,76 @@ export default function OtpScreen() {
     <>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <BackgroundGradient />
-      <BackgroundEffects count={20} />
+      <BackgroundEffects count={30} />
       <SafeAreaView style={{ flex: 1 }}>
-        <TouchableNativeFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
-          <View style={styles.container}>
-            {/* Back Button */}
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color="#ffcc00"
-              />
+        {/* <TouchableNativeFeedback onPress={() => Keyboard.dismiss()} accessible={false}> */}
+        <View style={styles.container}>
+          {/* Back Button */}
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color="#ffcc00"
+            />
+          </TouchableOpacity>
+
+          <View style={styles.content}>
+            <GradientTitle />
+            <Text style={styles.subtitle}>
+              {"A verification code has been sent to\n"}
+              <Text style={styles.phoneNumber}>+91 {phone}</Text>
+            </Text>
+
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={(ref) => { inputRefs.current[index] = ref; }}
+                  style={[
+                    styles.otpInput,
+                    digit ? styles.otpInputFilled : null,
+                    focusedIndex === index ? styles.otpInputFocused : null
+                  ]}
+                  value={digit}
+                  onChangeText={(value) => handleOtpChange(value, index)}
+                  onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                  onFocus={() => handleFocus(index)}
+                  keyboardType="number-pad"
+                  maxLength={4}
+                  autoFocus={index === 0}
+                  selectTextOnFocus
+                />
+              ))}
+            </View>
+
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <TouchableOpacity
+              style={styles.buttonContainer}
+              onPress={handleSubmit}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              <LinearGradient
+                colors={['#FFD700', '#FFA500', '#FFD700']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Verify'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
-            <View style={styles.content}>
-              <GradientTitle />
-              <Text style={styles.subtitle}>
-                {"A verification code has been sent to\n"}
-                <Text style={styles.phoneNumber}>+91 {phone}</Text>
+            <TouchableOpacity onPress={handleResendCode} style={styles.resendContainer}>
+              <Text style={styles.resendText}>
+                Didn't receive code? <Text style={styles.resendLink}>Resend</Text>
               </Text>
-
-              <View style={styles.otpContainer}>
-                {otp.map((digit, index) => (
-                  <TextInput
-                    key={index}
-                    ref={(ref) => { inputRefs.current[index] = ref; }}
-                    style={[
-                      styles.otpInput,
-                      digit ? styles.otpInputFilled : null,
-                      focusedIndex === index ? styles.otpInputFocused : null
-                    ]}
-                    value={digit}
-                    onChangeText={(value) => handleOtpChange(value, index)}
-                    onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
-                    onFocus={() => handleFocus(index)}
-                    keyboardType="number-pad"
-                    maxLength={1}
-                    autoFocus={index === 0}
-                    selectTextOnFocus
-                  />
-                ))}
-              </View>
-
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-              <TouchableOpacity
-                style={styles.buttonContainer}
-                onPress={handleSubmit}
-                activeOpacity={0.8}
-                disabled={loading}
-              >
-                <LinearGradient
-                  colors={['#FFD700', '#FFA500', '#FFD700']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.button}
-                >
-                  <Text style={styles.buttonText}>
-                    {loading ? <ActivityIndicator size="small" color="#2D1152" /> : 'Verify'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={handleResendCode} style={styles.resendContainer}>
-                <Text style={styles.resendText}>
-                  Didn't receive code? <Text style={styles.resendLink}>Resend</Text>
-                </Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-        </TouchableNativeFeedback>
+        </View>
+        {/* </TouchableNativeFeedback> */}
       </SafeAreaView>
     </>
   );

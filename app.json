@@ -20,16 +20,19 @@
       "output": "single",
       "favicon": "./assets/images/devi-icon.png"
     },
-    "splash": {
-      "image": "./assets/images/devi-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#342661"
-    },
     "plugins": [
       "expo-router",
       "expo-font",
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#342661",
+          "image": "./assets/images/devi-icon.png",
+          "imageWidth": 200
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
