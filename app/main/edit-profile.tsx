@@ -269,15 +269,6 @@ export default function EditProfileScreen() {
   };
 
   const handleUpdate = async () => {
-    if (!firstName?.trim() || !lastName?.trim()) {
-      Alert.alert(
-        'Name Required',
-        'Please enter your name before continuing.',
-        [{ text: 'OK', style: 'default' }]
-      );
-      return;
-    }
-
     setUpdating(true);
 
     try {
@@ -727,13 +718,13 @@ export default function EditProfileScreen() {
                 <View
                   style={[
                     styles.continueButton,
-                    !(isFormValid && firstName?.trim() && lastName?.trim() && phoneNumber?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && relationshipStatus?.trim() && language?.trim() && occupation?.trim() && gender?.trim()) && styles.continueButtonDisabled,
+                    !(isFormValid && firstName?.trim() && lastName?.trim() && phoneNumber?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && relationshipStatus?.trim() && language?.trim() && occupation?.trim() && gender?.trim()) && styles.continueButtonDisabled,
                   ]}
                 >
                   <TouchableOpacity
                     style={styles.continueButtonTouchable}
                     onPress={handleUpdate}
-                    disabled={updating || !(isFormValid && firstName?.trim() && lastName?.trim() && phoneNumber?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && relationshipStatus?.trim() && language?.trim() && occupation?.trim() && gender?.trim())}
+                    disabled={updating || !(isFormValid && firstName?.trim() && lastName?.trim() && phoneNumber?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && relationshipStatus?.trim() && language?.trim() && occupation?.trim() && gender?.trim())}
                     activeOpacity={0.8}
                   >
                     <LinearGradient

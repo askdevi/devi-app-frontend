@@ -451,13 +451,13 @@ export default function CompatibilityFormScreen() {
                             <View
                                 style={[
                                     styles.checkButton,
-                                    !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && birthPlace?.trim() && birthTimePeriod?.trim()) && styles.checkButtonDisabled,
+                                    !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim() && birthTimePeriod?.trim()) && styles.checkButtonDisabled,
                                 ]}
                             >
                                 <TouchableOpacity
                                     style={styles.checkButtonTouchable}
                                     onPress={handleCheck}
-                                    disabled={loading || !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.trim() && hour?.trim() && minute?.trim() && birthPlace?.trim())}
+                                    disabled={loading || !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim())}
                                     activeOpacity={0.8}
                                 >
                                     <LinearGradient

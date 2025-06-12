@@ -17,7 +17,7 @@ interface CompactInputProps {
   errorMsg?: string;
   keyboardType?: TextInputProps['keyboardType'];
   maxLength?: number;
-returnKeyType?: string;
+  returnKeyType?: string;
 }
 
 const CompactInput = forwardRef<TextInput, CompactInputProps>(
@@ -31,28 +31,30 @@ const CompactInput = forwardRef<TextInput, CompactInputProps>(
       errorMsg,
       keyboardType = 'number-pad',
       maxLength = 2,
-      returnKeyType="next",
+      returnKeyType = "next",
       ...props
     },
     ref
   ) => {
     const borderColor = value
-      ? `${Colors.gold.DEFAULT}90`
+      ? (placeholder === 'YYYY' && value.length === 4) || (placeholder !== 'YYYY' && value.length > 0)
+        ? `${Colors.gold.DEFAULT}90`
+        : `${Colors.gold.DEFAULT}20`
       : `${Colors.gold.DEFAULT}20`;
 
     return (
-        <TextInput
-          ref={ref}
-          style={[styles.input, { width, borderColor }]}
-          value={value}
-          onChangeText={onChange}
-          placeholder={placeholder}
-          placeholderTextColor={`${Colors.gold.DEFAULT}40`}
-          keyboardType={keyboardType}
-          maxLength={maxLength}
-          returnKeyType="next"
-          {...props}
-        />
+      <TextInput
+        ref={ref}
+        style={[styles.input, { width, borderColor }]}
+        value={value}
+        onChangeText={onChange}
+        placeholder={placeholder}
+        placeholderTextColor={`${Colors.gold.DEFAULT}40`}
+        keyboardType={keyboardType}
+        maxLength={maxLength}
+        returnKeyType="next"
+        {...props}
+      />
     );
   }
 );
@@ -63,9 +65,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 12,
     paddingVertical: 16,
-    paddingHorizontal:10,
+    paddingHorizontal: 10,
     fontSize: 16,
-    textAlign:"center",
+    textAlign: "center",
     color: Colors.white,
     fontFamily: 'Poppins-Regular',
   },
