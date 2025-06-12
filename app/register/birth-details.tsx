@@ -7,6 +7,8 @@ import {
   ScrollView,
   Animated,
   TextInput,
+  StatusBar,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -27,7 +29,7 @@ export default function BirthDetailsScreen() {
   const [year, setYear] = useState('');
   const [hour, setHour] = useState('');
   const [minute, setMinute] = useState('');
-  const [birthTimePeriod, setBirthTimePeriod] = useState<string>('AM');
+  const [birthTimePeriod, setBirthTimePeriod] = useState<string>('');
 
   // Refs for inputs
   const monthRef = useRef<TextInput>(null);
@@ -79,6 +81,9 @@ export default function BirthDetailsScreen() {
   const handleContinue = async () => {
 
     try {
+      if (year?.length !== 4 || !day || !month) {
+        return;
+      }
       const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
       let birthTime = null;
@@ -91,12 +96,14 @@ export default function BirthDetailsScreen() {
             hour24 = 0; // 12 AM is midnight (00:xx)
           }
           // 1-11 AM remain the same
-        } else {
+        } else if (birthTimePeriod === 'PM') {
           // Handle PM times
           if (hour24 !== 12) {
             hour24 += 12; // 1-11 PM become 13-23
           }
           // 12 PM remains 12 (noon)
+        } else {
+          return;
         }
 
         birthTime = `${hour24.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
@@ -142,6 +149,7 @@ export default function BirthDetailsScreen() {
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <LinearGradient
         colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
         style={StyleSheet.absoluteFill}
@@ -306,7 +314,7 @@ export default function BirthDetailsScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.continueButton, (!day || !month || !year || (knowsBirthTime && (!hour || !minute)) || knowsBirthTime === null) && styles.continueButtonDisabled]}
+            style={[styles.continueButton, (!day || !month || year?.length !== 4 || (knowsBirthTime && (!hour || !minute || !birthTimePeriod?.trim())) || knowsBirthTime === null) && styles.continueButtonDisabled]}
             onPress={handleContinue}
             activeOpacity={0.8}
           >
