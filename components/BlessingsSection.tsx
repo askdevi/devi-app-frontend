@@ -351,12 +351,24 @@ export default function BlessingsScreen() {
         <ScrollView
           ref={scrollViewRef}
           horizontal
-          pagingEnabled
+          {...(Platform.OS === 'ios' ? {
+            snapToInterval: SCREEN_WIDTH * 0.65 + 52,
+            decelerationRate: 'fast',
+            snapToAlignment: 'center',
+          } : {
+            pagingEnabled: true,
+            snapToAlignment: 'center',
+            decelerationRate: 0,
+          })}
           showsHorizontalScrollIndicator={false}
           style={styles.cardsContainer}
-          contentContainerStyle={styles.cardsContent}
-          decelerationRate={0}
-          snapToAlignment="center"
+          contentContainerStyle={[
+            styles.cardsContent,
+            // Platform.OS === 'ios' && {
+            //   paddingLeft: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65 + 20)) / 2,
+            //   paddingRight: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65 + 20)) / 2,
+            // }
+          ]}
           onMomentumScrollEnd={(event) => {
             const offset = event.nativeEvent.contentOffset.x;
             const cardWidth = SCREEN_WIDTH * 0.65 + 20;
@@ -418,7 +430,7 @@ const styles = StyleSheet.create({
   },
   backgroundPanel: {
     flex: 1,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginTop: 10,
     backgroundColor: 'rgba(70, 10, 100, 0.35)',
     borderRadius: 24,
@@ -429,7 +441,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 8,
-    height: 550,
+    height: 570,
   },
   header: {
     paddingTop: 35,
@@ -658,17 +670,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   navigationButtons: {
-
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: "100%",
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
   },
   navButtonLeft: {
     zIndex: 15,
     position: 'absolute',
-    left: 5,
-    bottom: "33%",
+    left: 10,
+    bottom: "35%",
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -677,8 +688,8 @@ const styles = StyleSheet.create({
   navButtonRight: {
     zIndex: 15,
     position: 'absolute',
-    right: 5,
-    bottom: "33%",
+    right: 10,
+    bottom: "35%",
     width: 50,
     height: 50,
     borderRadius: 25,
