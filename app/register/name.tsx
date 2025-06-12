@@ -1,6 +1,6 @@
 // name.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated, TouchableWithoutFeedback, Keyboard, BackHandler, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, ArrowRight } from 'lucide-react-native';
@@ -67,7 +67,9 @@ export default function NameScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false} >
+    <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false} >
       <View style={styles.container}>
         <LinearGradient
           colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
@@ -133,6 +135,7 @@ export default function NameScreen() {
         </View>
       </View>
     </TouchableWithoutFeedback>
+    </>
   );
 }
 
