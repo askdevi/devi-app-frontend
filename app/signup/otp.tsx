@@ -30,31 +30,32 @@ export default function OtpScreen() {
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const glowAnimation = new Animated.Value(0);
 
-  // useEffect(() => {
-  //   let listener: any;
+  useEffect(() => {
+    if (Platform.OS === 'ios') return;
+    let listener: any;
 
-  //   // Step 1: get hash for SMS formatting
-  //   getHash()
-  //     .then(hashes => console.log('App hash:', hashes[0]))
-  //     .catch(console.error);
+    // Step 1: get hash for SMS formatting
+    getHash()
+      .then(hashes => console.log('App hash:', hashes[0]))
+      .catch(console.error);
 
-  //   // Step 2: start listening for SMS containing OTP
-  //   startOtpListener((message: string) => {
-  //     console.log('Received SMS:', message);
-  //     const match = message.match(/(\d{4})/);
-  //     if (match) {
-  //       const digits = match[1].split('');
-  //       setOtp(digits);
-  //       removeListener();  // stop listening after capture
-  //     }
-  //   })
-  //     .catch(console.error);
+    // Step 2: start listening for SMS containing OTP
+    startOtpListener((message: string) => {
+      console.log('Received SMS:', message);
+      const match = message.match(/(\d{4})/);
+      if (match) {
+        const digits = match[1].split('');
+        setOtp(digits);
+        removeListener();  // stop listening after capture
+      }
+    })
+      .catch(console.error);
 
-  //   // Step 3: cleanup on unmount
-  //   return () => {
-  //     removeListener();
-  //   };
-  // }, []);
+    // Step 3: cleanup on unmount
+    return () => {
+      removeListener();
+    };
+  }, []);
 
   useEffect(() => {
     const startGlowAnimation = () => {
