@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
+    "name": "Ask Devi",
     "slug": "bolt-expo-nativewind",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/devi-icon.png",
     "scheme": "myapp",
@@ -11,8 +11,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hrish17.boltexponativewind",
+
+      "buildNumber": "3",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to allow you to select and share images in your chat."
+        "NSPhotoLibraryUsageDescription": "Ask Devi needs access to your photo library to allow you to select and share images in your conversations with the AI assistant.",
+        "NSCameraUsageDescription": "Ask Devi needs access to your camera to allow you to take photos and share them in your conversations with the AI assistant.",
+        "NSMicrophoneUsageDescription": "Ask Devi may need access to your microphone for voice input and audio features when interacting with the AI assistant.",
+        "NSLocationWhenInUseUsageDescription": "Ask Devi may use your location to provide location-based suggestions and improve your AI assistant experience.",
+        "NSPhotoLibraryAddUsageDescription": "Ask Devi needs permission to save images to your photo library when you choose to download or save content from your conversations."
       }
     },
     "web": {
