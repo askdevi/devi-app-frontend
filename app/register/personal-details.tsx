@@ -86,8 +86,6 @@ export default function PersonalDetailsScreen() {
             occupation: occupation.toLowerCase(),
           };
           await axios.post(`${Domain}/register`, body);
-          console.log('Registration completed successfully');
-          // Mark registration as complete
           await AsyncStorage.setItem('registrationComplete', 'true');
         } catch (error: any) {
           console.log('PersonalDetailsScreen: Error in registration:', {

@@ -71,8 +71,6 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                     amountPaid: pkg.price,
                 });
                 if (verifyRes.data.success) {
-                    // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
-                    // Update local storage or state
                     const newTimeEnd = verifyRes.data.timeEnd;
                     const timeEndTimestamp = new Date(newTimeEnd).getTime();
                     setTime(timeEndTimestamp - Date.now());

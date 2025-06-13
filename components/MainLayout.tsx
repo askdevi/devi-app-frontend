@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Header from './Header';
 import Hero from './Hero';
@@ -12,6 +12,24 @@ import FreeTimePopup from './Popups/FreeTimePopup';
 
 const MainLayout = () => {
   const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (showPopup) {
+        setShowPopup(false);
+        return true;
+      }
+      BackHandler.exitApp();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Animated, KeyboardAvoidingView, Platform, FlatList, Alert, BackHandler, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, FlatList, ActivityIndicator, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,20 +45,6 @@ const genderData = [
 export default function EditProfileScreen() {
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const backAction = () => {
-  //     router.back();
-  //     return true;
-  //   };
-
-  //   const backHandler = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     backAction
-  //   );
-
-  //   return () => backHandler.remove();
-  // }, []);
-
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -70,6 +56,8 @@ export default function EditProfileScreen() {
   const [occupation, setOccupation] = useState('');
   const [gender, setGender] = useState('');
   const [updating, setUpdating] = useState(false);
+
+  const [error, setError] = useState('');
 
   const currentYear = new Date().getFullYear();
   const [day, setDay] = useState('');
@@ -324,7 +312,7 @@ export default function EditProfileScreen() {
         }
       );
       if (response.status != 200) {
-        alert('Error updating profile');
+        setError('Error updating profile');
         return;
       }
       await AsyncStorage.setItem('firstName', firstName);
@@ -349,7 +337,7 @@ export default function EditProfileScreen() {
       await AsyncStorage.setItem('gender', gender.toLowerCase());
       router.push('/main/profile');
     } catch (e) {
-      alert('Error saving profile data');
+      setError('Error saving profile data');
     } finally {
       setUpdating(false);
     }
@@ -707,13 +695,8 @@ export default function EditProfileScreen() {
                   setSelected={setGender}
                   search={false}
                 />
-                {/* <Dropdown
-                  label="Relationship Status"
-                  value={relationshipStatus}
-                  items={relationshipStatuses}
-                  onSelect={setRelationshipStatus}
-                  placeholder="Select status"
-                /> */}
+
+                {error && <Text style={styles.error}>{error}</Text>}
 
                 <View
                   style={[
@@ -983,5 +966,13 @@ const styles = StyleSheet.create({
     marginRight: 8,
     position: 'relative',
     zIndex: 10,
+  },
+  error: {
+    color: 'red',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+    marginTop: 15,
+    marginBottom: 0,
+    textAlign: 'center',
   },
 });

@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Alert, Platform, Animated,
-    BackHandler,
-    StatusBar
+    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Animated, StatusBar
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -10,7 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import * as Linking from 'expo-linking';
-import Dropdown from '@/components/Setup/Dropdown';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CustomDropdown from '@/components/CustomDropdown';
 import CustomInput from '@/components/CustomInput';
@@ -22,14 +19,8 @@ export default function SupportScreen() {
     const [topic, setTopic] = useState('');
     const [message, setMessage] = useState('');
     const [isFocused, setIsFocused] = useState(false)
+    const [error, setError] = useState('');
 
-    const topicItems = [
-        'General Inquiry',
-        'Issue with Tokens',
-        'Payment Issues',
-        'Technical Support',
-        'Feedback and Suggestions',
-    ];
     const queryTopicData = [
         { label: 'General Query', value: 'General Query' },
         { label: 'Issue With Package', value: 'Issue With Package' },
@@ -37,24 +28,9 @@ export default function SupportScreen() {
         { label: 'Billing Issue', value: 'Billing Issue' }
     ];
 
-    // useEffect(() => {
-    //     const backAction = () => {
-    //         router.back();
-    //         return true;
-    //     };
-
-    //     const backHandler = BackHandler.addEventListener(
-    //         'hardwareBackPress',
-    //         backAction
-    //     );
-
-    //     return () => backHandler.remove();
-    // }, []);
-
-
     const handleSend = () => {
         if (!name || !topic || !message) {
-            Alert.alert('Please fill all fields');
+            setError('Please fill all fields');
             return;
         }
 
@@ -63,7 +39,7 @@ export default function SupportScreen() {
         const mailto = `mailto:support@askdevi.com?subject=${subject}&body=${body}`;
 
         Linking.openURL(mailto).catch(err => {
-            Alert.alert('Error', 'Could not open email client');
+            setError('Could not open email client');
         });
     };
 
@@ -123,28 +99,11 @@ export default function SupportScreen() {
                             errorMsg=""
                             placeholder="Enter your name"
                         />
-                        {/* <Text style={styles.label}>Name</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={name}
-                            onChangeText={setName}
-                            placeholder="Your name"
-                            placeholderTextColor="#aaa"
-                        /> */}
-
-                        {/* <Dropdown
-                            label="Topic"
-                            value={topic}
-                            items={topicItems}
-                            onSelect={setTopic}
-                            placeholder="Select a topic..."
-                        /> */}
 
                         <CustomDropdown
                             renderData={queryTopicData}
                             labelName="Topic"
                             placeholder="Select a topic"
-                            // required
                             selected={topic}
                             setSelected={setTopic}
                             search={false}
@@ -167,9 +126,6 @@ export default function SupportScreen() {
                             numberOfLines={4}
                         />
 
-                        {/* <TouchableOpacity style={styles.button} onPress={handleSend}>
-                            <Text style={styles.buttonText}>Send Message</Text>
-                        </TouchableOpacity> */}
                         <Animated.View
                             style={[
                                 styles.sendButton,
@@ -203,6 +159,7 @@ export default function SupportScreen() {
                             </TouchableOpacity>
                         </Animated.View>
                     </ScrollView>
+                    {error && <Text style={styles.error}>{error}</Text>}
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>
@@ -349,5 +306,13 @@ const styles = StyleSheet.create({
         marginRight: 8,
         position: 'relative',
         zIndex: 10,
+    },
+    error: {
+        color: 'red',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
+        marginTop: 15,
+        marginBottom: 0,
+        textAlign: 'center',
     },
 });

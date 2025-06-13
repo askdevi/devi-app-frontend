@@ -5,10 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
-  Platform,
-  BackHandler,
   StatusBar,
+  BackHandler,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -22,16 +20,9 @@ import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import Footer from '@/components/Footer';
 import MaskedView from '@react-native-masked-view/masked-view';
-import Animated, {
-  // useSharedValue,
-  // useAnimatedStyle,
-  // withRepeat,
-  // withSequence,
-  // withTiming,
-  // Easing,
-  // interpolateColor,
-} from 'react-native-reanimated';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming, Easing } from 'react-native-reanimated';
 import { ActivityIndicator } from 'react-native';
+import PaymentFailedPopup from '@/components/Popups/PaymentFailedPopup';
 
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
@@ -51,6 +42,7 @@ const timePlans = [
     duration: '1 Hour',
     originalPrice: 299,
     price: 199,
+    glow: true,
     get discount() { return calculateDiscount(this.originalPrice, this.price); }
   },
   {
@@ -67,43 +59,45 @@ export default function WalletScreen() {
   const [time, setTime] = useState(0);
   const [processingPackageIndex, setProcessingPackageIndex] = useState<number | null>(null);
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
-  // const glowOpacity = useSharedValue(0.5);
-  // const glowScale = useSharedValue(1);
+  const [showPaymentFailedPopup, setShowPaymentFailedPopup] = useState(false);
 
-  // useEffect(() => {
-  //   glowOpacity.value = withRepeat(
-  //     withSequence(
-  //       withTiming(0.8, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-  //       withTiming(0.5, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-  //     ),
-  //     -1,
-  //     true
-  //   );
+  const glowOpacity = useSharedValue(0.5);
+  const glowScale = useSharedValue(1);
 
-  //   glowScale.value = withRepeat(
-  //     withSequence(
-  //       withTiming(1.02, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-  //       withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
-  //     ),
-  //     -1,
-  //     true
-  //   );
-  // }, []);
+  useEffect(() => {
+    glowOpacity.value = withRepeat(
+      withSequence(
+        withTiming(0.8, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.5, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
 
-  // const glowStyles = useAnimatedStyle(() => {
-  //   const backgroundColor = interpolateColor(
-  //     glowOpacity.value,
-  //     [0.5, 0.8],
-  //     ['rgba(255, 215, 0, 0.1)', 'rgba(253, 185, 49, 0.2)']
-  //   );
+    glowScale.value = withRepeat(
+      withSequence(
+        withTiming(1.02, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+  }, []);
 
-  //   return {
-  //     backgroundColor,
-  //     transform: [{ scale: glowScale.value }],
-  //     borderRadius: 16,
-  //     opacity: glowOpacity.value,
-  //   };
-  // });
+  const glowStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      glowOpacity.value,
+      [0.5, 0.8],
+      ['rgba(255, 215, 0, 0.1)', 'rgba(253, 185, 49, 0.2)']
+    );
+
+    return {
+      backgroundColor,
+      transform: [{ scale: glowScale.value }],
+      borderRadius: 16,
+      opacity: glowOpacity.value,
+    };
+  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -168,8 +162,6 @@ export default function WalletScreen() {
           amountPaid: pkg.price,
         });
         if (verifyRes.data.success) {
-          // Alert.alert('Payment Success', `Your ${pkg.duration} access is now active.`);
-          // Update local storage or state
           const newTimeEnd = verifyRes.data.timeEnd;
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
@@ -179,30 +171,32 @@ export default function WalletScreen() {
           throw new Error('Verification failed');
         }
       }).catch((error: any) => {
-        console.error(error);
-        Alert.alert('Payment Failed', 'Transaction was not completed. Please try again.');
+        setShowPaymentFailedPopup(true);
       });
     } catch (e: any) {
-      console.error(e);
-      Alert.alert('Error', e.message || 'Something went wrong.');
+      setShowPaymentFailedPopup(true);
     } finally {
       setProcessingPackageIndex(null);
     }
   };
 
-  // useEffect(() => {
-  //   const backAction = () => {
-  //     router.navigate("/main/home");
-  //     return true;
-  //   };
+  useEffect(() => {
+    const backAction = () => {
+      if (showPaymentFailedPopup) {
+        setShowPaymentFailedPopup(false);
+        return true;
+      }
+      router.back();
+      return true;
+    };
 
-  //   const backHandler = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     backAction
-  //   );
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
 
-  //   return () => backHandler.remove();
-  // }, []);
+    return () => backHandler.remove();
+  }, [showPaymentFailedPopup]);
 
   const GradientText = ({ children, style }: { children: string; style?: any }) => {
     return (
@@ -225,7 +219,6 @@ export default function WalletScreen() {
       </MaskedView>
     );
   };
-
   return (
     <SafeAreaProvider>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
@@ -248,10 +241,10 @@ export default function WalletScreen() {
             <View style={styles.divider} />
             <Text style={styles.packagesTitle}>Time Packages</Text>
             {timePlans.map((pkg, idx) => (
-              <Animated.View key={idx} style={[styles.packageCard]}>
-                {/* {idx === 1 ? (
+              <Animated.View key={idx} style={[styles.packageCard, pkg.glow && { borderColor: '#8d6c19', borderWidth: 2 }]}>
+                {pkg.glow && (
                   <Animated.View style={[styles.glowWrapper, glowStyles]} />
-                ) : null} */}
+                )}
                 {pkg.discount && (
                   <Text style={styles.discount}>{pkg.discount}% OFF</Text>
                 )}
@@ -271,7 +264,7 @@ export default function WalletScreen() {
                     {pkg.discount && (<Text style={styles.strikePrice}> ₹{pkg.originalPrice} </Text>)}
                   </View>
                   <TouchableOpacity
-                    style={[styles.buyButton, processingPackageIndex !== null && processingPackageIndex !== idx && { opacity: 0.5 }]}
+                    style={[styles.buyButton, processingPackageIndex !== null && { opacity: 0.5 }]}
                     onPress={() => handlePurchase(pkg, idx)}
                     disabled={processingPackageIndex !== null}
                   >
@@ -298,6 +291,7 @@ export default function WalletScreen() {
           <Footer />
         </View>
       </SafeAreaView>
+      {showPaymentFailedPopup && <PaymentFailedPopup onClose={() => setShowPaymentFailedPopup(false)} />}
     </SafeAreaProvider>
   );
 }
@@ -386,15 +380,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(168, 85, 247, 0.3)',
     marginBottom: 16,
   },
-  // glowWrapper: {
-  //   position: 'absolute',
-  //   top: 0,
-  //   left: 0,
-  //   right: 0,
-  //   bottom: 0,
-  //   zIndex: -1,
-  //   borderRadius: 16, // only works on iOS
-  // },
 
   discount: {
     backgroundColor: `${Colors.gold.DEFAULT}`,
@@ -466,5 +451,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     paddingVertical: 10,
+  },
+
+  glowWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: -1,
+    borderRadius: 16, // only works on iOS
   },
 });

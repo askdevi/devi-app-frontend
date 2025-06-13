@@ -1,14 +1,8 @@
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  Pressable,
-  Platform,
-  Image,
-  Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import OrbitingStars from '@/components/orbitingStars';
@@ -17,8 +11,6 @@ import { useFloatAnimation } from '@/hooks/useFloatAnimation';
 import Animated, {
   cancelAnimation,
   Easing,
-  interpolate,
-  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,

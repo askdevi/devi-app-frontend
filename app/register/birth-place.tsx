@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Animated, TouchableWithoutFeedback, Keyboard, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, ArrowRight, ArrowLeft } from 'lucide-react-native';
+import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
@@ -21,11 +21,6 @@ export default function BirthPlaceScreen() {
   const handleContinue = async () => {
 
     if (!isValidPlaceSelected || !birthPlace.trim()) {
-      Alert.alert(
-        'Birth Place Required',
-        'Please select your birth location before continuing.',
-        [{ text: 'OK', style: 'default' }]
-      );
       return;
     }
 

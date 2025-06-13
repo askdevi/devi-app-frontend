@@ -1,23 +1,9 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, BackHandler, StatusBar } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MainLayout from '@/components/MainLayout';
 
 export default function HomeScreen() {
-
-  useEffect(() => {
-    const backAction = () => {
-      BackHandler.exitApp();
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, []);
 
   return (
     <View style={styles.container}>

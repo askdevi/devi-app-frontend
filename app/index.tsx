@@ -129,7 +129,7 @@ export default function Index() {
       const userId = await getUserId();
       try {
         if (!userId) {
-          router.replace('/signup/phone');
+          router.push('/signup/phone');
           return;
         }
 
@@ -164,7 +164,7 @@ export default function Index() {
 
         if (!registrationSuccess) {
           // Registration failed or timed out, redirect to registration
-          router.replace('/register/name');
+          router.push('/register/name');
           return;
         }
 
@@ -212,9 +212,9 @@ export default function Index() {
             await AsyncStorage.setItem('profilePic', response2.data.user.sign + " " + response2.data.user.gender);
           }
 
-          router.replace('/main/home');
+          router.push('/main/home');
         } else {
-          router.replace('/signup/phone');
+          router.push('/signup/phone');
         }
       } catch (error) {
         console.log('LoadingScreen: Error initializing app:', error);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, Alert, BackHandler, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, BackHandler, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -10,44 +10,42 @@ import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
+import DeleteAccountPopup from '@/components/Popups/DeleteAccountPopup';
 
 export default function SettingsScreen() {
     const router = useRouter();
-
-    // useEffect(() => {
-    //     const backAction = () => {
-    //         router.back();
-    //         return true;
-    //     };
-
-    //     const backHandler = BackHandler.addEventListener(
-    //         'hardwareBackPress',
-    //         backAction
-    //     );
-
-    //     return () => backHandler.remove();
-    // }, []);
+    const [error, setError] = useState('');
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showDeleteAccountPopup, setShowDeleteAccountPopup] = useState(false);
+
+    useEffect(() => {
+        const backAction = () => {
+            if (isDeleting) {
+                return false;
+            }
+            else if (showDeleteAccountPopup) {
+                setShowDeleteAccountPopup(false);
+                return true;
+            }
+            else {
+                router.back();
+                return true;
+            }
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, [isDeleting, showDeleteAccountPopup]);
 
     const handleDeleteAccount = () => {
-        Alert.alert(
-            "Delete Account",
-            "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "Delete",
-                    style: "destructive",
-                    onPress: confirmDeleteAccount
-                }
-            ]
-        );
+        setShowDeleteAccountPopup(true);
     };
 
     const confirmDeleteAccount = async () => {
@@ -57,7 +55,7 @@ export default function SettingsScreen() {
             const userId = await getUserId();
 
             if (!userId) {
-                Alert.alert("Error", "User ID not found. Please try logging in again.");
+                setError("User ID not found. Please try logging in again.");
                 return;
             }
 
@@ -66,24 +64,15 @@ export default function SettingsScreen() {
             });
 
             if (response.status === 200) {
-                Alert.alert(
-                    "Account Deleted",
-                    "Your account has been successfully deleted.",
-                    [
-                        {
-                            text: "OK",
-                            onPress: () => {
-                                SecureStore.deleteItemAsync('userId');
-                                router.navigate('/signup/phone');
-                            }
-                        }
-                    ]
-                );
+                SecureStore.deleteItemAsync('userId');
+                router.navigate('/signup/phone');
             } else {
-                Alert.alert("Error", "Failed to delete account. Please try again.");
+                setError("Failed to delete account. Please try again.");
+                setShowDeleteAccountPopup(false);
             }
         } catch (error) {
-            console.error('Delete account error:', error);
+            setError("Failed to delete account. Please try again.");
+            setShowDeleteAccountPopup(false);
         } finally {
             setIsDeleting(false);
         }
@@ -120,8 +109,6 @@ export default function SettingsScreen() {
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
                 <View style={styles.container}>
-                    {/* <BackgroundEffects count={30} /> */}
-
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                             <Ionicons
@@ -132,13 +119,6 @@ export default function SettingsScreen() {
                         </TouchableOpacity>
                         <View style={styles.titleContainer}>
                             <GradientText style={styles.header}>Settings</GradientText>
-                            {/* <LinearGradient
-                                colors={['rgba(255, 215, 0, 0)', '#FFA500', '#FFD700', '#FFA500', 'rgba(255, 215, 0, 0)']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                locations={[0, 0.3, 0.5, 0.7, 1]}
-                                style={styles.underline}
-                            /> */}
                         </View>
                     </View>
 
@@ -192,12 +172,14 @@ export default function SettingsScreen() {
                             disabled={isDeleting}
                         >
                             <Text style={styles.deleteText}>
-                                {isDeleting ? 'Deleting account...' : 'Delete Account'}
+                                Delete Account
                             </Text>
                         </TouchableOpacity>
+                        {error && <Text style={styles.error}>{error}</Text>}
                     </ScrollView>
                 </View>
             </SafeAreaView>
+            {showDeleteAccountPopup && <DeleteAccountPopup onClose={() => setShowDeleteAccountPopup(false)} onDelete={confirmDeleteAccount} isDeleting={isDeleting} />}
         </SafeAreaProvider>
     );
 }
@@ -213,7 +195,6 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        // paddingTop: 30,
     },
     scrollView: {
         flex: 1,
@@ -303,5 +284,13 @@ const styles = StyleSheet.create({
     deleteText: {
         color: '#ff8080',
         fontSize: 15,
+    },
+    error: {
+        color: 'red',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
+        marginTop: 15,
+        marginBottom: 0,
+        textAlign: 'center',
     },
 });

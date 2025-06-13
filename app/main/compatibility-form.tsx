@@ -1,14 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform, BackHandler, StatusBar } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import BackgroundEffects from '@/components/BackgroundEffects';
 import { LinearGradient } from 'expo-linear-gradient';
 import Domain from '@/constants/domain';
 import axios from 'axios';
 import { getUserId } from '@/constants/userId';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import 'react-native-get-random-values';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +22,7 @@ export default function CompatibilityFormScreen() {
     const [birthPlace, setBirthPlace] = useState('');
     const [birthPlaceCoords, setBirthPlaceCoords] = useState({ latitude: 0, longitude: 0 });
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     // New state variables for date/time inputs
     const [isFocused, setIsFocused] = useState(false);
@@ -159,8 +158,7 @@ export default function CompatibilityFormScreen() {
                 params: { report: JSON.stringify(report), index: JSON.stringify(response.data.index) }
             });
         } catch (error) {
-            console.error('Error checking compatibility:', error);
-            alert('Failed to check compatibility. Please try again.');
+            setError('Failed to check compatibility. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -448,7 +446,9 @@ export default function CompatibilityFormScreen() {
                                 </View>
                             </View>
 
-                            <View
+                            {error && <Text style={styles.error}>{error}</Text>}
+
+                            <View   
                                 style={[
                                     styles.checkButton,
                                     !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim() && birthTimePeriod?.trim()) && styles.checkButtonDisabled,
@@ -674,5 +674,13 @@ const styles = StyleSheet.create({
         marginRight: 8,
         position: 'relative',
         zIndex: 10,
+    },
+    error: {
+        color: 'red',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
+        marginTop: 15,
+        marginBottom: 0,
+        textAlign: 'center',
     },
 });
