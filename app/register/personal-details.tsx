@@ -46,7 +46,7 @@ export default function PersonalDetailsScreen() {
   const [relationshipStatus, setRelationshipStatus] = useState('');
   const [occupation, setOccupation] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState('');
 
   const handleComplete = async () => {
     try {
@@ -70,8 +70,6 @@ export default function PersonalDetailsScreen() {
 
       const registerUser = async () => {
         try {
-          console.log('Starting background registration...');
-          await AsyncStorage.setItem('registrationComplete', 'false');
           const body = {
             userId,
             phoneNumber,
@@ -88,13 +86,7 @@ export default function PersonalDetailsScreen() {
           await axios.post(`${Domain}/register`, body);
           await AsyncStorage.setItem('registrationComplete', 'true');
         } catch (error: any) {
-          console.log('PersonalDetailsScreen: Error in registration:', {
-            message: error.message,
-            response: error.response?.data,
-            stack: error.stack
-          });
-          // Mark registration as failed so loading page can handle it
-          await AsyncStorage.setItem('registrationComplete', 'false');
+          setError('Something went wrong. Please try again.');
         }
       };
 
@@ -196,6 +188,8 @@ export default function PersonalDetailsScreen() {
             search={false}
           />
         </View>
+
+        {error && <Text style={styles.error}>{error}</Text>}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -314,5 +308,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
     marginBottom: 24,
+  },
+  error: {
+    color: 'red',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+    marginTop: 15,
+    marginBottom: 0,
+    textAlign: 'center',
   },
 });

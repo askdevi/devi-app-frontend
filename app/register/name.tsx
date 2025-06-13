@@ -70,71 +70,71 @@ export default function NameScreen() {
     <>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false} >
-      <View style={styles.container}>
-        <LinearGradient
-          colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
-          style={StyleSheet.absoluteFill}
-        />
-
-        <View style={styles.content}>
-          <SetupProgress currentStep={1} totalSteps={5} />
-
-          {/* <View style={styles.header}> */}
-          <GradientText style={styles.title}>Namaste</GradientText>
-          {/* </View> */}
-          <CustomInput
-            value={firstName}
-            onChange={setFirstName}
-            label="First Name"
-            errorMsg=""
-            placeholder="Enter your first name"
-          />
-          <CustomInput
-            value={lastName}
-            onChange={setLastName}
-            label="Last name"
-            errorMsg=""
-            placeholder="Enter your last name"
+        <View style={styles.container}>
+          <LinearGradient
+            colors={[Colors.deepPurple.dark, Colors.deepPurple.DEFAULT, Colors.deepPurple.light]}
+            style={StyleSheet.absoluteFill}
           />
 
-          <View
-            style={[
-              styles.continueButton,
-              !(firstName.trim() && lastName.trim()) && styles.continueButtonDisabled,
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.continueButtonTouchable}
-              onPress={handleContinue}
-              disabled={!(firstName.trim() && lastName.trim())}
-              activeOpacity={0.8}
+          <View style={styles.content}>
+            <SetupProgress currentStep={1} totalSteps={5} />
+
+            {/* <View style={styles.header}> */}
+            <GradientText style={styles.title}>Namaste</GradientText>
+            {/* </View> */}
+            <CustomInput
+              value={firstName}
+              onChange={setFirstName}
+              label="First Name"
+              errorMsg=""
+              placeholder="Enter your first name"
+            />
+            <CustomInput
+              value={lastName}
+              onChange={setLastName}
+              label="Last name"
+              errorMsg=""
+              placeholder="Enter your last name"
+            />
+
+            <View
+              style={[
+                styles.continueButton,
+                !(firstName.trim() && lastName.trim()) && styles.continueButtonDisabled,
+              ]}
             >
-              <LinearGradient
-                colors={['#FFD700', '#FF8C00', '#FFD700']}
-                style={styles.continueButtonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              />
-              <LinearGradient
-                colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              />
+              <TouchableOpacity
+                style={styles.continueButtonTouchable}
+                onPress={handleContinue}
+                disabled={!(firstName.trim() && lastName.trim())}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#FFD700', '#FF8C00', '#FFD700']}
+                  style={styles.continueButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                />
 
-              <View style={styles.buttonContent}>
-                <Text style={styles.continueButtonText}>Continue</Text>
-                <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
-              </View>
-            </TouchableOpacity>
+                <View style={styles.buttonContent}>
+                  <Text style={styles.continueButtonText}>Continue</Text>
+                  <ArrowRight color={Colors.deepPurple.DEFAULT} size={20} />
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.quote}>
+              The journey of self-discovery begins with a single step
+            </Text>
+
           </View>
-
-          <Text style={styles.quote}>
-            The journey of self-discovery begins with a single step
-          </Text>
-
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
     </>
   );
 }

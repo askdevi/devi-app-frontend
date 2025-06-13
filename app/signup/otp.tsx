@@ -202,8 +202,10 @@ export default function OtpScreen() {
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
       await storeUserId(response.data.userId);
       if (response.data.exists) {
+        await AsyncStorage.setItem('registrationComplete', 'true');
         router.navigate('/');
       } else {
+        await AsyncStorage.setItem('registrationComplete', 'false');
         router.push('/register/name');
       }
     } catch (err) {

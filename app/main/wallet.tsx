@@ -248,7 +248,7 @@ export default function WalletScreen() {
                 {pkg.discount && (
                   <Text style={styles.discount}>{pkg.discount}% OFF</Text>
                 )}
-                <View style={{ margin: 16 }}>
+                <View style={{ margin: 20 }}>
                   <Text style={styles.packageLabel}>{pkg.duration}</Text>
                   <Text style={styles.packageSub}>Unlimited Questions</Text>
                   <View
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
 
   packageCard: {
-    height: 170,
+    height: 180,
     position: 'relative',
     backgroundColor: 'rgba(80, 20, 120, 0.5)', // bg-purple-900/20
     borderRadius: 20, // rounded-lg
