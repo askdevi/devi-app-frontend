@@ -217,12 +217,9 @@ export default function Index() {
           router.push('/signup/phone');
         }
       } catch (error) {
-        console.log('LoadingScreen: Error initializing app:', error);
         if (!userId) {
-          console.log('LoadingScreen: No userId after error, redirecting to /signup/phone');
           router.replace('/signup/phone');
         } else {
-          console.log('LoadingScreen: UserId exists after error, redirecting to /register/name');
           router.replace('/register/name');
         }
       }

@@ -62,11 +62,13 @@ export default function PersonalDetailsScreen() {
       const birthTime = await AsyncStorage.getItem('birthTime');
       const gender = await AsyncStorage.getItem('gender');
       const birthPlaceData = await AsyncStorage.getItem('birthPlaceData');
+      await AsyncStorage.setItem('registrationComplete', 'false');
+
 
       const birthPlace = birthPlaceData ? JSON.parse(birthPlaceData) : null;
       const userId = await getUserId();
 
-      router.navigate('/');
+      router.push('/');
 
       const registerUser = async () => {
         try {
