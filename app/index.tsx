@@ -1,5 +1,6 @@
+import messaging from '@react-native-firebase/messaging';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, Platform, Pressable, Dimensions, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Image, Platform, BackHandler, PermissionsAndroid } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -108,6 +109,44 @@ const GlowEffect = () => {
   );
 };
 
+async function requestUserPermission() {
+  const authStatus = await messaging().requestPermission();
+  return (
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL
+  );
+}
+
+async function getAndSendToken(userId: string) {
+  try {
+    const token = await messaging().getToken();
+    await axios.post(`${Domain}/update-fcm-token`, { userId, fcmToken: token });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function requestNotificationPermission() {
+  if (Platform.OS === "android") {
+    try {
+      PermissionsAndroid.check('android.permission.POST_NOTIFICATIONS').then(
+        response => {
+          if (!response) {
+            PermissionsAndroid.request('android.permission.POST_NOTIFICATIONS')
+          }
+        }
+      ).catch(
+        err => {
+          console.log("Notification Error=====>", err);
+        }
+      )
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  return true;
+};
+
 export default function Index() {
   const router = useRouter();
 
@@ -122,6 +161,35 @@ export default function Index() {
     );
 
     return () => backHandler.remove();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const userId = await getUserId();
+      if (!userId) {
+        return;
+      }
+      const hasPermission1 = await requestUserPermission();
+      const hasPermission2 = await requestNotificationPermission();
+      if (hasPermission1 && hasPermission2) {
+        await getAndSendToken(userId);
+      }
+    })();
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('New FCM in foreground:', remoteMessage);
+    });
+
+    const unsubscribeOnTokenRefresh = messaging().onTokenRefresh(async newToken => {
+      const userId = await getUserId();
+      if (!userId) {
+        return;
+      }
+      await getAndSendToken(userId);
+    });
+    return () => {
+      unsubscribe();
+      unsubscribeOnTokenRefresh();
+    };
   }, []);
 
   useEffect(() => {
@@ -229,7 +297,7 @@ export default function Index() {
   }, []);
 
   return (
-    <Pressable style={styles.container}>
+    <View style={styles.container}>
       <StatusBar style="light" />
       <LinearGradient
         colors={['#0a0219', '#1a0632', '#0a0219']}
@@ -258,7 +326,7 @@ export default function Index() {
           The universe speaks in the language of stars
         </Text>
       </View>
-    </Pressable>
+    </View>
   );
 }
 
