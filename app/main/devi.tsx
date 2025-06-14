@@ -242,6 +242,7 @@ export default function ChatScreen() {
         if (currentBuffer.length === 0) {
             return;
         }
+        console.log("currentBuffer : ", currentBuffer)
 
         setMessages(prev =>
             prev.map(msg =>
@@ -266,9 +267,12 @@ export default function ChatScreen() {
                     id: msg.id,
                     content: msg.text
                 }));
+                console.log("prompts : ", prompts)
 
                 try {
                     const userId = await getUserId();
+
+                    console.log("Sending request to model")
 
                     // Fire the POST with the controller's signal
                     const response = await axios.post(
@@ -284,7 +288,7 @@ export default function ChatScreen() {
                             signal: controller.signal
                         }
                     );
-
+                    console.log("Response from model : ", response)
                     // Append each returned string as a new assistant message:
                     const responses: string[] = response.data.response;
                     const rawId = response.data.id;
@@ -298,6 +302,8 @@ export default function ChatScreen() {
 
                     // Now that we got a good response, clear the buffer:
                     setBuffer([]);
+
+                    console.log("responses : ", responses)
 
                     for (const responseText of responses) {
                         const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
@@ -333,6 +339,8 @@ export default function ChatScreen() {
     const sendMessage = useCallback(() => {
         if (!newMessage.trim() || time <= 0) return;
 
+        console.log("Sending message : ", newMessage)
+
         // If there's already a request in flight, cancel it immediately.
         if (isRequestInFlight && abortControllerRef.current) {
             console.log('Cancelling previous API call because user typed again.');
@@ -340,6 +348,8 @@ export default function ChatScreen() {
             // We keep the old buffer as-is; don't clear anything here.
             // isRequestInFlight will get reset in the flushBuffer's catch/finally.
         }
+
+        console.log("isRequestInFlight : ", isRequestInFlight)
 
         const currentTime = new Date().toLocaleTimeString([], {
             hour: '2-digit',
@@ -361,9 +371,12 @@ export default function ChatScreen() {
         setNewMessage('');
         // setIsThinking(true);
 
+        console.log("In sendMessage, buffer : ", buffer)
+
         // Reset 5-second inactivity timer
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
+            console.log("In sendMessage, flushing buffer")
             flushBuffer(); // <-- flush buffer after 5s of inactivity
         }, 5000);
         setTypingTimeout(timeout as unknown as NodeJS.Timeout);
