@@ -123,19 +123,25 @@ export default function WalletScreen() {
   }, []);
 
   const handlePurchase = async (pkg: any, index: number) => {
+    console.log("handlePurchase called")
     if (processingPackageIndex !== null) return;
     setProcessingPackageIndex(index);
     try {
+      console.log("inside handlePurchase try")
       const userId = await getUserId();
       // 1. Create order on server
       const orderRes = await axios.post(`${Domain}/create-order`, { amount: pkg.price });
       const { orderId } = orderRes.data;
       if (!orderId) throw new Error('Order ID not returned');
 
+      console.log("orderId : ", orderId)
+
       // 2. Open Razorpay
 
       const name = await AsyncStorage.getItem('firstName') || '';
       const contact = await AsyncStorage.getItem('phoneNumber') || '';
+
+      console.log("Payment before options(Razorpay)")
 
       const options = {
         key: 'rzp_live_ZebDbC0aL8Uh1O',
@@ -153,6 +159,7 @@ export default function WalletScreen() {
         theme: { color: Colors.deepPurple.DEFAULT },
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
+        console.log("Payment successful(Razorpay)")
         // 3. Verify payment
         const verifyRes = await axios.post(`${Domain}/verify-payment`, {
           razorpay_payment_id: payment.razorpay_payment_id,
@@ -161,21 +168,27 @@ export default function WalletScreen() {
           timeDuration: pkg.duration,
           amountPaid: pkg.price,
         });
+        console.log("Payment successful(Razorpay)")
         if (verifyRes.data.success) {
+          console.log("Payment verified from backend")
           const newTimeEnd = verifyRes.data.timeEnd;
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
           await AsyncStorage.setItem('timeEnd', newTimeEnd);
           router.navigate('/main/devi');
         } else {
+          console.log("Payment failed(Razorpay) 1")
           throw new Error('Verification failed');
         }
       }).catch((error: any) => {
+        console.log("Payment failed(Razorpay) 2")
         setShowPaymentFailedPopup(true);
       });
     } catch (e: any) {
+      console.log("Payment failed(Razorpay) 3 ", e)
       setShowPaymentFailedPopup(true);
     } finally {
+      console.log("Payment Finally")
       setProcessingPackageIndex(null);
     }
   };
