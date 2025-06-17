@@ -55,7 +55,7 @@ export default function SettingsScreen() {
             const userId = await getUserId();
 
             if (!userId) {
-                setError("User ID not found. Please try logging in again.");
+                setError("User Id not found. Please try logging in again.");
                 return;
             }
 
