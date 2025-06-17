@@ -171,11 +171,11 @@ export default function WalletScreen() {
         console.log("Payment successful(Razorpay)")
         if (verifyRes.data.success) {
           console.log("Payment verified from backend")
+          router.navigate('/main/devi');
           const newTimeEnd = verifyRes.data.timeEnd;
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
           setTime(timeEndTimestamp - Date.now());
           await AsyncStorage.setItem('timeEnd', newTimeEnd);
-          router.navigate('/main/devi');
         } else {
           console.log("Payment failed(Razorpay) 1")
           throw new Error('Verification failed');

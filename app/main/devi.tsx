@@ -94,8 +94,8 @@ export default function ChatScreen() {
     const logoGlowOpacity = useSharedValue(0);
     const [time, setTime] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [isInputFocused, setIsInputFocused] = useState(false);
+    const [timeFetched, setTimeFetched] = useState(false);
 
     const [buffer, setBuffer] = useState<Message[]>([]);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -110,13 +110,16 @@ export default function ChatScreen() {
     }, [buffer]);
 
     useEffect(() => {
+        if (!timeFetched) {
+            return;
+        }
         if (!isThinking && time <= 0) {
             setShowPopup(true);
         }
         else if (time > 0) {
             setShowPopup(false);
         }
-    }, [time, isThinking]);
+    }, [time, isThinking, timeFetched]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -136,6 +139,7 @@ export default function ChatScreen() {
             else {
                 setTime(0);
             }
+            setTimeFetched(true);
         };
         loadData();
 
@@ -242,7 +246,6 @@ export default function ChatScreen() {
         if (currentBuffer.length === 0) {
             return;
         }
-        console.log("currentBuffer : ", currentBuffer)
 
         setMessages(prev =>
             prev.map(msg =>
@@ -251,7 +254,6 @@ export default function ChatScreen() {
                     : msg
             )
         );
-        setIsThinking(true);
         setIsRequestInFlight(true);
         setTypingTimeout(null);
 
@@ -272,9 +274,13 @@ export default function ChatScreen() {
                 try {
                     const userId = await getUserId();
 
-                    console.log("Sending request to model")
+                    // Set isThinking to true after a random delay of 5-10 seconds
+                    const thinkingDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+                    setTimeout(() => {
+                        setIsThinking(true);
+                    }, thinkingDelay);
 
-                    // Fire the POST with the controller's signal
+                    console.log("Sending request to model")
                     const response = await axios.post(
                         ModelURL,
                         {
@@ -288,7 +294,9 @@ export default function ChatScreen() {
                             signal: controller.signal
                         }
                     );
+
                     console.log("Response from model : ", response)
+
                     // Append each returned string as a new assistant message:
                     const responses: string[] = response.data.response;
                     const rawId = response.data.id;
@@ -300,7 +308,23 @@ export default function ChatScreen() {
                             hour12: true,
                         });
 
-                    // Now that we got a good response, clear the buffer:
+                    const latestChatHistory = await AsyncStorage.getItem('latestChatHistory');
+                    const msgs = JSON.parse(latestChatHistory || '[]');
+                    const currentBufferWithRole = currentBuffer.map(msg => ({
+                        id: msg.id,
+                        role: msg.isUser ? 'user' : 'assistant',
+                        content: msg.text
+                    }));
+
+                    const responseWithRole = responses.map(response => ({
+                        id: rawId,
+                        content: response,
+                        role: 'assistant'
+                    }));
+
+                    msgs.push(...currentBufferWithRole, ...responseWithRole);
+                    await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
+
                     setBuffer([]);
 
                     console.log("responses : ", responses)
@@ -330,7 +354,6 @@ export default function ChatScreen() {
                 } finally {
                     setIsRequestInFlight(false);
                     setIsThinking(false);
-                    //set all messages to read
                 }
             })();
         }, 2000);
@@ -369,7 +392,6 @@ export default function ChatScreen() {
         setMessages(prev => [...prev, userMessage]);
         setBuffer(prev => [...prev, userMessage]);
         setNewMessage('');
-        // setIsThinking(true);
 
         console.log("In sendMessage, buffer : ", buffer)
 
@@ -385,34 +407,34 @@ export default function ChatScreen() {
     const MessageBubble = React.memo(({ message }: { message: Message }) => {
         const gradientPosition = useSharedValue(-SCREEN_WIDTH);
 
-        React.useEffect(() => {
-            if (!message.isUser) {
-                gradientPosition.value = withRepeat(
-                    withSequence(
-                        withTiming(-SCREEN_WIDTH, { duration: 0 }),
-                        withTiming(SCREEN_WIDTH * 2, {
-                            duration: 4000,
-                            easing: Easing.bezier(0.4, 0, 0.6, 1),
-                        })
-                    ),
-                    -1,
-                    false
-                );
+        // React.useEffect(() => {
+        //     if (!message.isUser) {
+        //         gradientPosition.value = withRepeat(
+        //             withSequence(
+        //                 withTiming(-SCREEN_WIDTH, { duration: 0 }),
+        //                 withTiming(SCREEN_WIDTH * 2, {
+        //                     duration: 4000,
+        //                     easing: Easing.bezier(0.4, 0, 0.6, 1),
+        //                 })
+        //             ),
+        //             -1,
+        //             false
+        //         );
 
-                return () => {
-                    cancelAnimation(gradientPosition);
-                };
-            }
-        }, [message.isUser]);
+        //         return () => {
+        //             cancelAnimation(gradientPosition);
+        //         };
+        //     }
+        // }, [message.isUser]);
 
-        const animatedGradientStyle = useAnimatedStyle(() => ({
-            transform: [{ translateX: gradientPosition.value }],
-            opacity: interpolate(
-                gradientPosition.value,
-                [-SCREEN_WIDTH, -SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_WIDTH * 2],
-                [0, 0.5, 0.9, 0.5, 0]
-            ),
-        }));
+        // const animatedGradientStyle = useAnimatedStyle(() => ({
+        //     transform: [{ translateX: gradientPosition.value }],
+        //     opacity: interpolate(
+        //         gradientPosition.value,
+        //         [-SCREEN_WIDTH, -SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_WIDTH * 2],
+        //         [0, 0.5, 0.9, 0.5, 0]
+        //     ),
+        // }));
 
         return (
             <View style={[
@@ -424,7 +446,7 @@ export default function ChatScreen() {
                     message.isUser ? styles.userMessage : styles.botMessage,
                     !message.isUser && styles.botMessageBorder,
                 ]}>
-                    {!message.isUser && (
+                    {/* {!message.isUser && (
                         <AnimatedLinearGradient
                             colors={[
                                 'transparent',
@@ -441,7 +463,7 @@ export default function ChatScreen() {
                                 animatedGradientStyle
                             ]}
                         />
-                    )}
+                    )} */}
                     <Text style={[styles.messageText, { color: message.isUser ? '#fff' : '#000' }]}>{message.text}</Text>
                     <View style={message.isUser ? styles.messageFooterUser : styles.messageFooter}>
                         {!message.isUser && (
@@ -598,94 +620,95 @@ export default function ChatScreen() {
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
                 {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
-                <KeyboardAvoidingView
+                {/* <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
+                > */}
+                {/* Commented it due to a additional margin at the bottom of the screen */}
+                <LinearGradient
+                    colors={['#360059', '#1D0033', '#1a0028']}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                />
+
+                <BackgroundStars count={20} />
+
+                <View style={styles.header}>
+                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                        <LinearGradient
+                            colors={Platform.OS === 'ios' ? ['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)'] : ['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                        />
+                    </BlurView>
+                    <HeaderContent />
+                </View>
+
+                <ScrollView
+                    ref={scrollViewRef}
+                    style={styles.messagesContainer}
+                    contentContainerStyle={styles.messagesContent}
+                    onContentSizeChange={() => {
+                        scrollViewRef.current?.scrollToEnd({ animated: true });
+                    }}
                 >
-                    <LinearGradient
-                        colors={['#360059', '#1D0033', '#1a0028']}
-                        style={StyleSheet.absoluteFill}
-                        start={{ x: 0.5, y: 0 }}
-                        end={{ x: 0.5, y: 1 }}
-                    />
-
-                    <BackgroundStars count={20} />
-
-                    <View style={styles.header}>
-                        <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                            <LinearGradient
-                                colors={Platform.OS === 'ios' ? ['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)'] : ['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
-                                style={StyleSheet.absoluteFill}
-                                start={{ x: 0.5, y: 0 }}
-                                end={{ x: 0.5, y: 1 }}
-                            />
-                        </BlurView>
-                        <HeaderContent />
-                    </View>
-
-                    <ScrollView
-                        ref={scrollViewRef}
-                        style={styles.messagesContainer}
-                        contentContainerStyle={styles.messagesContent}
-                        onContentSizeChange={() => {
-                            scrollViewRef.current?.scrollToEnd({ animated: true });
-                        }}
-                    >
-                        {groupedMessages.map(([date, msgs]) => (
-                            <View key={date}>
-                                <DateHeader date={date} />
-                                {msgs.map((message) => (
-                                    <MessageBubble key={message.id} message={message} />
-                                ))}
-                            </View>
-                        ))}
-                        {isThinking && (
-                            <View style={{ marginTop: 10 }}>
-                                <TypingDots />
-                            </View>
-                        )}
-                    </ScrollView>
-
-                    <View style={styles.inputContainer}>
-                        <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                            <LinearGradient
-                                colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
-                                style={StyleSheet.absoluteFill}
-                                start={{ x: 0.5, y: 0 }}
-                                end={{ x: 0.5, y: 1 }}
-                            />
-                        </BlurView>
-                        <View style={styles.inputWrapper}>
-                            <TextInput
-                                style={[
-                                    styles.input,
-                                    isInputFocused && styles.inputFocused
-                                ]}
-                                value={newMessage}
-                                onChangeText={setNewMessage}
-                                onFocus={() => setIsInputFocused(true)}
-                                onBlur={() => setIsInputFocused(false)}
-                                placeholder="Type your question..."
-                                placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                                multiline
-                            />
-                            {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
-                                <Text style={styles.purchaseButtonText}>Ask More</Text>
-                            </TouchableOpacity> :
-                                <TouchableOpacity
-                                    onPress={sendMessage}
-                                    style={styles.sendButton}
-                                    disabled={time <= 0 || !newMessage.trim()}
-                                >
-                                    <Text style={[
-                                        styles.sendButtonText,
-                                        !newMessage.trim() && styles.sendButtonDisabled
-                                    ]}>➤</Text>
-                                </TouchableOpacity>
-                            }
+                    {groupedMessages.map(([date, msgs]) => (
+                        <View key={date}>
+                            <DateHeader date={date} />
+                            {msgs.map((message) => (
+                                <MessageBubble key={message.id} message={message} />
+                            ))}
                         </View>
+                    ))}
+                    {isThinking && (
+                        <View style={{ marginTop: 10 }}>
+                            <TypingDots />
+                        </View>
+                    )}
+                </ScrollView>
+
+                <View style={styles.inputContainer}>
+                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                        <LinearGradient
+                            colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                        />
+                    </BlurView>
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                isInputFocused && styles.inputFocused
+                            ]}
+                            value={newMessage}
+                            onChangeText={setNewMessage}
+                            onFocus={() => setIsInputFocused(true)}
+                            onBlur={() => setIsInputFocused(false)}
+                            placeholder="Type your question..."
+                            placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                            multiline
+                        />
+                        {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
+                            <Text style={styles.purchaseButtonText}>Ask More</Text>
+                        </TouchableOpacity> :
+                            <TouchableOpacity
+                                onPress={sendMessage}
+                                style={styles.sendButton}
+                                disabled={time <= 0 || !newMessage.trim()}
+                            >
+                                <Text style={[
+                                    styles.sendButtonText,
+                                    !newMessage.trim() && styles.sendButtonDisabled
+                                ]}>➤</Text>
+                            </TouchableOpacity>
+                        }
                     </View>
-                </KeyboardAvoidingView>
+                </View>
+                {/* </KeyboardAvoidingView> */}
             </SafeAreaView>
         </SafeAreaProvider>
     );
