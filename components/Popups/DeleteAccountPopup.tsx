@@ -13,31 +13,45 @@ interface Props {
     isDeleting?: boolean;
 }
 
-const PaymentFailedPopup = ({ onClose, onDelete, isDeleting }: Props) => {
+const DeleteAccountPopup = ({ onClose, onDelete, isDeleting }: Props) => {
     const router = useRouter();
     const buttonGradient = useRef(new Animated.Value(0)).current;
     return (
         <View style={styles.container}>
             <View style={styles.popup}>
                 <LinearGradient
-                    colors={['#1f0b3c', '#281048', '#341b43', '#341b43', '#341b43', '#381d39', '#381e3e', '#2b133f']}
+                    colors={Colors.gradients.purplePrimary}
                     style={styles.background}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
                 />
-                <Ionicons name="alert-circle" size={100} color="red" style={{ marginBottom: 20 }} />
-                <Text style={[styles.title, { color: 'red' }]}>Delete Account</Text>
-                <Text style={styles.subtitle}>Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.</Text>
 
-                <View style={styles.buttons}>
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={[styles.button, { opacity: isDeleting ? 0.5 : 1 }]} onPress={onClose} disabled={isDeleting}>
-                            <Text style={styles.buttonText}>Cancel</Text>
-                        </TouchableOpacity>
+                <View style={styles.content}>
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="alert-circle" size={64} color="#FF6B6B" />
                     </View>
-                    <View style={styles.buttonContainer1}>
-                        <TouchableOpacity style={[styles.button, { opacity: isDeleting ? 0.5 : 1 }]} onPress={onDelete} disabled={isDeleting}>
-                            {isDeleting ? <ActivityIndicator size="small" color="white" /> : <Text style={styles.buttonText1}>Delete</Text>}
+                    <Text style={styles.title}>Delete Account</Text>
+                    <Text style={styles.subtitle}>Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.</Text>
+
+                    <View style={styles.buttons}>
+                        <TouchableOpacity
+                            style={[styles.cancelButton, { opacity: isDeleting ? 0.5 : 1 }]}
+                            onPress={onClose}
+                            disabled={isDeleting}
+                        >
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.deleteButton, { opacity: isDeleting ? 0.5 : 1 }]}
+                            onPress={onDelete}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? (
+                                <ActivityIndicator size="small" color="white" />
+                            ) : (
+                                <Text style={styles.deleteButtonText}>Delete</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -57,8 +71,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         zIndex: 10000,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        // paddingTop: 160,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
     },
     background: {
         position: 'absolute',
@@ -66,81 +79,87 @@ const styles = StyleSheet.create({
         right: 0,
         top: 0,
         bottom: 0,
-        borderRadius: 15,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: 'rgba(168, 85, 247, 0.2)',
     },
     popup: {
-        width: '80%',
-        height: '45%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 40
+        width: '82%',
+        maxWidth: 340,
+        paddingVertical: 40,
+        paddingHorizontal: 24,
+        position: 'relative',
     },
     closeButton: {
         position: 'absolute',
-        top: 15,
-        right: 20,
-        borderRadius: 100,
-        padding: 5,
+        top: 16,
+        right: 16,
+        zIndex: 1,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 215, 0, 0.1)',
     },
-    logo: {
-        width: 100,
-        height: 100,
-        zIndex: 10,
-        marginBottom: 10,
-        marginTop: 20,
+    content: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    iconContainer: {
+        marginBottom: 24,
+        padding: 16,
+        borderRadius: 50,
+        backgroundColor: 'rgba(255, 107, 107, 0.1)',
     },
     title: {
-        color: Colors.gold.DEFAULT,
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 5,
+        color: '#FF6B6B',
+        fontSize: 22,
+        fontWeight: '700',
+        marginBottom: 16,
+        textAlign: 'center',
     },
     subtitle: {
-        color: Colors.gold.DEFAULT,
-        fontSize: 16,
-        fontFamily: 'Poppins-Regular',
-        marginBottom: 30,
+        color: Colors.gold.light,
+        fontSize: 14,
+        fontWeight: '400',
+        marginBottom: 32,
         textAlign: 'center',
-        paddingHorizontal: 20,
+        opacity: 0.9,
+        lineHeight: 20,
+        paddingHorizontal: 8,
     },
     buttons: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        paddingHorizontal: 40,
+        gap: 16,
     },
-    buttonContainer: {
-        width: "40%",
+    cancelButton: {
+        flex: 1,
         height: 48,
         borderRadius: 24,
-        overflow: 'hidden',
-        backgroundColor: Colors.gold.DEFAULT,
-    },
-    buttonContainer1: {
-        width: "40%",
-        height: 48,
-        borderRadius: 24,
-        overflow: 'hidden',
-        backgroundColor: "red",
-    },
-    button: {
-        width: '100%',
-        height: '100%',
+        backgroundColor: 'rgba(255, 215, 0, 0.15)',
+        borderWidth: 1,
+        borderColor: Colors.gold.DEFAULT,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 24,
-        overflow: 'hidden',
     },
-    buttonText: {
-        color: Colors.deepPurple.DEFAULT,
-        fontFamily: 'Poppins-SemiBold',
+    deleteButton: {
+        flex: 1,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: '#FF4444',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cancelButtonText: {
+        color: Colors.gold.DEFAULT,
+        fontWeight: '600',
         fontSize: 16,
     },
-    buttonText1: {
-        color: "white",
-        fontFamily: 'Poppins-SemiBold',
+    deleteButtonText: {
+        color: 'white',
+        fontWeight: '600',
         fontSize: 16,
     },
 });
 
-export default PaymentFailedPopup;
+export default DeleteAccountPopup;

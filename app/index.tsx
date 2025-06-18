@@ -236,43 +236,37 @@ export default function Index() {
           return;
         }
 
-        const response2 = await axios.get(`${Domain}/get-profile`, {
-          params: {
-            userId: userId
-          }
-        });
-
-        const response = await axios.get(`${Domain}/daily-blessings`, {
-          params: {
-            userId: userId
-          }
-        });
-
-        const response3 = await axios.get(`${Domain}/latest-chat-history`, {
-          params: {
-            userId: userId
-          }
-        });
+        const [response2, response, response3] = await Promise.all([
+          axios.get(`${Domain}/get-profile`, {
+            params: { userId: userId }
+          }),
+          axios.get(`${Domain}/daily-blessings`, {
+            params: { userId: userId }
+          }),
+          axios.get(`${Domain}/latest-chat-history`, {
+            params: { userId: userId }
+          })
+        ]);
 
         if (response.data && response2.data && response3.data) {
           const dailyBlessings = response.data;
-          await AsyncStorage.setItem('timeEnd', response2.data.user.timeEnd);
 
-          await AsyncStorage.setItem('firstName', response2.data.user.firstName);
-          await AsyncStorage.setItem('lastName', response2.data.user.lastName);
-
-          await AsyncStorage.setItem('birthDate', response2.data.user.birthDate);
-          await AsyncStorage.setItem('birthTime', response2.data.user.birthTime);
-          await AsyncStorage.setItem('birthPlaceData', JSON.stringify(response2.data.user.birthPlace));
-          await AsyncStorage.setItem('language', response2.data.user.preferredLanguage);
-          await AsyncStorage.setItem('relationshipStatus', response2.data.user.relationshipStatus);
-          await AsyncStorage.setItem('occupation', response2.data.user.occupation);
-          await AsyncStorage.setItem('gender', response2.data.user.gender);
-
-          await AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data));
-
-          await AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings));
-          await AsyncStorage.setItem('popupShown', 'false');
+          // Store all data in parallel
+          await Promise.all([
+            AsyncStorage.setItem('timeEnd', response2.data.user.timeEnd),
+            AsyncStorage.setItem('firstName', response2.data.user.firstName),
+            AsyncStorage.setItem('lastName', response2.data.user.lastName),
+            AsyncStorage.setItem('birthDate', response2.data.user.birthDate),
+            AsyncStorage.setItem('birthTime', response2.data.user.birthTime),
+            AsyncStorage.setItem('birthPlaceData', JSON.stringify(response2.data.user.birthPlace)),
+            AsyncStorage.setItem('language', response2.data.user.preferredLanguage),
+            AsyncStorage.setItem('relationshipStatus', response2.data.user.relationshipStatus),
+            AsyncStorage.setItem('occupation', response2.data.user.occupation),
+            AsyncStorage.setItem('gender', response2.data.user.gender),
+            AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data)),
+            AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings)),
+            AsyncStorage.setItem('popupShown', 'false')
+          ]);
 
           const sign1 = await AsyncStorage.getItem('profilePic');
 

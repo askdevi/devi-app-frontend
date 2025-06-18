@@ -95,7 +95,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
         <View style={styles.container}>
             <View style={styles.popup}>
                 <LinearGradient
-                    colors={['#1f0b3c', '#281048', '#341b43', '#341b43', '#341b43', '#381d39', '#381e3e', '#2b133f']}
+                    colors={Colors.gradients.purplePrimary}
                     style={styles.background}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -151,8 +151,7 @@ const styles = StyleSheet.create({
         height: Platform.OS === 'ios' ? "115%" : "110%",
         position: 'absolute',
         zIndex: 10000,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        // paddingTop: 160,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
     },
     background: {
         position: 'absolute',
@@ -160,19 +159,25 @@ const styles = StyleSheet.create({
         right: 0,
         top: 0,
         bottom: 0,
-        borderRadius: 15,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: 'rgba(168, 85, 247, 0.3)',
     },
     popup: {
-        width: '80%',
+        width: '82%',
         height: '50%',
+        paddingVertical: 40,
+        paddingHorizontal: 24,
         justifyContent: 'center',
         alignItems: 'center',
     },
     closeButton: {
         position: 'absolute',
-        top: 20,
-        right: 20,
-        padding: 5,
+        top: 16,
+        right: 16,
+        borderRadius: 20,
+        padding: 8,
+        backgroundColor: 'rgba(255, 215, 0, 0.1)',
     },
     logo: {
         width: 180,

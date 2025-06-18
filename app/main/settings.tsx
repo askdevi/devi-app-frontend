@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, BackHandler, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Linking, BackHandler, StatusBar, Alert, Platform, PermissionsAndroid } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -10,6 +10,7 @@ import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
+import messaging from '@react-native-firebase/messaging';
 import DeleteAccountPopup from '@/components/Popups/DeleteAccountPopup';
 
 export default function SettingsScreen() {
@@ -20,6 +21,24 @@ export default function SettingsScreen() {
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteAccountPopup, setShowDeleteAccountPopup] = useState(false);
+    const [isCheckingPermissions, setIsCheckingPermissions] = useState(false);
+
+    useEffect(() => {
+        checkNotificationPermissions();
+
+        // Set up app state listener to recheck permissions when app becomes active
+        const subscription = {
+            handleAppStateChange: (nextAppState: string) => {
+                if (nextAppState === 'active') {
+                    checkNotificationPermissions();
+                }
+            }
+        };
+
+        return () => {
+            // Cleanup if needed
+        };
+    }, []);
 
     useEffect(() => {
         const backAction = () => {
@@ -43,6 +62,99 @@ export default function SettingsScreen() {
 
         return () => backHandler.remove();
     }, [isDeleting, showDeleteAccountPopup]);
+
+    const checkNotificationPermissions = async () => {
+        try {
+            if (Platform.OS === 'android') {
+                const granted = await PermissionsAndroid.check(
+                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+                );
+                setNotificationsEnabled(granted);
+            } else {
+                // For iOS, check Firebase messaging authorization status
+                const authStatus = await messaging().hasPermission();
+                const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+                    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+                setNotificationsEnabled(enabled);
+            }
+        } catch (error) {
+            console.log('Error checking notification permissions:', error);
+        }
+    };
+
+    const handleNotificationToggle = async (enabled: boolean) => {
+        if (isCheckingPermissions) return;
+
+        setIsCheckingPermissions(true);
+
+        try {
+            if (enabled) {
+                // Request permissions
+                if (Platform.OS === 'android') {
+                    const granted = await PermissionsAndroid.request(
+                        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+                    );
+                    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                        setNotificationsEnabled(true);
+                    } else {
+                        setNotificationsEnabled(false);
+                        showPermissionAlert();
+                    }
+                } else {
+                    // For iOS, request permission through Firebase
+                    const authStatus = await messaging().requestPermission();
+                    const permissionEnabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+                        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+                    if (permissionEnabled) {
+                        setNotificationsEnabled(true);
+                    } else {
+                        setNotificationsEnabled(false);
+                        showPermissionAlert();
+                    }
+                }
+            } else {
+                // Can't programmatically disable notifications, direct to settings
+                setNotificationsEnabled(false);
+                showSettingsAlert();
+            }
+        } catch (error) {
+            console.log('Error toggling notifications:', error);
+            setError('Failed to update notification settings');
+        } finally {
+            setIsCheckingPermissions(false);
+        }
+    };
+
+    const showPermissionAlert = () => {
+        Alert.alert(
+            'Permission Required',
+            'Notifications are currently disabled. To enable notifications, please go to Settings and allow notifications for this app.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: openSettings }
+            ]
+        );
+    };
+
+    const showSettingsAlert = () => {
+        Alert.alert(
+            'Disable Notifications',
+            'To disable notifications, please go to your device Settings and turn off notifications for this app.',
+            [
+                { text: 'Cancel', onPress: () => setNotificationsEnabled(true), style: 'cancel' },
+                { text: 'Open Settings', onPress: openSettings }
+            ]
+        );
+    };
+
+    const openSettings = () => {
+        if (Platform.OS === 'ios') {
+            Linking.openURL('app-settings:');
+        } else {
+            Linking.openSettings();
+        }
+    };
 
     const handleDeleteAccount = () => {
         setShowDeleteAccountPopup(true);
@@ -133,9 +245,10 @@ export default function SettingsScreen() {
                                 <Text style={styles.subtitle}>Enable Notifications</Text>
                                 <Switch
                                     value={notificationsEnabled}
-                                    onValueChange={setNotificationsEnabled}
+                                    onValueChange={handleNotificationToggle}
                                     trackColor={{ false: '#999', true: '#ffcd00' }}
                                     thumbColor={notificationsEnabled ? '#a05afc' : '#ccc'}
+                                    disabled={isCheckingPermissions}
                                 />
                             </View>
                         </View>

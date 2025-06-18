@@ -137,58 +137,45 @@ export default function EditProfileScreen() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const storedFirstName = await AsyncStorage.getItem('firstName');
-        const storedLastName = await AsyncStorage.getItem('lastName');
-        const storedPhoneNumber = await AsyncStorage.getItem('phoneNumber');
-        const storedBirthPlace1 = await AsyncStorage.getItem('birthPlaceData');
-        let storedLanguage = await AsyncStorage.getItem('language');
-        let storedRelationshipStatus = await AsyncStorage.getItem(
-          'relationshipStatus'
-        );
-        let storedOccupation = await AsyncStorage.getItem('occupation');
-        let storedGender = await AsyncStorage.getItem('gender');
+        const [
+          storedFirstName,
+          storedLastName,
+          storedPhoneNumber,
+          storedBirthPlace1,
+          storedLanguageRaw,
+          storedRelationshipStatusRaw,
+          storedOccupationRaw,
+          storedGenderRaw,
+          storedBirthDate,
+          storedBirthTime
+        ] = await Promise.all([
+          AsyncStorage.getItem('firstName'),
+          AsyncStorage.getItem('lastName'),
+          AsyncStorage.getItem('phoneNumber'),
+          AsyncStorage.getItem('birthPlaceData'),
+          AsyncStorage.getItem('language'),
+          AsyncStorage.getItem('relationshipStatus'),
+          AsyncStorage.getItem('occupation'),
+          AsyncStorage.getItem('gender'),
+          AsyncStorage.getItem('birthDate'),
+          AsyncStorage.getItem('birthTime')
+        ]);
 
-        const storedBirthPlace = storedBirthPlace1
-          ? JSON.parse(storedBirthPlace1)
-          : null;
-
-        const storedBirthDate = await AsyncStorage.getItem('birthDate');
-        const storedBirthTime = await AsyncStorage.getItem('birthTime');
+        const storedBirthPlace = storedBirthPlace1 ? JSON.parse(storedBirthPlace1) : null;
         const storedDay = storedBirthDate ? storedBirthDate.split('-')[2] : '';
-        const storedMonth = storedBirthDate
-          ? storedBirthDate.split('-')[1]
-          : '';
+        const storedMonth = storedBirthDate ? storedBirthDate.split('-')[1] : '';
         const storedYear = storedBirthDate ? storedBirthDate.split('-')[0] : '';
         const storedHour = storedBirthTime ? storedBirthTime.split(':')[0] : '';
-        const storedMinute = storedBirthTime
-          ? storedBirthTime.split(':')[1]
-          : '';
-        const storedBirthTimePeriod = storedBirthTime
-          ? storedBirthTime.split(':')[0] < '12'
-            ? 'AM'
-            : 'PM'
-          : '';
+        const storedMinute = storedBirthTime ? storedBirthTime.split(':')[1] : '';
+        const storedBirthTimePeriod = storedBirthTime ? storedBirthTime.split(':')[0] < '12' ? 'AM' : 'PM' : '';
 
-        if (
-          !storedLanguage ||
-          !storedRelationshipStatus ||
-          !storedOccupation ||
-          !storedGender
-        ) {
-          return;
-        }
+        if (!storedLanguageRaw || !storedRelationshipStatusRaw || !storedOccupationRaw || !storedGenderRaw) return;
 
-        // capitalize the first letter of the storedLanguage
-        storedLanguage =
-          storedLanguage?.charAt(0).toUpperCase() + storedLanguage?.slice(1);
-        storedRelationshipStatus =
-          storedRelationshipStatus?.charAt(0).toUpperCase() +
-          storedRelationshipStatus?.slice(1);
-        storedOccupation =
-          storedOccupation?.charAt(0).toUpperCase() +
-          storedOccupation?.slice(1);
-        storedGender =
-          storedGender?.charAt(0).toUpperCase() + storedGender?.slice(1);
+        // capitalize the first letter of the stored values
+        const storedLanguage = storedLanguageRaw?.charAt(0).toUpperCase() + storedLanguageRaw?.slice(1);
+        const storedRelationshipStatus = storedRelationshipStatusRaw?.charAt(0).toUpperCase() + storedRelationshipStatusRaw?.slice(1);
+        const storedOccupation = storedOccupationRaw?.charAt(0).toUpperCase() + storedOccupationRaw?.slice(1);
+        const storedGender = storedGenderRaw?.charAt(0).toUpperCase() + storedGenderRaw?.slice(1);
 
         if (storedFirstName) setFirstName(storedFirstName);
         if (storedLastName) setLastName(storedLastName);
@@ -315,26 +302,26 @@ export default function EditProfileScreen() {
         setError('Error updating profile');
         return;
       }
-      await AsyncStorage.setItem('firstName', firstName);
-      await AsyncStorage.setItem('lastName', lastName);
-      await AsyncStorage.setItem('phoneNumber', `+91${phoneNumber}`);
-      await AsyncStorage.setItem(
-        'birthPlaceData',
-        JSON.stringify({
-          name: birthPlace,
-          latitude: birthPlaceCoords.latitude,
-          longitude: birthPlaceCoords.longitude,
-        })
-      );
-      await AsyncStorage.setItem('birthDate', `${year}-${month}-${day}`);
-      await AsyncStorage.setItem('birthTime', birthTime);
-      await AsyncStorage.setItem('language', language.toLowerCase());
-      await AsyncStorage.setItem(
-        'relationshipStatus',
-        relationshipStatus.toLowerCase()
-      );
-      await AsyncStorage.setItem('occupation', occupation.toLowerCase());
-      await AsyncStorage.setItem('gender', gender.toLowerCase());
+      // Save all data in parallel
+      await Promise.all([
+        AsyncStorage.setItem('firstName', firstName),
+        AsyncStorage.setItem('lastName', lastName),
+        AsyncStorage.setItem('phoneNumber', `+91${phoneNumber}`),
+        AsyncStorage.setItem(
+          'birthPlaceData',
+          JSON.stringify({
+            name: birthPlace,
+            latitude: birthPlaceCoords.latitude,
+            longitude: birthPlaceCoords.longitude,
+          })
+        ),
+        AsyncStorage.setItem('birthDate', `${year}-${month}-${day}`),
+        AsyncStorage.setItem('birthTime', birthTime),
+        AsyncStorage.setItem('language', language.toLowerCase()),
+        AsyncStorage.setItem('relationshipStatus', relationshipStatus.toLowerCase()),
+        AsyncStorage.setItem('occupation', occupation.toLowerCase()),
+        AsyncStorage.setItem('gender', gender.toLowerCase())
+      ]);
       router.push('/main/profile');
     } catch (e) {
       setError('Error saving profile data');

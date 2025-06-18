@@ -334,50 +334,50 @@ export default function ChatHistoryDetailScreen() {
         <SafeAreaProvider>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
-                <View
+                {/* <View
                     // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
                 // keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-                >
-                    <LinearGradient
-                        colors={['#360059', '#1D0033', '#0D0019']}
-                        style={StyleSheet.absoluteFill}
-                        start={{ x: 0.5, y: 0 }}
-                        end={{ x: 0.5, y: 1 }}
-                    />
+                > */}
+                <LinearGradient
+                    colors={['#360059', '#1D0033', '#0D0019']}
+                    style={StyleSheet.absoluteFill}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                />
 
-                    <BackgroundStars count={30} />
+                <BackgroundStars count={30} />
 
-                    <View style={styles.header}>
-                        <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                            <LinearGradient
-                                colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
-                                style={StyleSheet.absoluteFill}
-                                start={{ x: 0.5, y: 0 }}
-                                end={{ x: 0.5, y: 1 }}
-                            />
-                        </BlurView>
-                        <HeaderContent />
-                    </View>
-
-                    <ScrollView
-                        ref={scrollViewRef}
-                        style={styles.messagesContainer}
-                        contentContainerStyle={styles.messagesContent}
-                        onContentSizeChange={() => {
-                            scrollViewRef.current?.scrollToEnd({ animated: true });
-                        }}
-                    >
-                        {groupedMessages.map(([date, msgs]) => (
-                            <View key={date}>
-                                <DateHeader date={date} />
-                                {msgs.map((message) => (
-                                    <MessageBubble key={message.id} message={message} />
-                                ))}
-                            </View>
-                        ))}
-                    </ScrollView>
+                <View style={styles.header}>
+                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                        <LinearGradient
+                            colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                        />
+                    </BlurView>
+                    <HeaderContent />
                 </View>
+
+                <ScrollView
+                    ref={scrollViewRef}
+                    style={styles.messagesContainer}
+                    contentContainerStyle={styles.messagesContent}
+                    onContentSizeChange={() => {
+                        scrollViewRef.current?.scrollToEnd({ animated: true });
+                    }}
+                >
+                    {groupedMessages.map(([date, msgs]) => (
+                        <View key={date}>
+                            <DateHeader date={date} />
+                            {msgs.map((message) => (
+                                <MessageBubble key={message.id} message={message} />
+                            ))}
+                        </View>
+                    ))}
+                </ScrollView>
+                {/* </View> */}
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -386,17 +386,17 @@ export default function ChatHistoryDetailScreen() {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: '#360059',
+        backgroundColor: '#4a0e73',
     },
     container: {
         flex: 1,
     },
     header: {
-        paddingTop: Platform.OS === 'ios' ? 70 : 50,
+        paddingTop: 10,
         paddingBottom: 16,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(247, 198, 21, 0.3)',
-        height: Platform.OS === 'ios' ? 120 : 100,
+        height: Platform.OS === 'ios' ? 60 : 70,
         overflow: 'hidden',
     },
     content: {
@@ -436,10 +436,14 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     iconButton: {
-        width: 40,
-        height: 40,
+        width: 35,
+        height: 35,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'rgba(70, 10, 100, 0.35)',
+        borderWidth: 1,
+        borderColor: 'rgba(247, 198, 21, 0.3)',
+        borderRadius: 100,
     },
     menuDots: {
         color: '#f7c615',

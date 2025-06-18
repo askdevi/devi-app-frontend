@@ -17,7 +17,7 @@ const PaymentFailedPopup = ({ onClose }: Props) => {
         <View style={styles.container}>
             <View style={styles.popup}>
                 <LinearGradient
-                    colors={['#1f0b3c', '#281048', '#341b43', '#341b43', '#341b43', '#381d39', '#381e3e', '#2b133f']}
+                    colors={Colors.gradients.purplePrimary}
                     style={styles.background}
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
@@ -25,9 +25,11 @@ const PaymentFailedPopup = ({ onClose }: Props) => {
                 <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                     <X color={Colors.gold.DEFAULT} size={24} />
                 </TouchableOpacity>
-                <Ionicons name="alert-circle" size={100} color="red" style={{ marginBottom: 20 }} />
-                <Text style={[styles.title, { color: 'red' }]}>Payment Failed</Text>
-                <Text style={styles.title}>Please try again!</Text>
+                <View style={styles.iconContainer}>
+                    <Ionicons name="alert-circle" size={64} color="#FF6B6B" />
+                </View>
+                <Text style={styles.title}>Payment Failed</Text>
+                <Text style={styles.subtitle}>Please try again!</Text>
             </View>
         </View>
     );
@@ -44,8 +46,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         zIndex: 10000,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        // paddingTop: 160,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
     },
     background: {
         position: 'absolute',
@@ -53,69 +54,46 @@ const styles = StyleSheet.create({
         right: 0,
         top: 0,
         bottom: 0,
-        borderRadius: 15,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        // borderColor: 'rgba(255, 215, 0, 0.15)',
+        borderColor: 'rgba(168, 85, 247, 0.2)',
     },
     popup: {
-        width: '80%',
-        height: '40%',
+        width: '82%',
+        height: '35%',
+        paddingVertical: 40,
+        paddingHorizontal: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40
     },
     closeButton: {
         position: 'absolute',
-        top: 15,
-        right: 20,
-        borderRadius: 100,
-        padding: 5,
+        top: 16,
+        right: 16,
+        borderRadius: 20,
+        padding: 8,
+        backgroundColor: 'rgba(255, 215, 0, 0.1)',
     },
-    logo: {
-        width: 100,
-        height: 100,
-        zIndex: 10,
-        marginBottom: 10,
-        marginTop: 20,
+    iconContainer: {
+        marginBottom: 24,
+        padding: 16,
+        borderRadius: 50,
+        backgroundColor: 'rgba(255, 107, 107, 0.1)',
     },
     title: {
-        color: Colors.gold.DEFAULT,
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 5,
+        color: '#FF6B6B',
+        fontSize: 22,
+        fontWeight: '700',
+        marginBottom: 8,
+        textAlign: 'center',
     },
-    buttonContainer: {
-        width: 180,
-        height: 48,
-        borderRadius: 24,
-        overflow: 'hidden',
-        shadowColor: Colors.gold.DEFAULT,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
-        marginTop: 20,
-    },
-    button: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 24,
-        overflow: 'hidden',
-    },
-    buttonText: {
-        color: Colors.deepPurple.DEFAULT,
-        fontFamily: 'Poppins-SemiBold',
+    subtitle: {
+        color: Colors.gold.light,
         fontSize: 16,
-    },
-    buttonShine: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: 120,
-        height: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        transform: [{ skewX: '-25deg' }],
-        borderRadius: 60,
+        fontWeight: '400',
+        textAlign: 'center',
+        opacity: 0.9,
     },
 });
 
