@@ -177,12 +177,76 @@ export default function ChatScreen() {
                         date: new Date(millis).toISOString()
                     }]);
                 }
+
+                // if the last message is before 1 hour, then send welcome message request to the backend
+                const lastMessageTime = parseInt(msgs[msgs.length - 1].id, 10);
+                const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000).getTime();
+                if (lastMessageTime < oneHourAgo) {
+                    console.log("Sending welcome message request to the backend");
+                    // getWelcomeMessage();
+                }
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
         };
         fetchMessages();
     }, []);
+
+    const getWelcomeMessage = async () => {
+        const userId = await getUserId();
+        // const controller = new AbortController();
+        const response = await axios.post(`${ModelURL}/get-welcome-message`,
+            {
+                userId: userId
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // signal: controller.signal
+            });
+        console.log("Response from model : ", response)
+
+        // Append each returned string as a new assistant message:
+        const responses: string[] = response.data.response;
+        const rawId = response.data.id;
+        const millis = parseInt(rawId, 10);      // convert to number
+        const responseTs = new Date(millis)      // now Date knows it's a ms‐timestamp
+            .toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            });
+
+        console.log("responses : ", responses)
+
+        for (const responseText of responses) {
+            const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+            await new Promise(resolve => setTimeout(resolve, gap));
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Math.random().toString(36).substring(2, 15),
+                    text: responseText,
+                    isUser: false,
+                    date: new Date().toISOString(),
+                    timestamp: responseTs,
+                    status: 'read',
+                },
+            ]);
+        }
+
+        const latestChatHistory = await AsyncStorage.getItem('latestChatHistory');
+        const msgs = JSON.parse(latestChatHistory || '[]');
+        const responseWithRole = responses.map(response => ({
+            id: rawId,
+            content: response,
+            role: 'assistant'
+        }));
+
+        msgs.push(...responseWithRole);
+        await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
+    }
 
     const handleBack = () => {
         router.back();
@@ -282,7 +346,7 @@ export default function ChatScreen() {
 
                     console.log("Sending request to model")
                     const response = await axios.post(
-                        ModelURL,
+                        `${ModelURL}/devi`,
                         {
                             prompts: prompts,
                             userId: userId
@@ -308,6 +372,24 @@ export default function ChatScreen() {
                             hour12: true,
                         });
 
+                    console.log("responses : ", responses)
+
+                    for (const responseText of responses) {
+                        setMessages(prev => [
+                            ...prev,
+                            {
+                                id: Math.random().toString(36).substring(2, 15),
+                                text: responseText,
+                                isUser: false,
+                                date: new Date().toISOString(),
+                                timestamp: responseTs,
+                                status: 'read',
+                            },
+                        ]);
+                        const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+                        await new Promise(resolve => setTimeout(resolve, gap));
+                    }
+
                     const latestChatHistory = await AsyncStorage.getItem('latestChatHistory');
                     const msgs = JSON.parse(latestChatHistory || '[]');
                     const currentBufferWithRole = currentBuffer.map(msg => ({
@@ -326,24 +408,6 @@ export default function ChatScreen() {
                     await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
 
                     setBuffer([]);
-
-                    console.log("responses : ", responses)
-
-                    for (const responseText of responses) {
-                        const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
-                        await new Promise(resolve => setTimeout(resolve, gap));
-                        setMessages(prev => [
-                            ...prev,
-                            {
-                                id: Math.random().toString(36).substring(2, 15),
-                                text: responseText,
-                                isUser: false,
-                                date: new Date().toISOString(),
-                                timestamp: responseTs,
-                                status: 'read',
-                            },
-                        ]);
-                    }
 
                 } catch (err: any) {
                     if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
