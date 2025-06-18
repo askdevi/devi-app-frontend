@@ -352,7 +352,7 @@ export default function BlessingsScreen() {
           ref={scrollViewRef}
           horizontal
           {...(Platform.OS === 'ios' ? {
-            snapToInterval: SCREEN_WIDTH * 0.65 + 52,
+            snapToInterval: SCREEN_WIDTH * 0.65 + 40,
             decelerationRate: 'fast',
             snapToAlignment: 'center',
           } : {
@@ -364,10 +364,6 @@ export default function BlessingsScreen() {
           style={styles.cardsContainer}
           contentContainerStyle={[
             styles.cardsContent,
-            // Platform.OS === 'ios' && {
-            //   paddingLeft: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65 + 20)) / 2,
-            //   paddingRight: (SCREEN_WIDTH - 52 - (SCREEN_WIDTH * 0.65 + 20)) / 2,
-            // }
           ]}
           onMomentumScrollEnd={(event) => {
             const offset = event.nativeEvent.contentOffset.x;
