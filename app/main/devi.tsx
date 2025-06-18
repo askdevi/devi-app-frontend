@@ -684,10 +684,10 @@ export default function ChatScreen() {
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
                 {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
-                {/* <KeyboardAvoidingView
+                <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
-                > */}
+                >
                 {/* Commented it due to a additional margin at the bottom of the screen */}
                 <LinearGradient
                     colors={['#360059', '#1D0033', '#1a0028']}
@@ -772,7 +772,7 @@ export default function ChatScreen() {
                         }
                     </View>
                 </View>
-                {/* </KeyboardAvoidingView> */}
+                </KeyboardAvoidingView>
             </SafeAreaView>
         </SafeAreaProvider>
     );
