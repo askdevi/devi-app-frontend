@@ -334,11 +334,11 @@ export default function ChatHistoryDetailScreen() {
         <SafeAreaProvider>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
-                {/* <View
+                <View
                     // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
                 // keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-                > */}
+                >
                 <LinearGradient
                     colors={['#360059', '#1D0033', '#0D0019']}
                     style={StyleSheet.absoluteFill}
@@ -377,7 +377,7 @@ export default function ChatHistoryDetailScreen() {
                         </View>
                     ))}
                 </ScrollView>
-                {/* </View> */}
+                </View>
             </SafeAreaView>
         </SafeAreaProvider>
     );

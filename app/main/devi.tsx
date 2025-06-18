@@ -102,6 +102,7 @@ export default function ChatScreen() {
     const [isRequestInFlight, setIsRequestInFlight] = useState(false);
 
     const abortControllerRef = useRef<AbortController | null>(null);
+    const welcomeMessageControllerRef = useRef<AbortController | null>(null);
 
     const bufferRef = useRef<Message[]>([]);
 
@@ -185,6 +186,9 @@ export default function ChatScreen() {
                     console.log("Sending welcome message request to the backend");
                     // getWelcomeMessage();
                 }
+                else {
+                    console.log("Last message is after 1 hour, not sending welcome message request to the backend");
+                }
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
@@ -194,58 +198,72 @@ export default function ChatScreen() {
 
     const getWelcomeMessage = async () => {
         const userId = await getUserId();
-        // const controller = new AbortController();
-        const response = await axios.post(`${ModelURL}/get-welcome-message`,
-            {
-                userId: userId
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                // signal: controller.signal
-            });
-        console.log("Response from model : ", response)
+        const controller = new AbortController();
+        welcomeMessageControllerRef.current = controller;
 
-        // Append each returned string as a new assistant message:
-        const responses: string[] = response.data.response;
-        const rawId = response.data.id;
-        const millis = parseInt(rawId, 10);      // convert to number
-        const responseTs = new Date(millis)      // now Date knows it's a ms‐timestamp
-            .toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            });
-
-        console.log("responses : ", responses)
-
-        for (const responseText of responses) {
-            const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
-            await new Promise(resolve => setTimeout(resolve, gap));
-            setMessages(prev => [
-                ...prev,
+        try {
+            setIsThinking(true);
+            const response = await axios.post(`${ModelURL}/get-welcome-message`,
                 {
-                    id: Math.random().toString(36).substring(2, 15),
-                    text: responseText,
-                    isUser: false,
-                    date: new Date().toISOString(),
-                    timestamp: responseTs,
-                    status: 'read',
+                    userId: userId
                 },
-            ]);
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+            console.log("Response from model : ", response)
+
+            // Append each returned string as a new assistant message:
+            const responses: string[] = response.data.response;
+            const rawId = response.data.id;
+            const millis = parseInt(rawId, 10);      // convert to number
+            const responseTs = new Date(millis)      // now Date knows it's a ms‐timestamp
+                .toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                });
+
+            console.log("responses : ", responses)
+
+            for (const responseText of responses) {
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: Math.random().toString(36).substring(2, 15),
+                        text: responseText,
+                        isUser: false,
+                        date: new Date().toISOString(),
+                        timestamp: responseTs,
+                        status: 'read',
+                    },
+                ]);
+                const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+                await new Promise(resolve => setTimeout(resolve, gap));
+            }
+
+            const latestChatHistory = await AsyncStorage.getItem('latestChatHistory');
+            const msgs = JSON.parse(latestChatHistory || '[]');
+            const responseWithRole = responses.map(response => ({
+                id: rawId,
+                content: response,
+                role: 'assistant'
+            }));
+
+            msgs.push(...responseWithRole);
+            await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
+        } catch (err: any) {
+            if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
+                console.log('Welcome message request was cancelled - user sent a message');
+            } else {
+                console.error('Error fetching welcome message:', err);
+            }
+        } finally {
+            welcomeMessageControllerRef.current = null;
+            setIsThinking(false);
         }
-
-        const latestChatHistory = await AsyncStorage.getItem('latestChatHistory');
-        const msgs = JSON.parse(latestChatHistory || '[]');
-        const responseWithRole = responses.map(response => ({
-            id: rawId,
-            content: response,
-            role: 'assistant'
-        }));
-
-        msgs.push(...responseWithRole);
-        await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
     }
 
     const handleBack = () => {
@@ -427,6 +445,13 @@ export default function ChatScreen() {
         if (!newMessage.trim() || time <= 0) return;
 
         console.log("Sending message : ", newMessage)
+
+        // Cancel any ongoing welcome message request
+        if (welcomeMessageControllerRef.current) {
+            console.log('Cancelling welcome message request because user sent a message.');
+            welcomeMessageControllerRef.current.abort();
+            welcomeMessageControllerRef.current = null;
+        }
 
         // If there's already a request in flight, cancel it immediately.
         if (isRequestInFlight && abortControllerRef.current) {
@@ -684,95 +709,182 @@ export default function ChatScreen() {
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
                 {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
-                {/* <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={styles.container}
-                > */}
-                {/* Commented it due to a additional margin at the bottom of the screen */}
-                <LinearGradient
-                    colors={['#360059', '#1D0033', '#1a0028']}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0.5, y: 0 }}
-                    end={{ x: 0.5, y: 1 }}
-                />
-
-                <BackgroundStars count={20} />
-
-                <View style={styles.header}>
-                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                {Platform.OS === 'ios' ? (
+                    <KeyboardAvoidingView
+                        behavior={'padding'}
+                        style={styles.container}
+                    >
                         <LinearGradient
-                            colors={Platform.OS === 'ios' ? ['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)'] : ['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                            colors={['#360059', '#1D0033', '#1a0028']}
                             style={StyleSheet.absoluteFill}
                             start={{ x: 0.5, y: 0 }}
                             end={{ x: 0.5, y: 1 }}
                         />
-                    </BlurView>
-                    <HeaderContent />
-                </View>
 
-                <ScrollView
-                    ref={scrollViewRef}
-                    style={styles.messagesContainer}
-                    contentContainerStyle={styles.messagesContent}
-                    onContentSizeChange={() => {
-                        scrollViewRef.current?.scrollToEnd({ animated: true });
-                    }}
-                >
-                    {groupedMessages.map(([date, msgs]) => (
-                        <View key={date}>
-                            <DateHeader date={date} />
-                            {msgs.map((message) => (
-                                <MessageBubble key={message.id} message={message} />
+                        <BackgroundStars count={20} />
+
+                        <View style={styles.header}>
+                            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill}>
+                                <LinearGradient
+                                    colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
+                                    style={StyleSheet.absoluteFill}
+                                    start={{ x: 0.5, y: 0 }}
+                                    end={{ x: 0.5, y: 1 }}
+                                />
+                            </BlurView>
+                            <HeaderContent />
+                        </View>
+
+                        <ScrollView
+                            ref={scrollViewRef}
+                            style={styles.messagesContainer}
+                            contentContainerStyle={styles.messagesContent}
+                            onContentSizeChange={() => {
+                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                            }}
+                        >
+                            {groupedMessages.map(([date, msgs]) => (
+                                <View key={date}>
+                                    <DateHeader date={date} />
+                                    {msgs.map((message) => (
+                                        <MessageBubble key={message.id} message={message} />
+                                    ))}
+                                </View>
                             ))}
-                        </View>
-                    ))}
-                    {isThinking && (
-                        <View style={{ marginTop: 10 }}>
-                            <TypingDots />
-                        </View>
-                    )}
-                </ScrollView>
+                            {isThinking && (
+                                <View style={{ marginTop: 10 }}>
+                                    <TypingDots />
+                                </View>
+                            )}
+                        </ScrollView>
 
-                <View style={styles.inputContainer}>
-                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                        <View style={styles.inputContainer}>
+                            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill}>
+                                <LinearGradient
+                                    colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
+                                    style={StyleSheet.absoluteFill}
+                                    start={{ x: 0.5, y: 0 }}
+                                    end={{ x: 0.5, y: 1 }}
+                                />
+                            </BlurView>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    style={[
+                                        styles.input,
+                                        isInputFocused && styles.inputFocused
+                                    ]}
+                                    value={newMessage}
+                                    onChangeText={setNewMessage}
+                                    onFocus={() => setIsInputFocused(true)}
+                                    onBlur={() => setIsInputFocused(false)}
+                                    placeholder="Type your question..."
+                                    placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                                    multiline
+                                />
+                                {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
+                                    <Text style={styles.purchaseButtonText}>Ask More</Text>
+                                </TouchableOpacity> :
+                                    <TouchableOpacity
+                                        onPress={sendMessage}
+                                        style={styles.sendButton}
+                                        disabled={time <= 0 || !newMessage.trim()}
+                                    >
+                                        <Text style={[
+                                            styles.sendButtonText,
+                                            !newMessage.trim() && styles.sendButtonDisabled
+                                        ]}>➤</Text>
+                                    </TouchableOpacity>
+                                }
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                ) : (
+                    <>
                         <LinearGradient
-                            colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
+                            colors={['#360059', '#1D0033', '#1a0028']}
                             style={StyleSheet.absoluteFill}
                             start={{ x: 0.5, y: 0 }}
                             end={{ x: 0.5, y: 1 }}
                         />
-                    </BlurView>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
-                            style={[
-                                styles.input,
-                                isInputFocused && styles.inputFocused
-                            ]}
-                            value={newMessage}
-                            onChangeText={setNewMessage}
-                            onFocus={() => setIsInputFocused(true)}
-                            onBlur={() => setIsInputFocused(false)}
-                            placeholder="Type your question..."
-                            placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                            multiline
-                        />
-                        {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
-                            <Text style={styles.purchaseButtonText}>Ask More</Text>
-                        </TouchableOpacity> :
-                            <TouchableOpacity
-                                onPress={sendMessage}
-                                style={styles.sendButton}
-                                disabled={time <= 0 || !newMessage.trim()}
-                            >
-                                <Text style={[
-                                    styles.sendButtonText,
-                                    !newMessage.trim() && styles.sendButtonDisabled
-                                ]}>➤</Text>
-                            </TouchableOpacity>
-                        }
-                    </View>
-                </View>
-                {/* </KeyboardAvoidingView> */}
+
+                        <BackgroundStars count={20} />
+
+                        <View style={styles.header}>
+                            <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill}>
+                                <LinearGradient
+                                    colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                                    style={StyleSheet.absoluteFill}
+                                    start={{ x: 0.5, y: 0 }}
+                                    end={{ x: 0.5, y: 1 }}
+                                />
+                            </BlurView>
+                            <HeaderContent />
+                        </View>
+
+                        <ScrollView
+                            ref={scrollViewRef}
+                            style={styles.messagesContainer}
+                            contentContainerStyle={styles.messagesContent}
+                            onContentSizeChange={() => {
+                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                            }}
+                        >
+                            {groupedMessages.map(([date, msgs]) => (
+                                <View key={date}>
+                                    <DateHeader date={date} />
+                                    {msgs.map((message) => (
+                                        <MessageBubble key={message.id} message={message} />
+                                    ))}
+                                </View>
+                            ))}
+                            {isThinking && (
+                                <View style={{ marginTop: 10 }}>
+                                    <TypingDots />
+                                </View>
+                            )}
+                        </ScrollView>
+
+                        <View style={styles.inputContainer}>
+                            <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill}>
+                                <LinearGradient
+                                    colors={['rgba(88, 17, 137, 0.6)', 'rgba(88, 17, 137, 0.8)']}
+                                    style={StyleSheet.absoluteFill}
+                                    start={{ x: 0.5, y: 0 }}
+                                    end={{ x: 0.5, y: 1 }}
+                                />
+                            </BlurView>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    style={[
+                                        styles.input,
+                                        isInputFocused && styles.inputFocused
+                                    ]}
+                                    value={newMessage}
+                                    onChangeText={setNewMessage}
+                                    onFocus={() => setIsInputFocused(true)}
+                                    onBlur={() => setIsInputFocused(false)}
+                                    placeholder="Type your question..."
+                                    placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                                    multiline
+                                />
+                                {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
+                                    <Text style={styles.purchaseButtonText}>Ask More</Text>
+                                </TouchableOpacity> :
+                                    <TouchableOpacity
+                                        onPress={sendMessage}
+                                        style={styles.sendButton}
+                                        disabled={time <= 0 || !newMessage.trim()}
+                                    >
+                                        <Text style={[
+                                            styles.sendButtonText,
+                                            !newMessage.trim() && styles.sendButtonDisabled
+                                        ]}>➤</Text>
+                                    </TouchableOpacity>
+                                }
+                            </View>
+                        </View>
+                    </>
+                )}
             </SafeAreaView>
         </SafeAreaProvider>
     );
