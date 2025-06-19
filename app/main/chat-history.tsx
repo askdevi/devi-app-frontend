@@ -11,6 +11,7 @@ import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { getUserId } from '@/constants/userId';
 import { ActivityIndicator } from 'react-native';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const EmptyState = () => {
     const router = useRouter();
@@ -27,7 +28,10 @@ const EmptyState = () => {
             </Text>
             <TouchableOpacity
                 style={styles.startChatButton}
-                onPress={() => router.navigate("/main/devi")}
+                onPress={() => {
+                    amplitude.track('Clicked Start Chat Button', { screen: 'Chat History' });
+                    router.navigate("/main/devi");
+                }}
             >
                 <LinearGradient
                     colors={['#FFD700', '#FFA500', '#FFD700']}
@@ -67,6 +71,7 @@ export default function ChatHistoryScreen() {
 
     useEffect(() => {
         const loadChatHistory = async () => {
+            amplitude.track('Fetching Chat History', { screen: 'Chat History' });
             try {
                 const userId = await getUserId();
                 const response = await axios.get(`${Domain}/chat-history`,
@@ -77,9 +82,10 @@ export default function ChatHistoryScreen() {
                     }
                 );
                 setChatHistory(response.data.chats);
+                amplitude.track('Fetch Chat History Successful', { screen: 'Chat History' });
                 setIsLoading(false);
-            } catch (error) {
-                console.error('Error loading chat history:', error);
+            } catch (error: any) {
+                amplitude.track('Failure: Fetch Chat History', { screen: 'Chat History', message: error.message });
             }
         };
         loadChatHistory();
@@ -108,6 +114,7 @@ export default function ChatHistoryScreen() {
     };
 
     const handleChatHistoryDetail = (chat: any) => {
+        amplitude.track('Clicked Chat History Detail Button', { screen: 'Chat History' });
         router.push({
             pathname: '/main/chat-history-detail',
             params: { chat: JSON.stringify(chat) }

@@ -29,6 +29,7 @@ import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import BackgroundStars from '@/components/BackgroundEffects';
 import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);

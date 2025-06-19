@@ -23,6 +23,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming, Easing } from 'react-native-reanimated';
 import { ActivityIndicator } from 'react-native';
 import PaymentFailedPopup from '@/components/Popups/PaymentFailedPopup';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const calculateDiscount = (originalPrice: number, price: number) => {
   const discount = Math.floor(((originalPrice - price) / originalPrice) * 100);
@@ -123,6 +124,7 @@ export default function WalletScreen() {
   }, []);
 
   const handlePurchase = async (pkg: any, index: number) => {
+    amplitude.track(`Clicked Buy Now Button : ${pkg.duration}`, { screen: 'Wallet' });
     console.log("handlePurchase called")
     if (processingPackageIndex !== null) return;
     setProcessingPackageIndex(index);
@@ -133,6 +135,7 @@ export default function WalletScreen() {
       const orderRes = await axios.post(`${Domain}/create-order`, { amount: pkg.price });
       const { orderId } = orderRes.data;
       if (!orderId) throw new Error('Order ID not returned');
+      amplitude.track(`Created Order : ${pkg.duration}`, { screen: 'Wallet' });
 
       console.log("orderId : ", orderId)
 
@@ -160,6 +163,7 @@ export default function WalletScreen() {
       };
       RazorpayCheckout.open(options).then(async (payment: any) => {
         console.log("Payment successful(Razorpay)")
+        amplitude.track(`Payment Successful : ${pkg.duration}`, { screen: 'Wallet' });
         // 3. Verify payment
         const verifyRes = await axios.post(`${Domain}/verify-payment`, {
           razorpay_payment_id: payment.razorpay_payment_id,
@@ -171,6 +175,7 @@ export default function WalletScreen() {
         console.log("Payment successful(Razorpay)")
         if (verifyRes.data.success) {
           console.log("Payment verified from backend")
+          amplitude.track(`Payment Verification Successful : ${pkg.duration}`, { screen: 'Wallet' });
           router.navigate('/main/devi');
           const newTimeEnd = verifyRes.data.timeEnd;
           const timeEndTimestamp = new Date(newTimeEnd).getTime();
@@ -178,14 +183,17 @@ export default function WalletScreen() {
           await AsyncStorage.setItem('timeEnd', newTimeEnd);
         } else {
           console.log("Payment failed(Razorpay) 1")
+          amplitude.track(`Failure: Payment Verification : ${pkg.duration}`, { screen: 'Wallet' });
           throw new Error('Verification failed');
         }
       }).catch((error: any) => {
         console.log("Payment failed(Razorpay) 2")
+        amplitude.track(`Failure: Payment Failed: ${pkg.duration}`, { screen: 'Wallet', message: error.message });
         setShowPaymentFailedPopup(true);
       });
     } catch (e: any) {
       console.log("Payment failed(Razorpay) 3 ", e)
+      amplitude.track(`Failure: Create Order Failed: ${pkg.duration}`, { screen: 'Wallet', message: e.message });
       setShowPaymentFailedPopup(true);
     } finally {
       console.log("Payment Finally")

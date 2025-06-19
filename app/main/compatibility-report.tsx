@@ -11,6 +11,7 @@ import Domain from '@/constants/domain';
 import axios from 'axios';
 import { getUserId } from '@/constants/userId';
 import { ActivityIndicator } from 'react-native';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 interface CircularProgressProps {
     percentage: number;
@@ -83,6 +84,7 @@ export default function CompatibilityReportScreen() {
     useEffect(() => {
         const backAction = () => {
             router.navigate("/main/compatibility-main")
+            amplitude.track('Closed Compatibility Report', { screen: 'Compatibility Report' });
             return true;
         };
 
@@ -99,6 +101,7 @@ export default function CompatibilityReportScreen() {
     };
 
     const handleDelete = async () => {
+        amplitude.track('Clicked Delete Compatibility Report Button', { screen: 'Compatibility Report' });
         setIsDeleting(true);
         try {
             const userId = await getUserId();
@@ -109,10 +112,11 @@ export default function CompatibilityReportScreen() {
                 }
             });
             if (response.status === 200) {
+                amplitude.track('Delete Compatibility Report Successful', { screen: 'Compatibility Report' });
                 router.navigate('/main/compatibility-main');
             }
-        } catch (error) {
-            console.error(error);
+        } catch (error: any) {
+            amplitude.track('Failure: Delete Compatibility Report', { screen: 'Compatibility Report', message: error.message });
         } finally {
             setIsDeleting(false);
         }

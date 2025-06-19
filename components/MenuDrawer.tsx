@@ -5,6 +5,7 @@ import { X, MessageCircle, Wallet, History, Headphones, Settings, Clock, Phone, 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 interface MenuDrawerProps {
   isVisible: boolean;
@@ -25,26 +26,32 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
   const [startedFreeMinutes, setStartedFreeMinutes] = useState(1);
 
   const handleSettings = () => {
+    amplitude.track('Clicked Settings Button', { screen: 'Menu Drawer' });
     router.push('/main/settings');
   };
 
   const handleWallet = () => {
+    amplitude.track('Clicked Wallet Button', { screen: 'Menu Drawer' });
     router.push('/main/wallet');
   };
 
   const handleProfile = () => {
+    amplitude.track('Clicked Edit Profile Button', { screen: 'Menu Drawer' });
     router.push('/main/edit-profile');
   };
 
   const handleChat = () => {
+    amplitude.track('Clicked Start Chat Button', { screen: 'Menu Drawer' });
     router.push('/main/devi');
   };
 
   const handleChatHistory = () => {
+    amplitude.track('Clicked Chat History Button', { screen: 'Menu Drawer' });
     router.push('/main/chat-history')
   };
 
   const handleSupport = () => {
+    amplitude.track('Clicked Support Button', { screen: 'Menu Drawer' });
     router.push('/main/support');
   };
 
@@ -111,7 +118,10 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.overlay} onPress={onClose} />
+      <TouchableOpacity style={styles.overlay} onPress={() => {
+        amplitude.track('Closed Menu Drawer', { screen: 'Menu Drawer' });
+        onClose();
+      }} />
       <Animated.View style={[styles.drawerContainer, { transform: [{ translateX }] }]}>
         <LinearGradient
           colors={['#150829', '#1D0A37', '#000000']}
@@ -133,7 +143,10 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => {
+              amplitude.track('Closed Menu Drawer', { screen: 'Menu Drawer' });
+              onClose();
+            }}>
               <X size={20} color={Colors.gold.DEFAULT + '80'} strokeWidth={1.5} />
             </TouchableOpacity>
           </View>

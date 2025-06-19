@@ -17,6 +17,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
+import * as amplitude from '@amplitude/analytics-react-native';
+
+amplitude.init('72f953bd89893e7cb489fabf86987716');
+
+const identifyObj = new amplitude.Identify()
+  // .set('app_version', '1.0.0')
+  .set('platform', Platform.OS);
+
+amplitude.identify(identifyObj);
 
 const GLOW_RADIUS = 140; // Adjusted to match container size
 const FLOWER_COUNT = 12;
@@ -194,12 +203,15 @@ export default function Index() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      amplitude.track('Loading', { screen: 'Index' });
       const userId = await getUserId();
       try {
         if (!userId) {
           router.push('/signup/phone');
           return;
         }
+
+        amplitude.setUserId(userId);
 
         // Check if registration is in progress from personal-details page
         const waitForRegistration = async () => {

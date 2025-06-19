@@ -39,6 +39,7 @@ import NoTimePopup from '@/components/Popups/NoTimePopup';
 import { useRouter } from 'expo-router';
 import { useFloatAnimation } from '@/hooks/useFloatAnimation';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -115,12 +116,32 @@ export default function ChatScreen() {
             return;
         }
         if (!isThinking && time <= 0) {
+            amplitude.track('Popup: No Time Left', { screen: 'Devi' });
             setShowPopup(true);
         }
         else if (time > 0) {
             setShowPopup(false);
         }
     }, [time, isThinking, timeFetched]);
+
+    useEffect(() => {
+        const backAction = () => {
+            if (showPopup) {
+                amplitude.track('Popup: Closed No Time Left', { screen: 'Devi' });
+                setShowPopup(false);
+                return true;
+            }
+            router.back();
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     useEffect(() => {
         const loadData = async () => {
@@ -179,15 +200,18 @@ export default function ChatScreen() {
                     }]);
                 }
 
-                // if the last message is before 1 hour, then send welcome message request to the backend
-                const lastMessageTime = parseInt(msgs[msgs.length - 1].id, 10);
-                const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000).getTime();
-                if (lastMessageTime < oneHourAgo) {
-                    console.log("Sending welcome message request to the backend");
+                if (msgs.length === 0) {
+                    amplitude.track('Getting Welcome Message', { screen: 'Devi' });
                     // getWelcomeMessage();
                 }
                 else {
-                    console.log("Last message is after 1 hour, not sending welcome message request to the backend");
+                    // if the last message is before 1 hour, then send welcome message request to the backend
+                    const lastMessageTime = parseInt(msgs[msgs.length - 1].id, 10);
+                    const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000).getTime();
+                    if (lastMessageTime < oneHourAgo) {
+                        amplitude.track('Getting Welcome Message', { screen: 'Devi' });
+                        // getWelcomeMessage();
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching messages:', error);
@@ -256,8 +280,10 @@ export default function ChatScreen() {
             await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
         } catch (err: any) {
             if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
+                amplitude.track('Welcome Message Request Cancelled', { screen: 'Devi' });
                 console.log('Welcome message request was cancelled - user sent a message');
             } else {
+                amplitude.track('Failure: Welcome Message Request', { screen: 'Devi', message: err.message });
                 console.error('Error fetching welcome message:', err);
             }
         } finally {
@@ -362,7 +388,6 @@ export default function ChatScreen() {
                         setIsThinking(true);
                     }, thinkingDelay);
 
-                    console.log("Sending request to model")
                     const response = await axios.post(
                         `${ModelURL}/devi`,
                         {
@@ -378,6 +403,7 @@ export default function ChatScreen() {
                     );
 
                     console.log("Response from model : ", response)
+                    amplitude.track('Received Response from Model', { screen: 'Devi' });
 
                     // Append each returned string as a new assistant message:
                     const responses: string[] = response.data.response;
@@ -429,8 +455,10 @@ export default function ChatScreen() {
 
                 } catch (err: any) {
                     if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
+                        amplitude.track('Chat: Previous Request Aborted', { screen: 'Devi' });
                         console.log('Previous request was aborted—buffer is kept intact.');
                     } else {
+                        amplitude.track('Failure: Devi API Error (Non-Abort)', { screen: 'Devi', message: err.message });
                         console.error('API error (non‐abort):', err);
                     }
                 } finally {
@@ -445,6 +473,7 @@ export default function ChatScreen() {
         if (!newMessage.trim() || time <= 0) return;
 
         console.log("Sending message : ", newMessage)
+        amplitude.track('Clicked Send Message Button', { screen: 'Devi' });
 
         // Cancel any ongoing welcome message request
         if (welcomeMessageControllerRef.current) {
@@ -457,8 +486,6 @@ export default function ChatScreen() {
         if (isRequestInFlight && abortControllerRef.current) {
             console.log('Cancelling previous API call because user typed again.');
             abortControllerRef.current.abort();
-            // We keep the old buffer as-is; don't clear anything here.
-            // isRequestInFlight will get reset in the flushBuffer's catch/finally.
         }
 
         console.log("isRequestInFlight : ", isRequestInFlight)
@@ -628,7 +655,10 @@ export default function ChatScreen() {
                 </View>
 
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.credits} onPress={() => router.navigate('/main/wallet')}>
+                    <TouchableOpacity style={styles.credits} onPress={() => {
+                        amplitude.track('Clicked Time (Wallet) Button', { screen: 'Devi' });
+                        router.navigate('/main/wallet');
+                    }}>
                         <Clock size={20} color="#f7c615" />
                         <Text style={styles.creditsText}>
                             {time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
@@ -708,7 +738,10 @@ export default function ChatScreen() {
         <SafeAreaProvider>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
-                {showPopup && <NoTimePopup onClose={() => setShowPopup(false)} setTime={setTime} />}
+                {showPopup && <NoTimePopup onClose={() => {
+                    amplitude.track('Popup: Closed No Time Left', { screen: 'Devi' });
+                    setShowPopup(false);
+                }} setTime={setTime} />}
                 {Platform.OS === 'ios' ? (
                     <KeyboardAvoidingView
                         behavior={'padding'}
@@ -867,7 +900,10 @@ export default function ChatScreen() {
                                     placeholderTextColor="rgba(255, 255, 255, 0.6)"
                                     multiline
                                 />
-                                {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => router.navigate("/main/wallet")}>
+                                {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => {
+                                    amplitude.track('Clicked Ask More (Wallet) Button', { screen: 'Devi' });
+                                    router.navigate("/main/wallet");
+                                }}>
                                     <Text style={styles.purchaseButtonText}>Ask More</Text>
                                 </TouchableOpacity> :
                                     <TouchableOpacity

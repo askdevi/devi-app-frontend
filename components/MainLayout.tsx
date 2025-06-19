@@ -9,6 +9,7 @@ import Footer from './Footer';
 import CompatibilitySection from './CompatibilitySection';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FreeTimePopup from './Popups/FreeTimePopup';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const MainLayout = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -16,6 +17,7 @@ const MainLayout = () => {
   useEffect(() => {
     const backAction = () => {
       if (showPopup) {
+        amplitude.track('Popup: Closed Free Time', { screen: 'Home' });
         setShowPopup(false);
         return true;
       }
@@ -40,10 +42,12 @@ const MainLayout = () => {
         if (popupShown === 'false') {
           await AsyncStorage.setItem('popupShown', 'true');
           setShowPopup(true);
+          amplitude.track('Popup: Opened Free Time', { screen: 'Home' });
         }
         else {
           if (Math.random() < 0.5) {
             setShowPopup(true);
+            amplitude.track('Popup: Opened Free Time', { screen: 'Home' });
           }
         }
       }
@@ -53,7 +57,10 @@ const MainLayout = () => {
 
   return (
     <SafeAreaProvider>
-      {showPopup && <FreeTimePopup onClose={() => setShowPopup(false)} />}
+      {showPopup && <FreeTimePopup onClose={() => {
+        amplitude.track('Popup: Closed Free Time', { screen: 'Home' });
+        setShowPopup(false);
+      }} />}
       <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
         <View
           style={styles.container} >

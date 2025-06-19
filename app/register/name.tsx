@@ -10,6 +10,7 @@ import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CustomInput from '@/components/CustomInput';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function NameScreen() {
   const [firstName, setFirstName] = useState('');
@@ -33,12 +34,13 @@ export default function NameScreen() {
   const handleContinue = async () => {
     Keyboard.dismiss()
     if (firstName.trim() && lastName.trim()) {
-
       try {
         await AsyncStorage.setItem('firstName', firstName.trim());
         await AsyncStorage.setItem('lastName', lastName.trim());
+        amplitude.track('Name Submitted', { screen: 'Name' });
         router.push('/register/gender');
-      } catch (error) {
+      } catch (error: any) {
+        amplitude.track('Failure: Name Submission', { screen: 'Name', message: error.message });
         console.log('Error saving name:', error);
       }
     }

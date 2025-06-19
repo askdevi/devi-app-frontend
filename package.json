@@ -11,6 +11,7 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
+    "@amplitude/analytics-react-native": "^1.4.13",
     "@expo-google-fonts/cormorant": "^0.2.3",
     "@expo-google-fonts/poppins": "^0.2.3",
     "@expo/vector-icons": "^14.1.0",

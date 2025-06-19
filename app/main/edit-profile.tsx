@@ -19,6 +19,7 @@ import CompactInput from '@/components/CompactInput';
 import CustomInput from '@/components/CustomInput';
 import CustomDropdown from '@/components/CustomDropdown';
 import PhoneTextInput from '@/components/PhoneTextInput';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const languageData = [
   { label: 'Hinglish', value: 'Hinglish' },
@@ -244,6 +245,7 @@ export default function EditProfileScreen() {
   };
 
   const handleUpdate = async () => {
+    amplitude.track('Clicked Update Profile Button', { screen: 'Edit Profile' });
     setUpdating(true);
 
     try {
@@ -320,10 +322,12 @@ export default function EditProfileScreen() {
         AsyncStorage.setItem('language', language.toLowerCase()),
         AsyncStorage.setItem('relationshipStatus', relationshipStatus.toLowerCase()),
         AsyncStorage.setItem('occupation', occupation.toLowerCase()),
-        AsyncStorage.setItem('gender', gender.toLowerCase())
+        AsyncStorage.setItem('gender', gender.toLowerCase()),
       ]);
+      amplitude.track('Update Profile Successful', { screen: 'Edit Profile' });
       router.push('/main/profile');
-    } catch (e) {
+    } catch (e: any) {
+      amplitude.track('Update Profile Failed', { screen: 'Edit Profile', message: e.message });
       setError('Error saving profile data');
     } finally {
       setUpdating(false);

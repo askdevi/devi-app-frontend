@@ -9,6 +9,7 @@ import SetupProgress from '@/components/Setup/SetupProgress';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function BirthPlaceScreen() {
   const router = useRouter();
@@ -31,8 +32,10 @@ export default function BirthPlaceScreen() {
         "name": birthPlace
       }
       await AsyncStorage.setItem('birthPlaceData', JSON.stringify(birthPlaceData));
+      amplitude.track('Birth Place Submitted', { screen: 'Birth Place' });
       router.push('/register/personal-details' as any);
-    } catch (error) {
+    } catch (error: any) {
+      amplitude.track('Failure: Birth Place Submission', { screen: 'Birth Place', message: error.message });
       console.log('Error saving birth place data:', JSON.stringify(error));
     }
   };

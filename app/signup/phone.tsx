@@ -28,6 +28,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import PhoneTextInput from '@/components/PhoneTextInput';
 import { ActivityIndicator } from 'react-native';
 import Colors from '@/constants/Colors';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const GLOW_RADIUS = 120; // Matches the logo container size
 
@@ -174,6 +175,7 @@ export default function PhoneScreen() {
           'Content-Type': 'application/json'
         }
       });
+      amplitude.track('Phone Number Submitted', { screen: 'Phone' });
       router.push({ pathname: '/signup/otp', params: { phone } });
     } catch (err) {
       setError('Failed to send OTP. Please try again.');

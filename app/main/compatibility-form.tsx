@@ -14,6 +14,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import { ActivityIndicator } from 'react-native';
 import CustomInput from '@/components/CustomInput';
 import CompactInput from '@/components/CompactInput';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function CompatibilityFormScreen() {
     const router = useRouter();
@@ -153,11 +154,14 @@ export default function CompatibilityFormScreen() {
 
             const report = response.data;
 
+            amplitude.track('Submit Compatibility Form Successful', { screen: 'Compatibility Form' });
+
             router.push({
                 pathname: '/main/compatibility-report',
                 params: { report: JSON.stringify(report), index: JSON.stringify(response.data.index) }
             });
-        } catch (error) {
+        } catch (error: any) {
+            amplitude.track('Failure: Submit Compatibility Form', { screen: 'Compatibility Form', message: error.message });
             setError('Failed to check compatibility. Please try again.');
         } finally {
             setLoading(false);

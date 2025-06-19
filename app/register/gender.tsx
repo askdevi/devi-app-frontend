@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import SetupProgress from '@/components/Setup/SetupProgress';
 import MaskedView from '@react-native-masked-view/masked-view';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function GenderScreen() {
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
@@ -17,8 +18,10 @@ export default function GenderScreen() {
     if (gender) {
       try {
         await AsyncStorage.setItem('gender', gender);
+        amplitude.track('Gender Submitted', { screen: 'Gender' });
         router.push('/register/birth-details');
-      } catch (error) {
+      } catch (error: any) {
+        amplitude.track('Failure: Gender Submission', { screen: 'Gender', message: error.message });
         console.log('Error saving gender:', error);
       }
     }

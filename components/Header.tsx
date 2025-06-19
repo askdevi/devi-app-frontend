@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '../constants/Colors';
 import MenuDrawer from './MenuDrawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const Header = () => {
   const insets = useSafeAreaInsets();
@@ -61,7 +62,10 @@ const Header = () => {
       <View style={[styles.header, { paddingTop: 15 }]}>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => handlePress(() => setIsMenuOpen(true))}
+          onPress={() => handlePress(() => {
+            amplitude.track('Opened Menu Drawer', { screen: 'Home' });
+            setIsMenuOpen(true);
+          })}
           accessibilityLabel="Menu"
         >
           <Menu color={Colors.gold.DEFAULT} size={24} />
@@ -73,7 +77,10 @@ const Header = () => {
         </View>
         <TouchableOpacity
           style={styles.iconButton1}
-          onPress={() => handlePress(() => router.push('/main/wallet'))}
+          onPress={() => handlePress(() => {
+            amplitude.track('Clicked Time(Wallet) Button', { screen: 'Home' });
+            router.push('/main/wallet');
+          })}
         >
           <Clock color={Colors.gold.DEFAULT} size={20} />
           <Text style={styles.coinText}>

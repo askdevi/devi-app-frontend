@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const CompatibilitySection = () => {
     const router = useRouter();
@@ -25,7 +26,10 @@ const CompatibilitySection = () => {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.newCompatibilityContainer}
-                onPress={() => router.push('/main/compatibility-form')}
+                onPress={() => {
+                    amplitude.track('Clicked Check Compatibility Button', { screen: 'Home' });
+                    router.push('/main/compatibility-form');
+                }}
             >
                 <View style={styles.header}>
                     <MaskedView

@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfilePics from '@/components/ProfilePics';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const profileImages = {
     'aquarius female': require('@/assets/images/profile/aquarius female.png'),
@@ -50,12 +51,24 @@ export default function SettingsScreen() {
 
 
     const handleLogout = async () => {
+        amplitude.track('Clicked Logout Button', { screen: 'Profile' });
         await SecureStore.deleteItemAsync('userId');
         router.navigate('/signup/phone');
     };
 
     const handleSupport = () => {
+        amplitude.track('Clicked Support Button', { screen: 'Profile' });
         router.push('/main/support');
+    };
+
+    const handleSettings = () => {
+        amplitude.track('Clicked Settings Button', { screen: 'Profile' });
+        router.push('/main/settings');
+    };
+
+    const handleEditProfile = () => {
+        amplitude.track('Clicked Edit Profile Button', { screen: 'Profile' });
+        router.push('/main/edit-profile');
     };
 
     const GradientText = ({ children, style }: { children: string; style?: any }) => {
@@ -149,7 +162,10 @@ export default function SettingsScreen() {
                                 </View>
                                 <TouchableOpacity
                                     style={styles.editButton}
-                                    onPress={() => setShowPopup(true)}
+                                    onPress={() => {
+                                        amplitude.track('Clicked Edit Profile Picture Button', { screen: 'Profile' });
+                                        setShowPopup(true);
+                                    }}
                                 >
                                     <View style={styles.editButtonInner}>
                                         <Ionicons name="pencil" size={16} color={Colors.deepPurple.DEFAULT} />
@@ -167,7 +183,10 @@ export default function SettingsScreen() {
                                     </View>
                                     <TouchableOpacity
                                         style={styles.addTimeButton}
-                                        onPress={() => router.navigate('/main/wallet')}
+                                        onPress={() => {
+                                            amplitude.track('Clicked Add More Minutes (Wallet) Button', { screen: 'Profile' });
+                                            router.navigate('/main/wallet');
+                                        }}
                                     >
                                         <Text style={styles.addTimeButtonText}>Add More Minutes</Text>
                                     </TouchableOpacity>
@@ -176,11 +195,11 @@ export default function SettingsScreen() {
                         </View>
 
                         <View style={styles.menuSection}>
-                            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/main/edit-profile')}>
+                            <TouchableOpacity style={styles.menuItem} onPress={handleEditProfile}>
                                 <Ionicons name="pencil-outline" size={24} color="#FFD700" />
                                 <Text style={styles.menuText}>Edit Profile</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/main/settings')}>
+                            <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
                                 <Ionicons name="settings-outline" size={24} color="#FFD700" />
                                 <Text style={styles.menuText}>Settings</Text>
                             </TouchableOpacity>

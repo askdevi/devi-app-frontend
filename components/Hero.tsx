@@ -19,6 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import ShinyButton from './ShinyButton';
 import { router } from 'expo-router';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const GLOW_RADIUS = 160; // Increased from 120 for a larger glow
 
@@ -117,7 +118,10 @@ const Hero = () => {
 
       <ShinyButton
         title="Open Chat"
-        onPress={() => router.push('/main/devi')}
+        onPress={() => {
+          amplitude.track('Clicked Open Chat Button', { screen: 'Home' });
+          router.push('/main/devi');
+        }}
       />
     </View>
   );

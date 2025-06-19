@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import BackgroundStars from '@/components/BackgroundEffects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -315,6 +316,12 @@ export default function BlessingsScreen() {
   }, []);
 
   const toggleFlip = (cardId: string) => {
+    if (!flippedCards[cardId]) {
+      amplitude.track(`${cards[activeIndex].title} Revealed`, { screen: 'Home' });
+    }
+    else {
+      amplitude.track(`${cards[activeIndex].title} Hidden`, { screen: 'Home' });
+    }
     setFlippedCards((prev) => ({
       ...prev,
       [cardId]: !prev[cardId],

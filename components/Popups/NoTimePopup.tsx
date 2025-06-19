@@ -9,6 +9,7 @@ import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 interface Props {
     setTime: (time: number) => void;
@@ -33,6 +34,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handlePurchase = async () => {
+        amplitude.track('Clicked Buy Now Button (Popup)', { screen: 'Devi' });
         if (isProcessing) return;
         setIsProcessing(true);
         try {
@@ -41,6 +43,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
             const orderRes = await axios.post(`${Domain}/create-order`, { amount: pkg.price });
             const { orderId } = orderRes.data;
             if (!orderId) throw new Error('Order ID not returned');
+            amplitude.track('Created Order (Popup)', { screen: 'Devi' });
 
             // 2. Open Razorpay
 
@@ -62,6 +65,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                 theme: { color: Colors.deepPurple.DEFAULT },
             };
             RazorpayCheckout.open(options).then(async (payment: any) => {
+                amplitude.track('Payment Successful (Popup)', { screen: 'Devi' });
                 // 3. Verify payment
                 const verifyRes = await axios.post(`${Domain}/verify-payment`, {
                     razorpay_payment_id: payment.razorpay_payment_id,
@@ -71,20 +75,24 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                     amountPaid: pkg.price,
                 });
                 if (verifyRes.data.success) {
+                    amplitude.track('Payment Verification Successful (Popup)', { screen: 'Devi' });
                     const newTimeEnd = verifyRes.data.timeEnd;
                     const timeEndTimestamp = new Date(newTimeEnd).getTime();
                     setTime(timeEndTimestamp - Date.now());
                     onClose?.();
                     await AsyncStorage.setItem('timeEnd', newTimeEnd);
                 } else {
+                    amplitude.track('Failure: Payment Verification (Popup)', { screen: 'Devi' });
                     throw new Error('Verification failed');
                 }
             }).catch((error: any) => {
                 console.error(error);
+                amplitude.track('Failure: Payment Failed (Popup)', { screen: 'Devi', message: error.message });
                 Alert.alert('Payment Failed', 'Transaction was not completed. Please try again.');
             });
         } catch (e: any) {
             console.error(e);
+            amplitude.track('Failure: Payment Failed (Popup)', { screen: 'Devi', message: e.message });
             Alert.alert('Error', e.message || 'Something went wrong.');
         } finally {
             setIsProcessing(false);

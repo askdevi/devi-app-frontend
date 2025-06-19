@@ -20,6 +20,7 @@ import Domain from '@/constants/domain';
 import 'react-native-get-random-values';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CustomDropdown from '@/components/CustomDropdown';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const languageData = [
   { label: 'Hinglish', value: 'Hinglish' },
@@ -87,7 +88,9 @@ export default function PersonalDetailsScreen() {
           };
           await axios.post(`${Domain}/register`, body);
           await AsyncStorage.setItem('registrationComplete', 'true');
+          amplitude.track('Personal Details Submitted', { screen: 'Personal Details' });
         } catch (error: any) {
+          amplitude.track('Failure: Personal Details Submission API', { screen: 'Personal Details', message: error.message });
           setError('Something went wrong. Please try again.');
         }
       };
@@ -95,11 +98,7 @@ export default function PersonalDetailsScreen() {
       registerUser();
 
     } catch (error: any) {
-      console.log('PersonalDetailsScreen: Error in handleComplete:', {
-        message: error.message,
-        response: error.response?.data,
-        stack: error.stack
-      });
+      amplitude.track('Failure: Personal Details Submission', { screen: 'Personal Details', message: error.message });
     } finally {
       setLoading(false);
     }
@@ -110,8 +109,6 @@ export default function PersonalDetailsScreen() {
   };
 
   const isFormComplete = language && relationshipStatus && occupation;
-
-
 
   const GradientText = ({
     children,

@@ -14,6 +14,7 @@ import BackgroundEffects from '@/components/BackgroundEffects';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator } from 'react-native';
 import { startOtpListener, removeListener } from 'react-native-otp-verify';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export async function storeUserId(userId: string) {
   await SecureStore.setItemAsync('userId', userId);
@@ -202,11 +203,14 @@ export default function OtpScreen() {
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
       await storeUserId(response.data.userId);
       if (response.data.exists) {
+        amplitude.track('OTP Verified (New User)', { screen: 'OTP' });
         router.push('/');
       } else {
+        amplitude.track('OTP Verified (Existing User)', { screen: 'OTP' });
         router.push('/register/name');
       }
-    } catch (err) {
+    } catch (err: any) {
+      amplitude.track('Failure: OTP Verification', { screen: 'OTP', message: err.message });
       setError('Invalid code. Please try again.');
     } finally {
       setLoading(false);
@@ -215,9 +219,17 @@ export default function OtpScreen() {
 
   const handleResendCode = async () => {
     try {
+      const response = await axios.post(`${Domain}/send-otp`, {
+        phoneNumber: `91${phone}`
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      amplitude.track('OTP Resent', { screen: 'OTP' });
       setError('Code resent successfully!');
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      amplitude.track('Failure: OTP Resend', { screen: 'OTP', message: err.message });
       setError('Failed to resend code. Please try again.');
     }
   };

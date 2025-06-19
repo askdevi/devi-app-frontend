@@ -12,6 +12,7 @@ import axios from 'axios';
 import MaskedView from '@react-native-masked-view/masked-view';
 import messaging from '@react-native-firebase/messaging';
 import DeleteAccountPopup from '@/components/Popups/DeleteAccountPopup';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -89,6 +90,7 @@ export default function SettingsScreen() {
 
         try {
             if (enabled) {
+                amplitude.track('Clicked Enable Notifications Button', { screen: 'Settings' });
                 // Request permissions
                 if (Platform.OS === 'android') {
                     const granted = await PermissionsAndroid.request(
@@ -114,6 +116,7 @@ export default function SettingsScreen() {
                     }
                 }
             } else {
+                amplitude.track('Clicked Disable Notifications Button', { screen: 'Settings' });
                 // Can't programmatically disable notifications, direct to settings
                 setNotificationsEnabled(false);
                 showSettingsAlert();
@@ -157,10 +160,12 @@ export default function SettingsScreen() {
     };
 
     const handleDeleteAccount = () => {
+        amplitude.track('Clicked Delete Account Button', { screen: 'Settings' });
         setShowDeleteAccountPopup(true);
     };
 
     const confirmDeleteAccount = async () => {
+        amplitude.track('Clicked Confirm Delete Account Button', { screen: 'Settings' });
         try {
             setIsDeleting(true);
 
@@ -177,12 +182,15 @@ export default function SettingsScreen() {
 
             if (response.status === 200) {
                 SecureStore.deleteItemAsync('userId');
+                amplitude.track('Delete Account Successful', { screen: 'Settings' });
                 router.navigate('/signup/phone');
             } else {
+                amplitude.track('Failure: Delete Account', { screen: 'Settings' });
                 setError("Failed to delete account. Please try again.");
                 setShowDeleteAccountPopup(false);
             }
-        } catch (error) {
+        } catch (error: any) {
+            amplitude.track('Failure: Delete Account', { screen: 'Settings', message: error.message });
             setError("Failed to delete account. Please try again.");
             setShowDeleteAccountPopup(false);
         } finally {
@@ -260,7 +268,10 @@ export default function SettingsScreen() {
                                 <Text style={styles.subtitle}>Enable Sound</Text>
                                 <Switch
                                     value={soundEnabled}
-                                    onValueChange={setSoundEnabled}
+                                    onValueChange={() => {
+                                        amplitude.track('Toggled Sound', { screen: 'Settings' });
+                                        setSoundEnabled(!soundEnabled);
+                                    }}
                                     trackColor={{ false: '#999', true: '#ffcd00' }}
                                     thumbColor={soundEnabled ? '#a05afc' : '#ccc'}
                                 />
@@ -269,13 +280,22 @@ export default function SettingsScreen() {
 
                         {/* Menu Options */}
                         {/* mail to support */}
-                        <TouchableOpacity style={styles.option} onPress={() => Linking.openURL('mailto:support@askdevi.com')}>
+                        <TouchableOpacity style={styles.option} onPress={() => {
+                            amplitude.track('Clicked Support Button', { screen: 'Settings' });
+                            Linking.openURL('mailto:support@askdevi.com');
+                        }}>
                             <Text style={styles.optionText}>Support</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.option} onPress={() => Linking.openURL('https://askdevi.com/policies/terms-and-conditions')}>
+                        <TouchableOpacity style={styles.option} onPress={() => {
+                            amplitude.track('Clicked Terms and Conditions Button', { screen: 'Settings' });
+                            Linking.openURL('https://askdevi.com/policies/terms-and-conditions');
+                        }}>
                             <Text style={styles.optionText}>Terms and Conditions</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.option} onPress={() => Linking.openURL('https://askdevi.com/policies/privacy-policy')}>
+                        <TouchableOpacity style={styles.option} onPress={() => {
+                            amplitude.track('Clicked Privacy Policy Button', { screen: 'Settings' });
+                            Linking.openURL('https://askdevi.com/policies/privacy-policy');
+                        }}>
                             <Text style={styles.optionText}>Privacy Policy</Text>
                         </TouchableOpacity>
                         {/* Delete Account */}

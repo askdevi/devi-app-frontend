@@ -11,6 +11,7 @@ import * as Linking from 'expo-linking';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CustomDropdown from '@/components/CustomDropdown';
 import CustomInput from '@/components/CustomInput';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function SupportScreen() {
     const router = useRouter();
@@ -134,7 +135,10 @@ export default function SupportScreen() {
                         >
                             <TouchableOpacity
                                 style={styles.sendButtonTouchable}
-                                onPress={handleSend}
+                                onPress={() => {
+                                    amplitude.track('Clicked Send Mail Button', { screen: 'Support' });
+                                    handleSend();
+                                }}
                                 disabled={!isFormValid}
                                 activeOpacity={0.8}
                             >

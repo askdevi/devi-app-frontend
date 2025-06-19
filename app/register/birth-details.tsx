@@ -16,6 +16,7 @@ import SetupProgress from '@/components/Setup/SetupProgress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaskedView from '@react-native-masked-view/masked-view';
 import CompactInput from '@/components/CompactInput';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function BirthDetailsScreen() {
   const router = useRouter();
@@ -109,8 +110,10 @@ export default function BirthDetailsScreen() {
 
       await AsyncStorage.setItem('birthDate', birthDate);
       await AsyncStorage.setItem('birthTime', birthTime ? birthTime : '12:00');
+      amplitude.track('Birth Details Submitted', { screen: 'Birth Details' });
       router.push('/register/birth-place');
-    } catch (error) {
+    } catch (error: any) {
+      amplitude.track('Failure: Birth Details Submission', { screen: 'Birth Details', message: error.message });
       console.log('Error saving birth details:', error);
     }
   };

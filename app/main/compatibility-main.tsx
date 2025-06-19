@@ -12,24 +12,10 @@ import CompatibilityCard from '@/components/CompatibilityCard';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import ShinyButton from '@/components/ShinyButton';
-
+import * as amplitude from '@amplitude/analytics-react-native';
 
 export default function CompatibilityScreen() {
     const router = useRouter();
-
-    // useEffect(() => {
-    //     const backAction = () => {
-    //         router.back();
-    //         return true;
-    //     };
-
-    //     const backHandler = BackHandler.addEventListener(
-    //         'hardwareBackPress',
-    //         backAction
-    //     );
-
-    //     return () => backHandler.remove();
-    // }, []);
 
     const [loading, setLoading] = useState(true);
     const [compatibility, setCompatibility] = useState([]);
@@ -44,9 +30,10 @@ export default function CompatibilityScreen() {
                     }
                 });
                 setCompatibility(response.data);
+                amplitude.track('Fetched All Compatibility Reports', { screen: 'Compatibility' });
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching compatibility:', error);
+                amplitude.track('Error Fetching All Compatibility Reports', { screen: 'Compatibility' });
                 setLoading(false);
             }
         };
@@ -122,7 +109,10 @@ export default function CompatibilityScreen() {
                     <View style={styles.newCompatibilityContainer}>
                         <ShinyButton
                             title="Add New Partner"
-                            onPress={() => router.push('/main/compatibility-form')}
+                            onPress={() => {
+                                amplitude.track('Clicked Check Compatibility Button', { screen: 'Compatibility' });
+                                router.push('/main/compatibility-form');
+                            }}
                         />
                     </View>
                     <Footer />

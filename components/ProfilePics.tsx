@@ -5,6 +5,7 @@ import { X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 interface Props {
     onClose?: () => void;
@@ -60,6 +61,7 @@ const ProfilePics = ({ onClose }: Props) => {
     };
 
     const handleProfilePic = async (sign: SignType) => {
+        amplitude.track("Changed Profile Picture", { screen: 'Profile' });
         await AsyncStorage.setItem('profilePic', sign);
         onClose?.();
     };

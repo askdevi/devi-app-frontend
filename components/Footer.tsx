@@ -4,6 +4,7 @@ import { Home, User, Wallet, Heart } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import { usePathname, useRouter } from 'expo-router';
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const Footer = () => {
   const shineAnim = useRef(new Animated.Value(0)).current;
@@ -39,6 +40,7 @@ const Footer = () => {
 
   const tabHandler = (tab: string) => {
     if (pathname !== tab) {
+      amplitude.track(`Clicked ${tab.split('/')[2]} Footer Button`, { screen: 'Home' });
       router.navigate(tab as any);
     }
   };
