@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, StatusBar, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -189,313 +189,319 @@ export default function CompatibilityFormScreen() {
     return (
         <SafeAreaProvider>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-            <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
-                <View style={styles.container}>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+                <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
+                    <View style={styles.container}>
 
-                    <View style={styles.headerContainer}>
-                        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                            <Ionicons name="arrow-back" size={24} color="#ffcc00" />
-                        </TouchableOpacity>
-                        <View style={styles.titleContainer}>
-                            <GradientText style={styles.header}>Check Compatibility</GradientText>
+                        <View style={styles.headerContainer}>
+                            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                                <Ionicons name="arrow-back" size={24} color="#ffcc00" />
+                            </TouchableOpacity>
+                            <View style={styles.titleContainer}>
+                                <GradientText style={styles.header}>Check Compatibility</GradientText>
+                            </View>
                         </View>
-                    </View>
 
-                    <View
-                        style={styles.scrollView}
-                    >
-                        <View style={styles.form}>
+                        <View
+                            style={styles.scrollView}
+                        >
+                            <View style={styles.form}>
 
-                            <View>
-                                <CustomInput
-                                    value={firstName}
-                                    onChange={setFirstName}
-                                    label="First Name"
-                                    errorMsg=""
-                                    placeholder="Enter First Name"
-                                />
-                            </View>
-                            <View>
-                                <CustomInput
-                                    value={lastName}
-                                    onChange={setLastName}
-                                    label="Last Name"
-                                    errorMsg=""
-                                    placeholder="Enter Last Name"
-                                />
-                            </View>
+                                <View>
+                                    <CustomInput
+                                        value={firstName}
+                                        onChange={setFirstName}
+                                        label="First Name"
+                                        errorMsg=""
+                                        placeholder="Enter First Name"
+                                    />
+                                </View>
+                                <View>
+                                    <CustomInput
+                                        value={lastName}
+                                        onChange={setLastName}
+                                        label="Last Name"
+                                        errorMsg=""
+                                        placeholder="Enter Last Name"
+                                    />
+                                </View>
 
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Birth Place</Text>
-                                <GooglePlacesAutocomplete
-                                    placeholder="Enter Birth Location"
-                                    fetchDetails={true}
-                                    onPress={(data, details = null) => {
-                                        if (details) {
-                                            setBirthPlace(data.description);
-                                            setBirthPlaceCoords({
-                                                latitude: details.geometry.location.lat,
-                                                longitude: details.geometry.location.lng
-                                            });
-                                        }
-                                    }}
-                                    query={{
-                                        key: 'AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw',
-                                        language: 'en',
-                                        types: '(cities)',
-                                    }}
-                                    styles={{
-                                        container: {
-                                            flex: 0,
-                                        },
-                                        textInput: {
-                                            backgroundColor: 'transparent',
-                                            borderWidth: 2,
-                                            borderColor:
-                                                (birthPlace.length > 0 || isFocused)
-                                                    ? `${Colors.gold.DEFAULT}90`
-                                                    : `${Colors.gold.DEFAULT}20`,
-                                            borderRadius: 12,
-                                            padding: 16,
-                                            color: Colors.white,
-                                            fontFamily: 'Poppins-Regular',
-                                            fontSize: 16,
-                                        },
-                                        listView: {
-                                            backgroundColor: 'rgba(45, 17, 82, 0.9)',
-                                            borderWidth: 2,
-                                            borderColor: `${Colors.gold.DEFAULT}20`,
-                                            borderRadius: 12,
-                                            marginTop: 8,
-                                            position: 'absolute',
-                                            top: 50,
-                                            left: 0,
-                                            right: 0,
-                                            zIndex: 1000,
-                                        },
-                                        row: {
-                                            backgroundColor: 'transparent',
-                                            padding: 13,
-                                            height: 'auto',
-                                            minHeight: 44,
-                                        },
-                                        description: {
-                                            color: Colors.white,
-                                            fontFamily: 'Poppins-Regular',
-                                        },
-                                        separator: {
-                                            height: 1,
-                                            backgroundColor: `${Colors.gold.DEFAULT}20`,
-                                        },
-                                    }}
-                                    enablePoweredByContainer={false}
-                                    minLength={2}
-                                    debounce={200}
-                                    // All defaults explicitly mentioned
-                                    autoFillOnNotFound={false}
-                                    currentLocation={false}
-                                    currentLocationLabel="Current location"
-                                    disableScroll={false}
-                                    enableHighAccuracyLocation={false}
-                                    filterReverseGeocodingByTypes={[]}
-                                    GooglePlacesDetailsQuery={{}}
-                                    GooglePlacesSearchQuery={{
-                                        rankby: 'distance',
-                                        type: 'restaurant',
-                                    }}
-                                    GoogleReverseGeocodingQuery={{}}
-                                    isRowScrollable={true}
-                                    keyboardShouldPersistTaps="always"
-                                    listUnderlayColor="#c8c7cc"
-                                    listViewDisplayed="auto"
-                                    keepResultsAfterBlur={false}
-                                    nearbyPlacesAPI="GooglePlacesSearch"
-                                    numberOfLines={1}
-                                    onFail={() => { }}
-                                    onNotFound={() => { }}
-                                    onTimeout={() =>
-                                        console.warn('google places autocomplete: request timeout')
-                                    }
-                                    predefinedPlaces={[]}
-                                    predefinedPlacesAlwaysVisible={false}
-                                    suppressDefaultStyles={false}
-                                    textInputHide={false}
-                                    textInputProps={{
-                                        onFocus: () => setIsFocused(true),
-                                        onBlur: () => setIsFocused(false),
-                                        placeholderTextColor: `${Colors.gold.DEFAULT}40`,
-                                        onChangeText: (text) => {
-                                            if (text.length === 0) {
-                                                if (!birthPlace || birthPlace !== text) {
-                                                    setBirthPlace('');
-                                                }
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>Birth Place</Text>
+                                    <GooglePlacesAutocomplete
+                                        placeholder="Enter Birth Location"
+                                        fetchDetails={true}
+                                        onPress={(data, details = null) => {
+                                            if (details) {
+                                                setBirthPlace(data.description);
+                                                setBirthPlaceCoords({
+                                                    latitude: details.geometry.location.lat,
+                                                    longitude: details.geometry.location.lng
+                                                });
                                             }
-                                        },
-                                    }}
-                                    timeout={20000}
-                                />
-                            </View>
-
-                            <Text style={styles.label}>Birth Date</Text>
-                            <View style={styles.datePickerContainer}>
-                                <CompactInput
-                                    value={day}
-                                    onChange={validateDay}
-                                    placeholder="DD"
-                                    keyboardType="number-pad"
-                                    maxLength={2}
-                                    returnKeyType="next"
-                                    width={60}
-                                />
-                                <View style={styles.slashBox}>
-                                    <Text style={styles.inputSlash}>/</Text>
+                                        }}
+                                        query={{
+                                            key: 'AIzaSyAUogdV3s34woh5pU-JAsgrc_nLYu_sWAw',
+                                            language: 'en',
+                                            types: '(cities)',
+                                        }}
+                                        styles={{
+                                            container: {
+                                                flex: 0,
+                                            },
+                                            textInput: {
+                                                backgroundColor: 'transparent',
+                                                borderWidth: 2,
+                                                borderColor:
+                                                    (birthPlace.length > 0 || isFocused)
+                                                        ? `${Colors.gold.DEFAULT}90`
+                                                        : `${Colors.gold.DEFAULT}20`,
+                                                borderRadius: 12,
+                                                padding: 16,
+                                                color: Colors.white,
+                                                fontFamily: 'Poppins-Regular',
+                                                fontSize: 16,
+                                            },
+                                            listView: {
+                                                backgroundColor: 'rgba(45, 17, 82, 0.9)',
+                                                borderWidth: 2,
+                                                borderColor: `${Colors.gold.DEFAULT}20`,
+                                                borderRadius: 12,
+                                                marginTop: 8,
+                                                position: 'absolute',
+                                                top: 50,
+                                                left: 0,
+                                                right: 0,
+                                                zIndex: 1000,
+                                            },
+                                            row: {
+                                                backgroundColor: 'transparent',
+                                                padding: 13,
+                                                height: 'auto',
+                                                minHeight: 44,
+                                            },
+                                            description: {
+                                                color: Colors.white,
+                                                fontFamily: 'Poppins-Regular',
+                                            },
+                                            separator: {
+                                                height: 1,
+                                                backgroundColor: `${Colors.gold.DEFAULT}20`,
+                                            },
+                                        }}
+                                        enablePoweredByContainer={false}
+                                        minLength={2}
+                                        debounce={200}
+                                        // All defaults explicitly mentioned
+                                        autoFillOnNotFound={false}
+                                        currentLocation={false}
+                                        currentLocationLabel="Current location"
+                                        disableScroll={false}
+                                        enableHighAccuracyLocation={false}
+                                        filterReverseGeocodingByTypes={[]}
+                                        GooglePlacesDetailsQuery={{}}
+                                        GooglePlacesSearchQuery={{
+                                            rankby: 'distance',
+                                            type: 'restaurant',
+                                        }}
+                                        GoogleReverseGeocodingQuery={{}}
+                                        isRowScrollable={true}
+                                        keyboardShouldPersistTaps="always"
+                                        listUnderlayColor="#c8c7cc"
+                                        listViewDisplayed="auto"
+                                        keepResultsAfterBlur={false}
+                                        nearbyPlacesAPI="GooglePlacesSearch"
+                                        numberOfLines={1}
+                                        onFail={() => { }}
+                                        onNotFound={() => { }}
+                                        onTimeout={() =>
+                                            console.warn('google places autocomplete: request timeout')
+                                        }
+                                        predefinedPlaces={[]}
+                                        predefinedPlacesAlwaysVisible={false}
+                                        suppressDefaultStyles={false}
+                                        textInputHide={false}
+                                        textInputProps={{
+                                            onFocus: () => setIsFocused(true),
+                                            onBlur: () => setIsFocused(false),
+                                            placeholderTextColor: `${Colors.gold.DEFAULT}40`,
+                                            onChangeText: (text) => {
+                                                if (text.length === 0) {
+                                                    if (!birthPlace || birthPlace !== text) {
+                                                        setBirthPlace('');
+                                                    }
+                                                }
+                                            },
+                                        }}
+                                        timeout={20000}
+                                    />
                                 </View>
-                                <CompactInput
-                                    ref={monthRef}
-                                    value={month}
-                                    onChange={validateMonth}
-                                    placeholder="MM"
-                                    keyboardType="number-pad"
-                                    maxLength={2}
-                                    returnKeyType="next"
-                                    width={60}
-                                />
 
-                                <View style={styles.slashBox}>
-                                    <Text style={styles.inputSlash}>/</Text>
-                                </View>
-                                <CompactInput
-                                    ref={yearRef}
-                                    value={year}
-                                    onChange={validateYear}
-                                    placeholder="YYYY"
-                                    keyboardType="number-pad"
-                                    maxLength={4}
-                                    width={70}
-                                    returnKeyType="done"
-                                />
-                            </View>
+                                <Text style={styles.label}>Birth Date</Text>
+                                <View style={styles.datePickerContainer}>
+                                    <CompactInput
+                                        value={day}
+                                        onChange={validateDay}
+                                        placeholder="DD"
+                                        keyboardType="number-pad"
+                                        maxLength={2}
+                                        returnKeyType="done"
+                                        width={60}
+                                    />
+                                    <View style={styles.slashBox}>
+                                        <Text style={styles.inputSlash}>/</Text>
+                                    </View>
+                                    <CompactInput
+                                        ref={monthRef}
+                                        value={month}
+                                        onChange={validateMonth}
+                                        placeholder="MM"
+                                        keyboardType="number-pad"
+                                        maxLength={2}
+                                        returnKeyType="done"
+                                        width={60}
+                                    />
 
-                            <Text style={styles.label}>Birth Time</Text>
-                            <View style={styles.datePickerContainer}>
-                                <CompactInput
-                                    ref={hourRef}
-                                    value={hour}
-                                    onChange={validateHour}
-                                    placeholder="HH"
-                                    keyboardType="number-pad"
-                                    maxLength={2}
-                                    width={60}
-                                    returnKeyType="next"
-                                />
-                                <View style={styles.slashBox}>
-                                    <Text style={styles.inputSlash}>:</Text>
+                                    <View style={styles.slashBox}>
+                                        <Text style={styles.inputSlash}>/</Text>
+                                    </View>
+                                    <CompactInput
+                                        ref={yearRef}
+                                        value={year}
+                                        onChange={validateYear}
+                                        placeholder="YYYY"
+                                        keyboardType="number-pad"
+                                        maxLength={4}
+                                        width={70}
+                                        returnKeyType="done"
+                                    />
                                 </View>
 
-                                <CompactInput
-                                    ref={minuteRef}
-                                    value={minute}
-                                    onChange={validateMinute}
-                                    placeholder="MM"
-                                    keyboardType="number-pad"
-                                    maxLength={2}
-                                    returnKeyType="done"
-                                    width={60}
-                                />
-                                <View style={styles.slashBox}>
-                                    <Text style={styles.inputSlash}>{''}</Text>
-                                </View>
-                                <View style={[
-                                    styles.amPmContainer,
-                                    {borderColor: birthTimePeriod != '' ? `${Colors.gold.DEFAULT}90`
-                                    : `${Colors.gold.DEFAULT}20`}
-                                 ]}>
-                                    <TouchableOpacity
-                                        style={[
-                                            birthTimePeriod === 'AM'
-                                                ? styles.ampmSelected
-                                                : styles.ampm,
-                                            { marginRight: 5 },
-                                        ]}
-                                        onPress={() => setBirthTimePeriod('AM')}
-                                    >
-                                        <Text
+                                <Text style={styles.label}>Birth Time</Text>
+                                <View style={styles.datePickerContainer}>
+                                    <CompactInput
+                                        ref={hourRef}
+                                        value={hour}
+                                        onChange={validateHour}
+                                        placeholder="HH"
+                                        keyboardType="number-pad"
+                                        maxLength={2}
+                                        width={60}
+                                        returnKeyType="done"
+                                    />
+                                    <View style={styles.slashBox}>
+                                        <Text style={styles.inputSlash}>:</Text>
+                                    </View>
+
+                                    <CompactInput
+                                        ref={minuteRef}
+                                        value={minute}
+                                        onChange={validateMinute}
+                                        placeholder="MM"
+                                        keyboardType="number-pad"
+                                        maxLength={2}
+                                        returnKeyType="done"
+                                        width={60}
+                                    />
+                                    <View style={styles.slashBox}>
+                                        <Text style={styles.inputSlash}>{''}</Text>
+                                    </View>
+                                    <View style={[
+                                        styles.amPmContainer,
+                                        {borderColor: birthTimePeriod != '' ? `${Colors.gold.DEFAULT}90`
+                                        : `${Colors.gold.DEFAULT}20`}
+                                     ]}>
+                                        <TouchableOpacity
                                             style={[
                                                 birthTimePeriod === 'AM'
-                                                    ? styles.ampmTextSelected
-                                                    : styles.ampmText,
+                                                    ? styles.ampmSelected
+                                                    : styles.ampm,
+                                                { marginRight: 5 },
                                             ]}
+                                            onPress={() => setBirthTimePeriod('AM')}
                                         >
-                                            AM
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[
-                                            birthTimePeriod === 'PM'
-                                                ? styles.ampmSelected
-                                                : styles.ampm,
-                                        ]}
-                                        onPress={() => setBirthTimePeriod('PM')}
-                                    >
-                                        <Text
+                                            <Text
+                                                style={[
+                                                    birthTimePeriod === 'AM'
+                                                        ? styles.ampmTextSelected
+                                                        : styles.ampmText,
+                                                ]}
+                                            >
+                                                AM
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
                                             style={[
                                                 birthTimePeriod === 'PM'
-                                                    ? styles.ampmTextSelected
-                                                    : styles.ampmText,
+                                                    ? styles.ampmSelected
+                                                    : styles.ampm,
                                             ]}
+                                            onPress={() => setBirthTimePeriod('PM')}
                                         >
-                                            PM
-                                        </Text>
+                                            <Text
+                                                style={[
+                                                    birthTimePeriod === 'PM'
+                                                        ? styles.ampmTextSelected
+                                                        : styles.ampmText,
+                                                ]}
+                                            >
+                                                PM
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                {error && <Text style={styles.error}>{error}</Text>}
+
+                                <View   
+                                    style={[
+                                        styles.checkButton,
+                                        !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim() && birthTimePeriod?.trim()) && styles.checkButtonDisabled,
+                                    ]}
+                                >
+                                    <TouchableOpacity
+                                        style={styles.checkButtonTouchable}
+                                        onPress={handleCheck}
+                                        disabled={loading || !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim())}
+                                        activeOpacity={0.8}
+                                    >
+                                        <LinearGradient
+                                            colors={['#FFD700', '#FF8C00', '#FFD700']}
+                                            style={styles.checkButtonGradient}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                        />
+                                        <LinearGradient
+                                            colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                        />
+
+                                        <View style={styles.buttonContent}>
+                                            {loading ? (
+                                                <>
+                                                    <ActivityIndicator
+                                                        size="small"
+                                                        color={Colors.deepPurple.DEFAULT}
+                                                        style={{ marginRight: 8 }}
+                                                    />
+                                                    <Text style={styles.checkButtonText}>Checking...</Text>
+                                                </>
+                                            ) : (
+                                                <Text style={styles.checkButtonText}>Check Compatibility</Text>
+                                            )}
+                                        </View>
                                     </TouchableOpacity>
                                 </View>
                             </View>
-
-                            {error && <Text style={styles.error}>{error}</Text>}
-
-                            <View   
-                                style={[
-                                    styles.checkButton,
-                                    !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim() && birthTimePeriod?.trim()) && styles.checkButtonDisabled,
-                                ]}
-                            >
-                                <TouchableOpacity
-                                    style={styles.checkButtonTouchable}
-                                    onPress={handleCheck}
-                                    disabled={loading || !(firstName?.trim() && lastName?.trim() && day?.trim() && month?.trim() && year?.length === 4 && hour?.trim() && minute?.trim() && birthPlace?.trim())}
-                                    activeOpacity={0.8}
-                                >
-                                    <LinearGradient
-                                        colors={['#FFD700', '#FF8C00', '#FFD700']}
-                                        style={styles.checkButtonGradient}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 0 }}
-                                    />
-                                    <LinearGradient
-                                        colors={['transparent', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 0 }}
-                                    />
-
-                                    <View style={styles.buttonContent}>
-                                        {loading ? (
-                                            <>
-                                                <ActivityIndicator
-                                                    size="small"
-                                                    color={Colors.deepPurple.DEFAULT}
-                                                    style={{ marginRight: 8 }}
-                                                />
-                                                <Text style={styles.checkButtonText}>Checking...</Text>
-                                            </>
-                                        ) : (
-                                            <Text style={styles.checkButtonText}>Check Compatibility</Text>
-                                        )}
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
                         </View>
                     </View>
-                </View>
-            </SafeAreaView>
+                </SafeAreaView>
+            </KeyboardAvoidingView>
         </SafeAreaProvider>
     );
 }

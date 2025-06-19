@@ -31,7 +31,7 @@ const CompactInput = forwardRef<TextInput, CompactInputProps>(
       errorMsg,
       keyboardType = 'number-pad',
       maxLength = 2,
-      returnKeyType = "next",
+      returnKeyType = "done",
       ...props
     },
     ref

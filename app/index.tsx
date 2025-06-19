@@ -1,5 +1,5 @@
 import messaging from '@react-native-firebase/messaging';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Platform, BackHandler, PermissionsAndroid } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -120,6 +120,9 @@ const GlowEffect = () => {
 
 async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
+  if (Platform.OS === "ios") {
+    await messaging().registerDeviceForRemoteMessages();
+  }
   return (
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
     authStatus === messaging.AuthorizationStatus.PROVISIONAL

@@ -263,6 +263,7 @@ function extractColors(colorDescription: string): string[] {
 export default function BlessingsScreen() {
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const [cards, setCards] = useState<any[]>([]);
+  const [snapOffsets, setSnapOffsets] = useState<number[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -311,6 +312,12 @@ export default function BlessingsScreen() {
         }
       ]
       setCards(cards1);
+
+      // After cards are ready, compute snap offsets for precise centering
+      const CARD_WIDTH = SCREEN_WIDTH * 0.65;
+      const CARD_SPACING = 20; // marginHorizontal 10 on each side in wrapper
+      const offsets = cards1.map((_, index) => index * (CARD_WIDTH + CARD_SPACING));
+      setSnapOffsets(offsets);
     };
     fetchCards();
   }, []);
@@ -359,7 +366,7 @@ export default function BlessingsScreen() {
           ref={scrollViewRef}
           horizontal
           {...(Platform.OS === 'ios' ? {
-            snapToInterval: SCREEN_WIDTH * 0.65 + 40,
+            snapToOffsets: snapOffsets,
             decelerationRate: 'fast',
             snapToAlignment: 'center',
           } : {

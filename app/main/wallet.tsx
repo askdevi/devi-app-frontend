@@ -262,7 +262,14 @@ export default function WalletScreen() {
             <View style={styles.divider} />
             <Text style={styles.packagesTitle}>Time Packages</Text>
             {timePlans.map((pkg, idx) => (
-              <Animated.View key={idx} style={[styles.packageCard, pkg.glow && { borderColor: '#8d6c19', borderWidth: 2 }]}>
+              <Animated.View 
+                key={idx} 
+                style={[
+                  styles.packageCard, 
+                  pkg.glow && { borderColor: '#8d6c19', borderWidth: 2 },
+                  idx === timePlans.length - 1 && { marginBottom: 40 }
+                ]}
+              >
                 {pkg.glow && (
                   <Animated.View style={[styles.glowWrapper, glowStyles]} />
                 )}
