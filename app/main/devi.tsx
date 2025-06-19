@@ -122,7 +122,7 @@ export default function ChatScreen() {
         else if (time > 0) {
             setShowPopup(false);
         }
-    }, [time, isThinking, timeFetched]);
+    }, [time, timeFetched]);
 
     useEffect(() => {
         const backAction = () => {
@@ -202,7 +202,7 @@ export default function ChatScreen() {
 
                 if (msgs.length === 0) {
                     amplitude.track('Getting Welcome Message', { screen: 'Devi' });
-                    // getWelcomeMessage();
+                    getWelcomeMessage();
                 }
                 else {
                     // if the last message is before 1 hour, then send welcome message request to the backend
@@ -210,7 +210,7 @@ export default function ChatScreen() {
                     const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000).getTime();
                     if (lastMessageTime < oneHourAgo) {
                         amplitude.track('Getting Welcome Message', { screen: 'Devi' });
-                        // getWelcomeMessage();
+                        getWelcomeMessage();
                     }
                 }
             } catch (error) {
