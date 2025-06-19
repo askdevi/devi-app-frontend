@@ -278,6 +278,7 @@ export default function ChatScreen() {
 
             msgs.push(...responseWithRole);
             await AsyncStorage.setItem('latestChatHistory', JSON.stringify(msgs));
+            amplitude.track('Welcome Message Request Successful', { screen: 'Devi' });
         } catch (err: any) {
             if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
                 amplitude.track('Welcome Message Request Cancelled', { screen: 'Devi' });
