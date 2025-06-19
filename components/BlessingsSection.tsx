@@ -13,7 +13,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import MaskedView from '@react-native-masked-view/masked-view';
-import BackgroundStars from '@/components/BackgroundEffects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as amplitude from '@amplitude/analytics-react-native';
 
