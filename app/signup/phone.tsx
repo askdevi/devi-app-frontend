@@ -185,11 +185,11 @@ export default function PhoneScreen() {
   return (
     <SafeAreaProvider style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      {/* <KeyboardAvoidingView
+      <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       // keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
-      > */}
+      >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -230,7 +230,7 @@ export default function PhoneScreen() {
             <TermsText />
           </View>
         </ScrollView>
-      {/* </KeyboardAvoidingView> */}
+      </KeyboardAvoidingView>
     </SafeAreaProvider>
   );
 }
