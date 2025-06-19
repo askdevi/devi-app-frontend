@@ -116,7 +116,7 @@ export default function ChatScreen() {
             return;
         }
         if (!isThinking && time <= 0) {
-            amplitude.track('Popup: No Time Left', { screen: 'Devi' });
+            amplitude.track('Popup: Opened No Time Left', { screen: 'Devi' });
             setShowPopup(true);
         }
         else if (time > 0) {
