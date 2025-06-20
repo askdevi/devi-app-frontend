@@ -9,7 +9,6 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
       "bundleIdentifier": "com.hrish17.boltexponativewind",
 
       "buildNumber": "4",
