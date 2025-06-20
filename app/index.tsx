@@ -18,6 +18,7 @@ import axios from 'axios';
 import Domain from '@/constants/domain';
 import { getUserId } from '@/constants/userId';
 import * as amplitude from '@amplitude/analytics-react-native';
+import { Settings, AppEventsLogger } from 'react-native-fbsdk-next';
 
 amplitude.init('72f953bd89893e7cb489fabf86987716');
 
@@ -173,6 +174,16 @@ export default function Index() {
     );
 
     return () => backHandler.remove();
+  }, []);
+
+  useEffect(() => {
+    // Optional: Disable automatic event logging
+    // Settings.setAutoInitEnabled(true); // or false
+    Settings.setAutoLogAppEventsEnabled(true); // or false
+
+    // Initialize the SDK
+    Settings.initializeSDK();
+    AppEventsLogger.logEvent('TestLogEvent', { ad_source: 'ad1' });
   }, []);
 
   useEffect(() => {
