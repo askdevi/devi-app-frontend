@@ -203,10 +203,10 @@ export default function OtpScreen() {
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
       await storeUserId(response.data.userId);
       if (response.data.exists) {
-        amplitude.track('OTP Verified (New User)', { screen: 'OTP' });
+        amplitude.track('OTP Verified (Existing User)', { screen: 'OTP' });
         router.push('/');
       } else {
-        amplitude.track('OTP Verified (Existing User)', { screen: 'OTP' });
+        amplitude.track('OTP Verified (New User)', { screen: 'OTP' });
         router.push('/register/name');
       }
     } catch (err: any) {
