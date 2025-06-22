@@ -5,12 +5,17 @@
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/devi-icon.png",
-    "scheme": "myapp",
+    "scheme": "askdevi",
     "userInterfaceStyle": "automatic",
+    "linking": {
+      "prefixes": [
+        "https://askdevi.com/app",
+        "askdevi://"
+      ]
+    },
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.hrish17.boltexponativewind",
-
       "buildNumber": "4",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Ask Devi needs access to your photo library to allow you to select and share images in your conversations with the AI assistant.",

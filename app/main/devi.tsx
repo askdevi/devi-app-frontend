@@ -12,6 +12,7 @@ import {
     BackHandler,
     KeyboardAvoidingView,
     StatusBar,
+    Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { X, Clock } from 'lucide-react-native';
@@ -106,10 +107,34 @@ export default function ChatScreen() {
     const welcomeMessageControllerRef = useRef<AbortController | null>(null);
 
     const bufferRef = useRef<Message[]>([]);
+    const [isAtBottom, setIsAtBottom] = useState(true);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
 
     useEffect(() => {
         bufferRef.current = buffer;
     }, [buffer]);
+
+    // Keyboard listeners
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+            setKeyboardHeight(e.endCoordinates.height);
+            // If user was at bottom when keyboard opened, scroll to bottom
+            if (isAtBottom) {
+                setTimeout(() => {
+                    scrollViewRef.current?.scrollToEnd({ animated: true });
+                }, 100);
+            }
+        });
+
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardHeight(0);
+        });
+
+        return () => {
+            keyboardDidShowListener?.remove();
+            keyboardDidHideListener?.remove();
+        };
+    }, [isAtBottom]);
 
     useEffect(() => {
         if (!timeFetched) {
@@ -264,7 +289,7 @@ export default function ChatScreen() {
                         status: 'read',
                     },
                 ]);
-                const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+                const gap = Math.floor(Math.random() * (9000 - 4000 + 1)) + 4000;
                 await new Promise(resolve => setTimeout(resolve, gap));
             }
 
@@ -431,7 +456,7 @@ export default function ChatScreen() {
                                 status: 'read',
                             },
                         ]);
-                        const gap = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+                        const gap = Math.floor(Math.random() * (9000 - 4000 + 1)) + 4000;
                         await new Promise(resolve => setTimeout(resolve, gap));
                     }
 
@@ -468,6 +493,14 @@ export default function ChatScreen() {
                 }
             })();
         }, 2000);
+    }, []);
+
+    // Function to check if user is at bottom of scroll view
+    const handleScroll = useCallback((event: any) => {
+        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+        const isAtBottomNow = layoutMeasurement.height + contentOffset.y >= contentSize.height - 150;
+        setIsAtBottom(isAtBottomNow);
+        // console.log("isAtBottomNow : ", isAtBottomNow)
     }, []);
 
     const sendMessage = useCallback(() => {
@@ -509,6 +542,11 @@ export default function ChatScreen() {
         setMessages(prev => [...prev, userMessage]);
         setBuffer(prev => [...prev, userMessage]);
         setNewMessage('');
+
+        // Always scroll to bottom when sending a message
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
 
         console.log("In sendMessage, buffer : ", buffer)
 
@@ -774,8 +812,12 @@ export default function ChatScreen() {
                             style={styles.messagesContainer}
                             contentContainerStyle={styles.messagesContent}
                             onContentSizeChange={() => {
-                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                                if (isAtBottom) {
+                                    scrollViewRef.current?.scrollToEnd({ animated: true });
+                                }
                             }}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={100}
                         >
                             {groupedMessages.map(([date, msgs]) => (
                                 <View key={date}>
@@ -809,7 +851,15 @@ export default function ChatScreen() {
                                     ]}
                                     value={newMessage}
                                     onChangeText={setNewMessage}
-                                    onFocus={() => setIsInputFocused(true)}
+                                    onFocus={() => {
+                                        setIsInputFocused(true);
+                                        // Scroll to bottom when input is focused and user was at bottom
+                                        if (isAtBottom) {
+                                            setTimeout(() => {
+                                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                                            }, 300);
+                                        }
+                                    }}
                                     onBlur={() => setIsInputFocused(false)}
                                     placeholder="Type your question..."
                                     placeholderTextColor="rgba(255, 255, 255, 0.6)"
@@ -860,8 +910,12 @@ export default function ChatScreen() {
                             style={styles.messagesContainer}
                             contentContainerStyle={styles.messagesContent}
                             onContentSizeChange={() => {
-                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                                if (isAtBottom) {
+                                    scrollViewRef.current?.scrollToEnd({ animated: true });
+                                }
                             }}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={100}
                         >
                             {groupedMessages.map(([date, msgs]) => (
                                 <View key={date}>
@@ -895,7 +949,15 @@ export default function ChatScreen() {
                                     ]}
                                     value={newMessage}
                                     onChangeText={setNewMessage}
-                                    onFocus={() => setIsInputFocused(true)}
+                                    onFocus={() => {
+                                        setIsInputFocused(true);
+                                        // Scroll to bottom when input is focused and user was at bottom
+                                        if (isAtBottom) {
+                                            setTimeout(() => {
+                                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                                            }, 300);
+                                        }
+                                    }}
                                     onBlur={() => setIsInputFocused(false)}
                                     placeholder="Type your question..."
                                     placeholderTextColor="rgba(255, 255, 255, 0.6)"
