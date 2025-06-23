@@ -187,17 +187,17 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      const userId = await getUserId();
-      if (!userId) {
-        return;
-      }
-      const hasPermission1 = await requestUserPermission();
-      const hasPermission2 = await requestNotificationPermission();
-      if (hasPermission1 && hasPermission2) {
-        await getAndSendToken(userId);
-      }
-    })();
+    // (async () => {
+    //   const userId = await getUserId();
+    //   if (!userId) {
+    //     return;
+    //   }
+    //   const hasPermission1 = await requestUserPermission();
+    //   const hasPermission2 = await requestNotificationPermission();
+    //   if (hasPermission1 && hasPermission2) {
+    //     await getAndSendToken(userId);
+    //   }
+    // })();
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('New FCM in foreground:', remoteMessage);
     });
@@ -275,8 +275,7 @@ export default function Index() {
         ]);
 
         if (response.data && response2.data && response3.data) {
-          const dailyBlessings = response.data;
-
+          const startedFreeMinutes = response2.data.user.startedFreeMinutes || 0;
           // Store all data in parallel
           await Promise.all([
             AsyncStorage.setItem('timeEnd', response2.data.user.timeEnd),
@@ -289,8 +288,9 @@ export default function Index() {
             AsyncStorage.setItem('relationshipStatus', response2.data.user.relationshipStatus),
             AsyncStorage.setItem('occupation', response2.data.user.occupation),
             AsyncStorage.setItem('gender', response2.data.user.gender),
+            AsyncStorage.setItem('startedFreeMinutes', startedFreeMinutes.toString()),
             AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data)),
-            AsyncStorage.setItem('dailyBlessings', JSON.stringify(dailyBlessings)),
+            AsyncStorage.setItem('dailyBlessings', JSON.stringify(response.data)),
             AsyncStorage.setItem('popupShown', 'false')
           ]);
 
@@ -298,6 +298,12 @@ export default function Index() {
 
           if (!sign1 && response2.data.user.sign) {
             await AsyncStorage.setItem('profilePic', response2.data.user.sign + " " + response2.data.user.gender);
+          }
+
+          const hasPermission1 = await requestUserPermission();
+          const hasPermission2 = await requestNotificationPermission();
+          if (hasPermission1 && hasPermission2) {
+            await getAndSendToken(userId);
           }
 
           router.push('/main/home');
