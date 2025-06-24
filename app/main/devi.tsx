@@ -33,7 +33,7 @@ import BackgroundStars from '@/components/BackgroundEffects';
 import { router } from 'expo-router';
 import axios from 'axios';
 import { getUserId } from '@/constants/userId';
-import { ModelURL } from '@/constants/domain';
+import Domain, { ModelURL } from '@/constants/domain';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NoTimePopup from '@/components/Popups/NoTimePopup';
@@ -408,14 +408,13 @@ export default function ChatScreen() {
                 try {
                     const userId = await getUserId();
 
-                    // Set isThinking to true after a random delay of 5-10 seconds
-                    const thinkingDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
-                    setTimeout(() => {
-                        setIsThinking(true);
-                    }, thinkingDelay);
+                    // const thinkingDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+                    // setTimeout(() => {
+                    setIsThinking(true);
+                    // }, thinkingDelay);
 
                     const response = await axios.post(
-                        `${ModelURL}/devi`,
+                        `${Domain}/devi`,
                         {
                             prompts: prompts,
                             userId: userId
