@@ -13,6 +13,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import messaging from '@react-native-firebase/messaging';
 import DeleteAccountPopup from '@/components/Popups/DeleteAccountPopup';
 import * as amplitude from '@amplitude/analytics-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -23,6 +24,30 @@ export default function SettingsScreen() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteAccountPopup, setShowDeleteAccountPopup] = useState(false);
     const [isCheckingPermissions, setIsCheckingPermissions] = useState(false);
+    const [isCheckingSound, setIsCheckingSound] = useState(false);
+
+    useEffect(() => {
+        const checkSound = async () => {
+            const soundOn = await AsyncStorage.getItem('soundOn');
+            setSoundEnabled(soundOn === 'true');
+        };
+        checkSound();
+    }, []);
+
+    const handleSoundToggle = async () => {
+        setIsCheckingSound(true);
+        const soundOn = await AsyncStorage.getItem('soundOn');
+        if (soundOn === 'true') {
+            setSoundEnabled(false);
+            amplitude.track('Turned Sound Off', { screen: 'Settings' });
+            await AsyncStorage.setItem('soundOn', 'false');
+        } else {
+            setSoundEnabled(true);
+            amplitude.track('Turned Sound On', { screen: 'Settings' });
+            await AsyncStorage.setItem('soundOn', 'true');
+        }
+        setIsCheckingSound(false);
+    };
 
     useEffect(() => {
         checkNotificationPermissions();
@@ -269,11 +294,11 @@ export default function SettingsScreen() {
                                 <Switch
                                     value={soundEnabled}
                                     onValueChange={() => {
-                                        amplitude.track('Toggled Sound', { screen: 'Settings' });
-                                        setSoundEnabled(!soundEnabled);
+                                        handleSoundToggle();
                                     }}
                                     trackColor={{ false: '#999', true: '#ffcd00' }}
                                     thumbColor={soundEnabled ? '#a05afc' : '#ccc'}
+                                    disabled={isCheckingSound}
                                 />
                             </View>
                         </View>

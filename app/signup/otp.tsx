@@ -201,6 +201,7 @@ export default function OtpScreen() {
         }
       });
       await AsyncStorage.setItem('phoneNumber', `+91${phone}`);
+      await AsyncStorage.setItem('soundOn', 'true');
       await storeUserId(response.data.userId);
       if (response.data.exists) {
         amplitude.track('OTP Verified (Existing User)', { screen: 'OTP' });

@@ -37,6 +37,7 @@ import Domain, { ModelURL } from '@/constants/domain';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NoTimePopup from '@/components/Popups/NoTimePopup';
+import { Audio } from 'expo-av';
 import { useRouter } from 'expo-router';
 import { useFloatAnimation } from '@/hooks/useFloatAnimation';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -98,6 +99,7 @@ export default function ChatScreen() {
     const [showPopup, setShowPopup] = useState(false);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [timeFetched, setTimeFetched] = useState(false);
+    const [soundOn, setSoundOn] = useState(true);
 
     const [buffer, setBuffer] = useState<Message[]>([]);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -113,6 +115,14 @@ export default function ChatScreen() {
     useEffect(() => {
         bufferRef.current = buffer;
     }, [buffer]);
+
+    useEffect(() => {
+        const checkSound = async () => {
+            const soundOn = await AsyncStorage.getItem('soundOn');
+            setSoundOn(soundOn === 'true');
+        };
+        checkSound();
+    }, []);
 
     // Keyboard listeners
     useEffect(() => {
@@ -278,6 +288,11 @@ export default function ChatScreen() {
             console.log("responses : ", responses)
 
             for (const responseText of responses) {
+                if (soundOn) {
+                    Audio.Sound.createAsync(require('../../assets/sounds/message-received.mp3'))
+                        .then(({ sound }) => sound.playAsync())
+                        .catch(error => console.log('Error playing sound:', error));
+                }
                 setMessages(prev => [
                     ...prev,
                     {
@@ -444,6 +459,11 @@ export default function ChatScreen() {
                     console.log("responses : ", responses)
 
                     for (const responseText of responses) {
+                        if (soundOn) {
+                            Audio.Sound.createAsync(require('../../assets/sounds/message-received.mp3'))
+                                .then(({ sound }) => sound.playAsync())
+                                .catch(error => console.log('Error playing sound:', error));
+                        }
                         setMessages(prev => [
                             ...prev,
                             {
@@ -494,18 +514,14 @@ export default function ChatScreen() {
         }, 2000);
     }, []);
 
-    // Function to check if user is at bottom of scroll view
-    const handleScroll = useCallback((event: any) => {
-        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        const isAtBottomNow = layoutMeasurement.height + contentOffset.y >= contentSize.height - 150;
-        setIsAtBottom(isAtBottomNow);
-        // console.log("isAtBottomNow : ", isAtBottomNow)
-    }, []);
-
     const sendMessage = useCallback(() => {
         if (!newMessage.trim() || time <= 0) return;
 
-        console.log("Sending message : ", newMessage)
+        if (soundOn) {
+            Audio.Sound.createAsync(require('../../assets/sounds/message-sent.mp3'))
+                .then(({ sound }) => sound.playAsync())
+                .catch(error => console.log('Error playing sound:', error));
+        }
         amplitude.track('Clicked Send Message Button', { screen: 'Devi' });
 
         // Cancel any ongoing welcome message request
@@ -557,6 +573,14 @@ export default function ChatScreen() {
         }, 5000);
         setTypingTimeout(timeout as unknown as NodeJS.Timeout);
     }, [newMessage, isRequestInFlight, typingTimeout, flushBuffer]);
+
+    // Function to check if user is at bottom of scroll view
+    const handleScroll = useCallback((event: any) => {
+        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+        const isAtBottomNow = layoutMeasurement.height + contentOffset.y >= contentSize.height - 150;
+        setIsAtBottom(isAtBottomNow);
+        // console.log("isAtBottomNow : ", isAtBottomNow)
+    }, []);
 
     const MessageBubble = React.memo(({ message }: { message: Message }) => {
         const gradientPosition = useSharedValue(-SCREEN_WIDTH);
