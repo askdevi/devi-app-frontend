@@ -55,7 +55,7 @@ const NoTimePopup = ({ onClose, setTime }: Props) => {
                 amount: pkg.price * 100,
                 currency: "INR",
                 name: "Ask Devi",
-                description: `${pkg.duration} Access Package`,
+                description: `${pkg.duration} Access Package (App)`,
                 order_id: orderId,
                 prefill: {
                     name: name,

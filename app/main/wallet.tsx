@@ -151,7 +151,7 @@ export default function WalletScreen() {
         amount: pkg.price * 100,
         currency: "INR",
         name: "Ask Devi",
-        description: `${pkg.duration} Access Package`,
+        description: `${pkg.duration} Access Package (App)`,
         order_id: orderId,
         // handler: async (response: any) => { },
         prefill: {
@@ -262,10 +262,10 @@ export default function WalletScreen() {
             <View style={styles.divider} />
             <Text style={styles.packagesTitle}>Time Packages</Text>
             {timePlans.map((pkg, idx) => (
-              <Animated.View 
-                key={idx} 
+              <Animated.View
+                key={idx}
                 style={[
-                  styles.packageCard, 
+                  styles.packageCard,
                   pkg.glow && { borderColor: '#8d6c19', borderWidth: 2 },
                   idx === timePlans.length - 1 && { marginBottom: 40 }
                 ]}
