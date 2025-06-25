@@ -423,13 +423,13 @@ export default function ChatScreen() {
                 try {
                     const userId = await getUserId();
 
-                    // const thinkingDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
-                    // setTimeout(() => {
-                    setIsThinking(true);
-                    // }, thinkingDelay);
+                    const thinkingDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+                    setTimeout(() => {
+                        setIsThinking(true);
+                    }, thinkingDelay);
 
                     const response = await axios.post(
-                        `${Domain}/devi`,
+                        `${ModelURL}/devi`,
                         {
                             prompts: prompts,
                             userId: userId
