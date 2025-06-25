@@ -21,6 +21,20 @@ export default function CompatibilityScreen() {
     const [compatibility, setCompatibility] = useState([]);
 
     useEffect(() => {
+        const backAction = () => {
+            router.navigate('/main/home');
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
+
+    useEffect(() => {
         const fetchCompatibility = async () => {
             try {
                 const userId = await getUserId();

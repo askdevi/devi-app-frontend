@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, StatusBar, BackHandler } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
@@ -12,6 +12,20 @@ import * as amplitude from '@amplitude/analytics-react-native';
 export default function GenderScreen() {
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const backAction = () => {
+      router.back();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
 
   const handleContinue = async () => {

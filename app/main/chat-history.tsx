@@ -51,19 +51,19 @@ export default function ChatHistoryScreen() {
     const [chatHistory, setChatHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // useEffect(() => {
-    //     const backAction = () => {
-    //         router.back();
-    //         return true;
-    //     };
+    useEffect(() => {
+        const backAction = () => {
+            router.back();
+            return true;
+        };
 
-    //     const backHandler = BackHandler.addEventListener(
-    //         'hardwareBackPress',
-    //         backAction
-    //     );
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
 
-    //     return () => backHandler.remove();
-    // }, []);
+        return () => backHandler.remove();
+    }, []);
 
     const handleBack = () => {
         router.back();

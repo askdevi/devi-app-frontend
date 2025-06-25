@@ -116,19 +116,19 @@ export default function ChatHistoryDetailScreen() {
         fetchMessages();
     }, []);
 
-    // useEffect(() => {
-    //     const backAction = () => {
-    //         router.back();
-    //         return true;
-    //     };
+    useEffect(() => {
+        const backAction = () => {
+            router.back();
+            return true;
+        };
 
-    //     const backHandler = BackHandler.addEventListener(
-    //         'hardwareBackPress',
-    //         backAction
-    //     );
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
 
-    //     return () => backHandler.remove();
-    // }, []);
+        return () => backHandler.remove();
+    }, []);
 
     const handleBack = () => {
         router.back();
@@ -340,44 +340,44 @@ export default function ChatHistoryDetailScreen() {
                     style={styles.container}
                 // keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
                 >
-                <LinearGradient
-                    colors={['#360059', '#1D0033', '#0D0019']}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0.5, y: 0 }}
-                    end={{ x: 0.5, y: 1 }}
-                />
+                    <LinearGradient
+                        colors={['#360059', '#1D0033', '#0D0019']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0.5, y: 0 }}
+                        end={{ x: 0.5, y: 1 }}
+                    />
 
-                <BackgroundStars count={30} />
+                    <BackgroundStars count={30} />
 
-                <View style={styles.header}>
-                    <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
-                        <LinearGradient
-                            colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0.5, y: 0 }}
-                            end={{ x: 0.5, y: 1 }}
-                        />
-                    </BlurView>
-                    <HeaderContent />
-                </View>
+                    <View style={styles.header}>
+                        <BlurView intensity={Platform.OS === 'ios' ? 60 : 100} tint="dark" style={StyleSheet.absoluteFill}>
+                            <LinearGradient
+                                colors={['rgba(88, 17, 137, 0.8)', 'rgba(88, 17, 137, 0.6)']}
+                                style={StyleSheet.absoluteFill}
+                                start={{ x: 0.5, y: 0 }}
+                                end={{ x: 0.5, y: 1 }}
+                            />
+                        </BlurView>
+                        <HeaderContent />
+                    </View>
 
-                <ScrollView
-                    ref={scrollViewRef}
-                    style={styles.messagesContainer}
-                    contentContainerStyle={styles.messagesContent}
-                    onContentSizeChange={() => {
-                        scrollViewRef.current?.scrollToEnd({ animated: true });
-                    }}
-                >
-                    {groupedMessages.map(([date, msgs]) => (
-                        <View key={date}>
-                            <DateHeader date={date} />
-                            {msgs.map((message) => (
-                                <MessageBubble key={message.id} message={message} />
-                            ))}
-                        </View>
-                    ))}
-                </ScrollView>
+                    <ScrollView
+                        ref={scrollViewRef}
+                        style={styles.messagesContainer}
+                        contentContainerStyle={styles.messagesContent}
+                        onContentSizeChange={() => {
+                            scrollViewRef.current?.scrollToEnd({ animated: true });
+                        }}
+                    >
+                        {groupedMessages.map(([date, msgs]) => (
+                            <View key={date}>
+                                <DateHeader date={date} />
+                                {msgs.map((message) => (
+                                    <MessageBubble key={message.id} message={message} />
+                                ))}
+                            </View>
+                        ))}
+                    </ScrollView>
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>

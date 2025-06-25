@@ -49,6 +49,20 @@ export default function SettingsScreen() {
     const [profilePic, setProfilePic] = useState('');
     const [showPopup, setShowPopup] = useState(false);
 
+    useEffect(() => {
+        const backAction = () => {
+          router.back();
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
+
 
     const handleLogout = async () => {
         amplitude.track('Clicked Logout Button', { screen: 'Profile' });

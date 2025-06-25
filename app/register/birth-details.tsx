@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   StatusBar,
+  BackHandler,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,6 +30,20 @@ export default function BirthDetailsScreen() {
   const [hour, setHour] = useState('');
   const [minute, setMinute] = useState('');
   const [birthTimePeriod, setBirthTimePeriod] = useState<string>('');
+
+  useEffect(() => {
+    const backAction = () => {
+      router.back();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []); 
 
   // Refs for inputs
   const monthRef = useRef<TextInput>(null);

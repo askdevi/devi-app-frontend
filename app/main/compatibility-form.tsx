@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, StatusBar, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, StatusBar, KeyboardAvoidingView, Platform, BackHandler } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -34,6 +34,20 @@ export default function CompatibilityFormScreen() {
     const [hour, setHour] = useState('');
     const [minute, setMinute] = useState('');
     const [birthTimePeriod, setBirthTimePeriod] = useState<string>('');
+
+    useEffect(() => {
+        const backAction = () => {
+          router.back();
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
 
     // Refs for inputs
     const monthRef = useRef<TextInput>(null);

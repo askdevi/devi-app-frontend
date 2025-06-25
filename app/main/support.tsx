@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Animated, StatusBar
+    View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Animated, StatusBar,
+    BackHandler
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -21,6 +22,20 @@ export default function SupportScreen() {
     const [message, setMessage] = useState('');
     const [isFocused, setIsFocused] = useState(false)
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        const backAction = () => {
+          router.back();
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
 
     const queryTopicData = [
         { label: 'General Query', value: 'General Query' },
