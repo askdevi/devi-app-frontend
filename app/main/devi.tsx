@@ -37,7 +37,7 @@ import Domain, { ModelURL } from '@/constants/domain';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NoTimePopup from '@/components/Popups/NoTimePopup';
-import { Audio } from 'expo-av';
+// import { Audio } from 'expo-av';
 import { useRouter } from 'expo-router';
 import { useFloatAnimation } from '@/hooks/useFloatAnimation';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -288,11 +288,11 @@ export default function ChatScreen() {
             console.log("responses : ", responses)
 
             for (const responseText of responses) {
-                if (soundOn) {
-                    Audio.Sound.createAsync(require('../../assets/sounds/message-received.mp3'))
-                        .then(({ sound }) => sound.playAsync())
-                        .catch(error => console.log('Error playing sound:', error));
-                }
+                // if (soundOn) {
+                //     Audio.Sound.createAsync(require('../../assets/sounds/message-received.mp3'))
+                //         .then(({ sound }) => sound.playAsync())
+                //         .catch(error => console.log('Error playing sound:', error));
+                // }
                 setMessages(prev => [
                     ...prev,
                     {
@@ -459,11 +459,11 @@ export default function ChatScreen() {
                     console.log("responses : ", responses)
 
                     for (const responseText of responses) {
-                        if (soundOn) {
-                            Audio.Sound.createAsync(require('../../assets/sounds/message-received.mp3'))
-                                .then(({ sound }) => sound.playAsync())
-                                .catch(error => console.log('Error playing sound:', error));
-                        }
+                        // if (soundOn) {
+                        //     Audio.Sound.createAsync(require('../../assets/sounds/message-received.mp3'))
+                        //         .then(({ sound }) => sound.playAsync())
+                        //         .catch(error => console.log('Error playing sound:', error));
+                        // }
                         setMessages(prev => [
                             ...prev,
                             {
@@ -517,11 +517,11 @@ export default function ChatScreen() {
     const sendMessage = useCallback(() => {
         if (!newMessage.trim() || time <= 0) return;
 
-        if (soundOn) {
-            Audio.Sound.createAsync(require('../../assets/sounds/message-sent.mp3'))
-                .then(({ sound }) => sound.playAsync())
-                .catch(error => console.log('Error playing sound:', error));
-        }
+        // if (soundOn) {
+        //     Audio.Sound.createAsync(require('../../assets/sounds/message-sent.mp3'))
+        //         .then(({ sound }) => sound.playAsync())
+        //         .catch(error => console.log('Error playing sound:', error));
+        // }
         amplitude.track('Clicked Send Message Button', { screen: 'Devi' });
 
         // Cancel any ongoing welcome message request
