@@ -218,6 +218,7 @@ export default function OtpScreen() {
       await AsyncStorage.setItem('soundOn', 'true');
       await storeUserId(response.data.userId);
       if (response.data.exists) {
+        await AsyncStorage.setItem('registrationComplete', 'true');
         amplitude.track('OTP Verified (Existing User)', { screen: 'OTP' });
         router.push('/');
       } else {

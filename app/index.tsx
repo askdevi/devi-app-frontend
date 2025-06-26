@@ -232,7 +232,7 @@ export default function Index() {
           let registrationComplete = await AsyncStorage.getItem('registrationComplete');
 
           // If registrationComplete is null, it means we're not coming from registration flow
-          if (registrationComplete === null) {
+          if (registrationComplete === null || registrationComplete === 'true') {
             return true; // Proceed normally
           }
 
