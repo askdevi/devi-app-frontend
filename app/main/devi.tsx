@@ -146,18 +146,19 @@ export default function ChatScreen() {
         };
     }, [isAtBottom]);
 
-    useEffect(() => {
-        if (!timeFetched) {
-            return;
-        }
-        if (!isThinking && time <= 0) {
-            amplitude.track('Popup: Opened No Time Left', { screen: 'Devi' });
-            setShowPopup(true);
-        }
-        else if (time > 0) {
-            setShowPopup(false);
-        }
-    }, [time, timeFetched]);
+    // // Commented for free devi
+    // useEffect(() => {
+    //     if (!timeFetched) {
+    //         return;
+    //     }
+    //     if (!isThinking && time <= 0) {
+    //         amplitude.track('Popup: Opened No Time Left', { screen: 'Devi' });
+    //         setShowPopup(true);
+    //     }
+    //     else if (time > 0) {
+    //         setShowPopup(false);
+    //     }
+    // }, [time, timeFetched]);
 
     useEffect(() => {
         const backAction = () => {
@@ -515,7 +516,9 @@ export default function ChatScreen() {
     }, []);
 
     const sendMessage = useCallback(() => {
-        if (!newMessage.trim() || time <= 0) return;
+        // Commented for free devi
+        // if (!newMessage.trim() || time <= 0) return;
+        if(!newMessage.trim()) return;
 
         // if (soundOn) {
         //     Audio.Sound.createAsync(require('../../assets/sounds/message-sent.mp3'))
@@ -986,12 +989,13 @@ export default function ChatScreen() {
                                     placeholderTextColor="rgba(255, 255, 255, 0.6)"
                                     multiline
                                 />
+                                {/* Commented for free devi
                                 {time <= 0 ? <TouchableOpacity style={styles.purchaseButton} onPress={() => {
-                                    amplitude.track('Clicked Ask More (Wallet) Button', { screen: 'Devi' });
-                                    router.navigate("/main/wallet");
-                                }}>
+                                        amplitude.track('Clicked Ask More (Wallet) Button', { screen: 'Devi' });
+                                        router.navigate("/main/wallet");
+                                    }}>
                                     <Text style={styles.purchaseButtonText}>Ask More</Text>
-                                </TouchableOpacity> :
+                                    </TouchableOpacity> :
                                     <TouchableOpacity
                                         onPress={sendMessage}
                                         style={styles.sendButton}
@@ -1002,7 +1006,18 @@ export default function ChatScreen() {
                                             !newMessage.trim() && styles.sendButtonDisabled
                                         ]}>➤</Text>
                                     </TouchableOpacity>
-                                }
+                                } */}
+                                <TouchableOpacity
+                                    onPress={sendMessage}
+                                    style={styles.sendButton}
+                                    // disabled={time <= 0 || !newMessage.trim()}
+                                    disabled={!newMessage.trim()}
+                                >
+                                    <Text style={[
+                                        styles.sendButtonText,
+                                        !newMessage.trim() && styles.sendButtonDisabled
+                                    ]}>➤</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </>
