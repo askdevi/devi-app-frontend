@@ -82,9 +82,14 @@ const Header = () => {
             router.push('/main/wallet');
           })}
         >
-          <Clock color={Colors.gold.DEFAULT} size={20} />
-          <Text style={styles.coinText}>
+          {/* Commented for free devi */}
+          {/* <Clock color={Colors.gold.DEFAULT} size={20} />
+           <Text style={styles.coinText}>
             {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
+          </Text> */}
+          <Clock color={Colors.gold.DEFAULT} size={16} />
+          <Text style={styles.coinText1}>
+            Unlimited
           </Text>
         </TouchableOpacity>
       </View>
@@ -145,6 +150,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     // fontWeight: 'bold',
     marginLeft: 5,
+  },
+  coinText1: {
+    color: Colors.gold.DEFAULT,
+    fontSize: 13,
+    marginLeft: 5
   },
   iconButton1: {
     height: 35,

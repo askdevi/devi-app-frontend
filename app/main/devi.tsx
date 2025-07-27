@@ -518,7 +518,7 @@ export default function ChatScreen() {
     const sendMessage = useCallback(() => {
         // Commented for free devi
         // if (!newMessage.trim() || time <= 0) return;
-        if(!newMessage.trim()) return;
+        if (!newMessage.trim()) return;
 
         // if (soundOn) {
         //     Audio.Sound.createAsync(require('../../assets/sounds/message-sent.mp3'))
@@ -721,12 +721,17 @@ export default function ChatScreen() {
 
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.credits} onPress={() => {
-                        amplitude.track('Clicked Time (Wallet) Button', { screen: 'Devi' });
-                        router.navigate('/main/wallet');
+                        {/* Commented for free devi */ }
+                        // amplitude.track('Clicked Time (Wallet) Button', { screen: 'Devi' });
+                        // router.navigate('/main/wallet');
                     }}>
                         <Clock size={20} color="#f7c615" />
-                        <Text style={styles.creditsText}>
+                        {/* Commented for free devi */}
+                        {/* <Text style={styles.creditsText}>
                             {time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
+                        </Text> */}
+                        <Text style={styles.creditsText}>
+                            Unlimited
                         </Text>
                     </TouchableOpacity>
                 </View>

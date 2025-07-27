@@ -191,15 +191,20 @@ export default function SettingsScreen() {
                                 <View style={styles.infoRow}>
                                     <View style={styles.timeSection}>
                                         <Text style={styles.infoLabel}>Time Remaining</Text>
-                                        <Text style={styles.timeText}>
+                                        {/* Commented for free devi */}
+                                        {/* <Text style={styles.timeText}>
                                             {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
+                                        </Text> */}
+                                        <Text style={styles.timeText}>
+                                            Unlimited
                                         </Text>
                                     </View>
                                     <TouchableOpacity
                                         style={styles.addTimeButton}
                                         onPress={() => {
-                                            amplitude.track('Clicked Add More Minutes (Wallet) Button', { screen: 'Profile' });
-                                            router.navigate('/main/wallet');
+                                            // Commented for free devi
+                                            // amplitude.track('Clicked Add More Minutes (Wallet) Button', { screen: 'Profile' });
+                                            // router.navigate('/main/wallet');
                                         }}
                                     >
                                         <Text style={styles.addTimeButtonText}>Add More Minutes</Text>

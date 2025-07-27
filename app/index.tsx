@@ -288,7 +288,9 @@ export default function Index() {
             AsyncStorage.setItem('relationshipStatus', response2.data.user.relationshipStatus),
             AsyncStorage.setItem('occupation', response2.data.user.occupation),
             AsyncStorage.setItem('gender', response2.data.user.gender),
-            AsyncStorage.setItem('startedFreeMinutes', startedFreeMinutes.toString()),
+            // Commented for free devi
+            // AsyncStorage.setItem('startedFreeMinutes', startedFreeMinutes.toString()),
+            AsyncStorage.setItem('startedFreeMinutes', 'true'),
             AsyncStorage.setItem('latestChatHistory', JSON.stringify(response3.data)),
             AsyncStorage.setItem('dailyBlessings', JSON.stringify(response.data)),
             AsyncStorage.setItem('popupShown', 'false')

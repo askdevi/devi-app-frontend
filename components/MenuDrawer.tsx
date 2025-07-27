@@ -158,15 +158,20 @@ export default function MenuDrawer({ isVisible, onClose }: MenuDrawerProps) {
             </View> */}
             <View style={styles.statItem}>
               <Clock size={16} color={Colors.gold.DEFAULT} strokeWidth={1.5} />
-              <Text style={styles.statValue}>
+              {/* Commented for free devi */}
+              {/* <Text style={styles.statValue}>
                 {startedFreeMinutes === 0 ? '00:03' : time > 0 ? `${String(Math.floor(time / (1000 * 60 * 60))).padStart(2, '0')}:${String(Math.ceil((time % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0')}` : '00:00'}
+              </Text> */}
+              <Text style={styles.statValue}>
+                Unlimited
               </Text>
             </View>
           </View>
 
           <View style={styles.menu}>
             <MenuItem icon={MessageCircle} label="Start Chat" onPress={handleChat} />
-            <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} />
+            {/* Commented for free devi */}
+            {/* <MenuItem icon={Wallet} label="Wallet" onPress={handleWallet} /> */}
             <MenuItem icon={CircleUser} label="Edit Profile" onPress={handleProfile} />
             <MenuItem icon={History} label="Chat History" onPress={handleChatHistory} />
             <MenuItem icon={Headphones} label="Support" onPress={handleSupport} />
